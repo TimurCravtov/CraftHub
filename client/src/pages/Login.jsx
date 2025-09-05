@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Header from '../component/Header.jsx'
 
 export default function Login() {
   const [name, setName] = useState('')
@@ -17,11 +18,14 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white p-8 space-y-6">
-        <div className="text-left">
-          <h1 className="text-lg font-medium text-black">LOGO</h1>
-        </div>
+    <div className="min-h-screen bg-white">
+      <Header />
+
+      <div className="flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white p-8 space-y-6">
+          <div className="text-left">
+            <h1 className="text-lg font-medium text-black">LOGO</h1>
+          </div>
 
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-black">Get Started Now</h2>
@@ -147,6 +151,7 @@ export default function Login() {
         </div>
       </div>
     </div>
+  </div>
   )
 }
 

@@ -1,4 +1,5 @@
 package utm.server.features.users;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
@@ -8,33 +9,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
-    @Autowired
-    UserRepository userRepository;
 
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserServiceImpl(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
     @Override
-    public ArrayList<UserEntity> findAllUser(){
+    public ArrayList<UserEntity> findAllUsers(){
         return (ArrayList<UserEntity>) userRepository.findAll();
     }
 
     @Override
-    public UserEntity findAllUserByID(long id){
+    public UserEntity findAllUsersByID(long id){
         Optional<UserEntity> opt = userRepository.findById(id);
-        if(opt.isPresent())
-            return opt.get();
-        else
-            return null;
+        return opt.orElse(null);
     }
 
     @Override
-    public ArrayList<UserEntity> findAllUserByName(String name){
+    public ArrayList<UserEntity> findAllUsersByName(String name){
         return userRepository.findByName(name);
     }
     @Override

@@ -4,20 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:5173")
+
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    UserService userService;
 
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-
+    private final UserService userService;
 
     @PostMapping("/")
     public ResponseEntity<?> addUser(@RequestBody UserEntity user){
@@ -33,17 +28,17 @@ public class UserController {
 
     @GetMapping("/findall")
     public ArrayList<UserEntity> getAllUser(){
-        return userService.findAllUser();
+        return userService.findAllUsers();
     }
 
-    @GetMapping("/findbyid{id}")
+    @GetMapping("/findbyid/{id}")
     public UserEntity getUserUsingId(@PathVariable long id){
-        return userService.findAllUserByID(id);
+        return userService.findAllUsersByID(id);
     }
 
-    @GetMapping("/findbyname{name}")
+    @GetMapping("/findbyname/{name}")
     public ArrayList<UserEntity> getUserUsingName(@PathVariable String name){
-        return userService.findAllUserByName(name);
+        return userService.findAllUsersByName(name);
     }
 
     @DeleteMapping("/delete")
@@ -51,6 +46,6 @@ public class UserController {
         userService.deleteAllData();
     }
 
-    }
+}
 
 

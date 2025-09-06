@@ -8,10 +8,32 @@ export default function Login() {
   const [accountType, setAccountType] = useState('User')
   const [agreedToTerms, setAgreedToTerms] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Signup attempt:', { name, email, password, accountType, agreedToTerms })
-  }
+    const user = { name, email, password, accountType };
+    try {
+      const response = await fetch("http://localhost:8080/api/users/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user),
+      });
+    if (!response.ok) throw new Error("Failed to save user");
+
+      const data = await response.json();
+      alert("User registered successfully: " + JSON.stringify(data));
+    
+      // reset form
+      setName("");
+      setEmail("");
+      setPassword("");
+      setAccountType("User");
+      setAgreedToTerms(false);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Signup failed. Please try again.");
+    }
+  };
+
 
   const handleSocialLogin = (provider) => {
     console.log(`Login with ${provider}`)

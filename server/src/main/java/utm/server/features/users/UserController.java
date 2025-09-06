@@ -1,0 +1,56 @@
+package utm.server.features.users;
+import java.util.ArrayList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@CrossOrigin(origins = "http://localhost:5173")
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    @Autowired
+    UserService userService;
+
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+
+
+    @PostMapping("/")
+    public ResponseEntity<?> addUser(@RequestBody UserEntity user){
+        try {
+            UserEntity saved = userService.addUser(user);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error: " + e.getMessage());
+        }
+
+    }
+
+    @GetMapping("/findall")
+    public ArrayList<UserEntity> getAllUser(){
+        return userService.findAllUser();
+    }
+
+    @GetMapping("/findbyid{id}")
+    public UserEntity getUserUsingId(@PathVariable long id){
+        return userService.findAllUserByID(id);
+    }
+
+    @GetMapping("/findbyname{name}")
+    public ArrayList<UserEntity> getUserUsingName(@PathVariable String name){
+        return userService.findAllUserByName(name);
+    }
+
+    @DeleteMapping("/delete")
+    public void delete(){
+        userService.deleteAllData();
+    }
+
+    }
+
+

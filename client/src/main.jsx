@@ -6,6 +6,7 @@ import App from './App.jsx'
 import Login from './pages/Login.jsx'
 import Shops from './pages/Shops.jsx'
 import ItemPage from "./pages/ItemPage.jsx";
+import ShopPage from "./pages/ShopPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: '/shops',
     element: <Shops />,
+  },
+  {
+    path: '/shops/:id',
+    element: <ShopPage />,
   },
   {
     path: '/items',

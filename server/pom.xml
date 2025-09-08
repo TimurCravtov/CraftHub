@@ -75,6 +75,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.jetbrains</groupId>
+			<artifactId>annotations</artifactId>
+			<version>24.1.0</version> <!-- latest stable -->
+		</dependency>
+
+
+		<dependency>
 			<groupId>com.google.cloud</groupId>
 			<artifactId>spring-cloud-gcp-starter</artifactId>
 			<version>7.3.0</version>

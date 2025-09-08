@@ -16,4 +16,8 @@ public class Product {
     private String title;
     private String description;
     private double price;
+
+    public String getName() {
+        return title;
+    }
 }

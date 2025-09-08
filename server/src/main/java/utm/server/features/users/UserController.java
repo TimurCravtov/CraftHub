@@ -17,8 +17,6 @@ public class UserController {
         this.userService = userService;
     }
 
-
-
     @PostMapping("/")
     public ResponseEntity<?> addUser(@RequestBody UserEntity user){
         try {
@@ -44,6 +42,12 @@ public class UserController {
     @GetMapping("/findbyname{name}")
     public ArrayList<UserEntity> getUserUsingName(@PathVariable String name){
         return userService.findAllUserByName(name);
+    }
+
+    @GetMapping("/findbytypeandname")
+    public ArrayList<UserEntity> getUsersByAccountTypeAndName(@RequestParam String accountType,
+                                                              @RequestParam String name){
+        return userService.getUsersByAccountTypeAndName(accountType, name);
     }
 
     @DeleteMapping("/delete")

@@ -1,4 +1,5 @@
 package utm.server.features.users;
+import org.apache.catalina.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
@@ -37,6 +38,12 @@ public class UserServiceImpl implements UserService{
     public ArrayList<UserEntity> findAllUserByName(String name){
         return userRepository.findByName(name);
     }
+
+   @Override
+   public ArrayList<UserEntity> getUsersByAccountTypeAndName(String accountType, String name){
+        return userRepository.findByAccountTypeandName(accountType, name);
+    }
+
     @Override
     public UserEntity addUser(UserEntity userEntity){
 

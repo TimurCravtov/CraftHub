@@ -28,26 +28,25 @@ public class UserController {
 
     @GetMapping("/findall")
     public ArrayList<UserEntity> getAllUser(){
-        return userService.findAllUsers();
+        return userService.findAllUser();
     }
 
     @GetMapping("/findbyid/{id}")
     public UserEntity getUserUsingId(@PathVariable long id){
-        return userService.findAllUsersByID(id);
+        return userService.findAllUserByID(id);
     }
 
     @GetMapping("/findbyname/{name}")
     public ArrayList<UserEntity> getUserUsingName(@PathVariable String name){
-        return userService.findAllUsersByName(name);
-<<<<<<< HEAD
+        return userService.findAllUserByName(name);
+
     }
 
     @GetMapping("/findbytypeandname")
     public ArrayList<UserEntity> getUsersByAccountTypeAndName(@RequestParam String accountType,
                                                               @RequestParam String name){
         return userService.getUsersByAccountTypeAndName(accountType, name);
-=======
->>>>>>> a0febdee0bcdde0e028d644780b30ec974d06eb7
+
     }
 
     @DeleteMapping("/delete")

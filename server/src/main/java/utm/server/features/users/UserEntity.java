@@ -1,16 +1,16 @@
 package utm.server.features.users;
 import jakarta.persistence.*;
 import lombok.*;
-<<<<<<< HEAD
 
-=======
+
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
 
->>>>>>> a0febdee0bcdde0e028d644780b30ec974d06eb7
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,8 +35,7 @@ public class UserEntity implements UserDetails {
         this.password = password;
         this.accountType = accountType;
     }
-<<<<<<< HEAD
-=======
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -47,5 +46,5 @@ public class UserEntity implements UserDetails {
     public String getUsername() {
         return this.id.toString();
     }
->>>>>>> a0febdee0bcdde0e028d644780b30ec974d06eb7
+
 }

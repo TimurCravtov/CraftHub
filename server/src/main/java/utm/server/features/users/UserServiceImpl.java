@@ -1,15 +1,8 @@
 package utm.server.features.users;
-<<<<<<< HEAD
-<<<<<<< HEAD
-import org.apache.catalina.User;
-=======
-import lombok.RequiredArgsConstructor;
->>>>>>> de166c4f29a731e87db86f6054fa8fe559f4b808
-=======
-import lombok.RequiredArgsConstructor;
->>>>>>> a0febdee0bcdde0e028d644780b30ec974d06eb7
-import org.springframework.security.crypto.password.PasswordEncoder;
 
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -24,18 +17,18 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public ArrayList<UserEntity> findAllUsers(){
+    public ArrayList<UserEntity> findAllUser(){
         return (ArrayList<UserEntity>) userRepository.findAll();
     }
 
     @Override
-    public UserEntity findAllUsersByID(long id){
+    public UserEntity findAllUserByID(long id){
         Optional<UserEntity> opt = userRepository.findById(id);
         return opt.orElse(null);
     }
 
     @Override
-    public ArrayList<UserEntity> findAllUsersByName(String name){
+    public ArrayList<UserEntity> findAllUserByName(String name){
         return userRepository.findByName(name);
     }
 

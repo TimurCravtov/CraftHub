@@ -1,12 +1,13 @@
-import { Filter, Grid3X3, List, Star } from 'lucide-react'
+import { Filter, Grid3X3, List, Star, Heart } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 
 const shops = [
   {
     id: 1,
     name: "Luna's Ceramics",
-    image: "/ceramic-pottery-workshop.jpg",
-    logo: "/pottery-wheel-logo.jpg",
+    image: "/assets/modern-plant-store-interior.jpg",
+    logo: "/assets/react.svg",
     rating: 4.9,
     reviews: 87,
     description: 'Handcrafted pottery & ceramic art pieces',
@@ -15,8 +16,8 @@ const shops = [
   {
     id: 2,
     name: 'Silversmith Studio',
-    image: '/artisan-craft-workshop.jpg',
-    logo: '/craft-tools-logo.jpg',
+    image: '/assets/modern-plant-store-interior.jpg',
+    logo: '/assets/react.svg',
     rating: 4.8,
     reviews: 124,
     description: 'Custom jewelry & metalwork creations',
@@ -25,8 +26,8 @@ const shops = [
   {
     id: 3,
     name: 'Woven Dreams',
-    image: '/rustic-garden-center.jpg',
-    logo: '/tree-roots-logo.jpg',
+    image: '/assets/modern-plant-store-interior.jpg',
+    logo: '/assets/react.svg',
     rating: 4.7,
     reviews: 156,
     description: 'Hand-woven textiles & fiber art',
@@ -35,8 +36,8 @@ const shops = [
   {
     id: 4,
     name: 'Woodcraft Atelier',
-    image: '/greenhouse-with-tropical-plants.jpg',
-    logo: '/botanical-leaf-logo.jpg',
+    image: '/assets/modern-plant-store-interior.jpg',
+    logo: '/assets/react.svg',
     rating: 4.9,
     reviews: 92,
     description: 'Artisan furniture & wooden sculptures',
@@ -45,8 +46,8 @@ const shops = [
   {
     id: 5,
     name: 'Glass & Light',
-    image: '/modern-plant-store-interior.jpg',
-    logo: '/green-leaf-logo.png',
+    image: '/assets/modern-plant-store-interior.jpg',
+    logo: '/assets/react.svg',
     rating: 4.6,
     reviews: 78,
     description: 'Blown glass art & lighting fixtures',
@@ -55,8 +56,8 @@ const shops = [
   {
     id: 6,
     name: 'Leather & Stitch',
-    image: '/flower-shop-with-colorful-flowers.jpg',
-    logo: '/flower-bloom-logo.jpg',
+    image: '/assets/modern-plant-store-interior.jpg',
+    logo: '/assets/react.svg',
     rating: 4.8,
     reviews: 134,
     description: 'Handcrafted leather goods & accessories',
@@ -65,15 +66,16 @@ const shops = [
 ]
 
 export default function Shops() {
+  const navigate = useNavigate()
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
       <div
         className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/modern-plant-store-with-pottery-and-plants-on-wood.jpg?v=1)' }}
+        style={{ backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)' }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
           <h1 className="text-4xl font-bold text-white mb-4">Artisan Shops</h1>
           <p className="text-white/90 mb-4 text-lg">Discover unique handmade creations from talented artisans</p>
@@ -123,35 +125,33 @@ export default function Shops() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {shops.map((shop) => (
-            <div
-              key={shop.id}
-              className="overflow-hidden rounded border bg-white hover:shadow-xl transition-all group"
-            >
-              <div className="relative overflow-hidden">
-                <img src={shop.image} alt={shop.name} className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute top-4 left-4">
-                  <img src={shop.logo} alt={`${shop.name} logo`} className="w-12 h-12 rounded-full bg-white/90 p-1 shadow border" />
+            <div onClick={() => navigate(`/shops/${shop.id}`)} key={shop.id} className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
+              <div className="relative h-48">
+                <img src={shop.image} alt={shop.name} className="w-full h-full object-cover" />
+
+                <div className="absolute top-2 right-2">
+                  <button className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm text-pink-500 hover:text-pink-700 hover:bg-white/90 transition-all duration-300 shadow opacity-70 hover:scale-110">
+                    <Heart className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded-full border">
-                  <span className="text-xs font-medium text-slate-600">Artisan</span>
+
+                <div className="absolute bottom-3 left-3">
+                  <img src={shop.logo} alt={`${shop.name} logo`} className="w-10 h-10 rounded-full bg-white/90 p-1 shadow border" />
                 </div>
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-1">{shop.name}</h3>
-                <p className="text-xs text-slate-500 mb-2">by {shop.artisan}</p>
-                <p className="text-slate-600 text-sm mb-3">{shop.description}</p>
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center">
+
+              <div className="p-3">
+                <h3 className="text-sm font-semibold text-gray-900 truncate">{shop.name}</h3>
+                <p className="text-xs text-gray-500 truncate">by {shop.artisan}</p>
+
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${i < Math.floor(shop.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-                      />
+                      <Star key={i} className={`h-4 w-4 ${i < Math.floor(shop.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
                     ))}
+                    <span className="text-sm font-medium text-gray-900">{shop.rating}</span>
+                    <span className="text-xs text-gray-500">({shop.reviews})</span>
                   </div>
-                  <span className="text-sm font-medium">{shop.rating}</span>
-                  <span className="text-sm text-slate-500">({shop.reviews} reviews)</span>
                 </div>
               </div>
             </div>

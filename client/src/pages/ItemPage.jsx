@@ -30,16 +30,35 @@ export default function ItemPage() {
         <div className="min-h-screen bg-white">
             <Header />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6">
-                {products.map((product) => (
-                    <ProductCard
-                        key={product.id}
-                        productName={product.productName}
-                        sellerName={product.sellerName}
-                        price={product.price}
-                        imageUrl={product.imageUrl}
-                    />
-                ))}
+            <div
+                className="relative h-64 bg-cover bg-center"
+                style={{ backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)' }}
+            >
+                <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
+                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
+                    <h1 className="text-4xl font-bold text-white mb-4">Items</h1>
+                    <div className="flex items-center space-x-2 text-white/80">
+                        <a href="/" className="hover:text-white">Home</a>
+                        <span>&gt;</span>
+                        <a href="/shops" className="hover:text-white">Shops</a>
+                        <span>&gt;</span>
+                        <span>Items</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                    {products.map((product) => (
+                        <ProductCard
+                            key={product.id}
+                            productName={product.productName}
+                            sellerName={product.sellerName}
+                            price={product.price}
+                            imageUrl={product.imageUrl}
+                        />
+                    ))}
+                </div>
             </div>
         </div>
     );

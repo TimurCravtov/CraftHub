@@ -39,12 +39,15 @@ public class UserController {
     @GetMapping("/findbyname/{name}")
     public ArrayList<UserEntity> getUserUsingName(@PathVariable String name){
         return userService.findAllUsersByName(name);
+<<<<<<< HEAD
     }
 
     @GetMapping("/findbytypeandname")
     public ArrayList<UserEntity> getUsersByAccountTypeAndName(@RequestParam String accountType,
                                                               @RequestParam String name){
         return userService.getUsersByAccountTypeAndName(accountType, name);
+=======
+>>>>>>> a0febdee0bcdde0e028d644780b30ec974d06eb7
     }
 
     @DeleteMapping("/delete")

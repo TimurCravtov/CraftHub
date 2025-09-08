@@ -5,7 +5,7 @@ export default function Login() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [accountType, setAccountType] = useState('User')
+  const [accountType, setAccountType] = useState('Buyer')
   const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -26,7 +26,7 @@ export default function Login() {
       setName("");
       setEmail("");
       setPassword("");
-      setAccountType("User");
+      setAccountType("Buyer");
       setAgreedToTerms(false);
     } catch (error) {
       console.error("Error:", error);
@@ -98,17 +98,24 @@ export default function Login() {
               />
             </div>
 
-            <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-black">Account Type</label>
-              <select
-                value={accountType}
-                onChange={(e) => setAccountType(e.target.value)}
-                className="w-28 h-9 bg-transparent border border-gray-200/60 rounded-full px-3 text-black"
-              >
-                <option value="User">User</option>
-                <option value="Seller">Seller</option>
-               
-              </select>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-black">Choose account type</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAccountType('Buyer')}
+                  className={`h-10 rounded-full border transition-all ${accountType === 'Buyer' ? 'border-blue-600 text-white bg-gradient-to-r from-blue-600 to-purple-600' : 'border-gray-200/60 text-black bg-gray-50/30 hover:bg-gray-100/50'}`}
+                >
+                  Buyer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountType('Seller')}
+                  className={`h-10 rounded-full border transition-all ${accountType === 'Seller' ? 'border-blue-600 text-white bg-gradient-to-r from-blue-600 to-purple-600' : 'border-gray-200/60 text-black bg-gray-50/30 hover:bg-gray-100/50'}`}
+                >
+                  Seller
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -132,35 +139,7 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="text-center">
-            <span className="text-sm text-gray-500">Or</span>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex space-x-4">
-              <button
-                type="button"
-                className="flex-1 h-12 bg-gray-50/30 border border-gray-200/60 hover:bg-gray-100/50 text-black rounded-full transition-all hover:scale-[1.02] shadow-sm"
-                onClick={() => handleSocialLogin('google')}
-              >
-                Google
-              </button>
-              <button
-                type="button"
-                className="flex-1 h-12 bg-gray-50/30 border border-gray-200/60 hover:bg-gray-100/50 text-black rounded-full transition-all hover:scale-[1.02] shadow-sm"
-                onClick={() => handleSocialLogin('apple')}
-              >
-                Apple
-              </button>
-            </div>
-            <button
-              type="button"
-              className="w-full h-12 bg-gray-50/30 border border-gray-200/60 hover:bg-gray-100/50 text-black rounded-full transition-all hover:scale-[1.02] shadow-sm"
-              onClick={() => handleSocialLogin('facebook')}
-            >
-              Facebook
-            </button>
-          </div>
+          
 
           <div className="text-center">
             <span className="text-sm text-black">

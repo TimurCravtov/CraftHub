@@ -3,15 +3,18 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Shops from './pages/Shops.jsx'
 import ItemPage from "./pages/ItemPage.jsx";
 import ShopPage from "./pages/ShopPage.jsx";
+import Liked from './pages/Liked.jsx'
+import { LikesProvider } from './likesContext.jsx'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/shops" replace />,
+    element: <Home />,
   },
   {
     path: '/login',
@@ -30,6 +33,10 @@ const router = createBrowserRouter([
     element: <ItemPage />,
   },
   {
+    path: '/liked',
+    element: <Liked />,
+  },
+  {
     path: '*',
     element: <App />,
   },
@@ -37,6 +44,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <LikesProvider>
+      <RouterProvider router={router} />
+    </LikesProvider>
   </StrictMode>
 )

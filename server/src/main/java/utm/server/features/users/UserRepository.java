@@ -11,7 +11,11 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
+
+UserEntity findByEmail(String email);
 ArrayList<UserEntity> findByName(String name);
-ArrayList<UserEntity> findByAccountTypeandName(String accountType, String name);
+ArrayList<UserEntity> findByAccountTypeAndName(String accountType, String name);
+
+Boolean existsByEmail(String email);
 
 }

@@ -3,6 +3,8 @@ package utm.server.features.image;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Duration;
+
 public class LocalImageService implements ImageService {
 
     @Value("${localimageuploads.url}")
@@ -14,7 +16,11 @@ public class LocalImageService implements ImageService {
     }
 
     @Override
-    public String getLink(String imageId) {
+    public String getSignedLink(String imageId, Duration duration) {
+        return "";
+    }
+
+    public String getSignedLink(String imageId) {
         return "";
     }
 

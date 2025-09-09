@@ -11,6 +11,10 @@ import ItemPage from "./pages/ItemPage.jsx";
 import ShopPage from "./pages/ShopPage.jsx";
 import Liked from './pages/Liked.jsx'
 import { LikesProvider } from './likesContext.jsx'
+import { CartProvider } from './cartContext.jsx'
+import Cart from './pages/Cart.jsx'
+import { ToastProvider } from './toastContext.jsx'
+import Checkout from './pages/Checkout.jsx'
 
 const router = createBrowserRouter([
   {
@@ -42,6 +46,14 @@ const router = createBrowserRouter([
     element: <Liked />,
   },
   {
+    path: '/cart',
+    element: <Cart />,
+  },
+  {
+    path: '/checkout',
+    element: <Checkout />,
+  },
+  {
     path: '*',
     element: <App />,
   },
@@ -50,7 +62,11 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <LikesProvider>
-      <RouterProvider router={router} />
+      <CartProvider>
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
+      </CartProvider>
     </LikesProvider>
   </StrictMode>
 )

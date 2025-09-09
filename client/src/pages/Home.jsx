@@ -2,6 +2,7 @@ import Header from '../component/Header.jsx'
 import ProductCard from '../component/ProductCard.jsx'
 import { useRef, useEffect, useMemo, useState } from 'react'
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { safeUrl } from '../utils/sanitize.js'
 
 const shops = [
   { id: 1, name: "Luna's Ceramics", image: "/assets/modern-plant-store-interior.jpg", logo: "/assets/react.svg", rating: 4.9, reviews: 87, description: 'Handcrafted pottery & ceramic art pieces', artisan: 'Luna Martinez', category: 'Ceramics' },
@@ -152,7 +153,7 @@ export default function Home() {
           <div ref={featuredRef} className="flex gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar">
             {filteredFeatured.map((f) => (
               <div key={f.id} className="min-w-[280px] md:min-w-[360px] snap-start relative rounded-2xl overflow-hidden border bg-white">
-                <img src={f.image} alt={f.title} className="h-40 w-full object-cover" />
+                <img src={safeUrl(f.image)} alt={f.title} className="h-40 w-full object-cover" />
                 <div className="p-4">
                   <p className="text-xs text-slate-500">{f.title}</p>
                   <h3 className="text-lg font-semibold">{f.subtitle}</h3>
@@ -192,7 +193,7 @@ export default function Home() {
                 {pagedShops.map((s) => (
                   <div key={s.id} className="relative w-full bg-white rounded-2xl overflow-hidden border">
                     <div className="relative h-48">
-                      <img src={s.image} alt={s.name} className="w-full h-full object-cover" />
+                      <img src={safeUrl(s.image)} alt={s.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="p-4">
                       <div className="flex items-center justify-between">

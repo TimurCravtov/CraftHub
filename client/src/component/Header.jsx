@@ -29,10 +29,10 @@ export default function Header() {
       if (storedUser) {
         navigate('/account')
       } else {
-        navigate('/login')
+        navigate('/signup')
       }
     } catch (_) {
-      navigate('/login')
+      navigate('/signup')
     }
   }
 

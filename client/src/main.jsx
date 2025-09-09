@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import Signup from './pages/Signup.jsx'
 import Login from './pages/Login.jsx'
 import Shops from './pages/Shops.jsx'
 import ItemPage from "./pages/ItemPage.jsx";
@@ -12,6 +13,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <Navigate to="/shops" replace />,
+  },
+  {
+    path: '/signup',
+    element: <Signup />,
   },
   {
     path: '/login',

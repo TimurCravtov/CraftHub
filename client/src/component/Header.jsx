@@ -29,10 +29,10 @@ export default function Header() {
       if (storedUser) {
         navigate('/account')
       } else {
-        navigate('/login')
+        navigate('/signup')
       }
     } catch (_) {
-      navigate('/login')
+      navigate('/signup')
     }
   }
 
@@ -103,8 +103,12 @@ export default function Header() {
 
           <div className="flex items-center space-x-2">
             <button className="p-2 rounded hover:bg-slate-100" onClick={handleAccountClick}><User className="h-5 w-5" /></button>
-            <button className="p-2 rounded hover:bg-slate-100" onClick={handleSearchClick}><Search className="h-5 w-5" /></button>
-            <button className="p-2 rounded hover:bg-slate-100"><Heart className="h-5 w-5" /></button>
+            <button className={`p-2 rounded hover:bg-slate-100 ${isSearchOpen ? 'text-blue-600' : ''}`} onClick={handleSearchClick}>
+              <Search className={`h-5 w-5 ${isSearchOpen ? 'text-blue-600' : ''}`} />
+            </button>
+            <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/liked' ? 'text-pink-600' : ''}`} onClick={() => navigate('/liked')}>
+              <Heart className={`h-5 w-5 ${location.pathname === '/liked' ? 'text-pink-600 fill-pink-600' : ''}`} />
+            </button>
             <button className="p-2 rounded hover:bg-slate-100"><ShoppingCart className="h-5 w-5" /></button>
           </div>
         </div>

@@ -109,7 +109,7 @@ export default function Header() {
             <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/liked' ? 'text-pink-600' : ''}`} onClick={() => navigate('/liked')}>
               <Heart className={`h-5 w-5 ${location.pathname === '/liked' ? 'text-pink-600 fill-pink-600' : ''}`} />
             </button>
-            <button className="p-2 rounded hover:bg-slate-100"><ShoppingCart className="h-5 w-5" /></button>
+            <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/cart' ? 'text-blue-600' : ''}`} onClick={() => navigate('/cart')}><ShoppingCart className="h-5 w-5" /></button>
           </div>
         </div>
         {location.pathname === '/shops' && isSearchOpen && (

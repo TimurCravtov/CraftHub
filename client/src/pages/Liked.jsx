@@ -1,6 +1,7 @@
 import Header from '../component/Header.jsx'
 import ProductCard from '../component/ProductCard.jsx'
 import { useLikes } from '../likesContext.jsx'
+import { safeUrl } from '../utils/sanitize.js'
 
 export default function Liked() {
   const { likes } = useLikes()
@@ -35,7 +36,7 @@ export default function Liked() {
                 productName={p.productName}
                 sellerName={p.sellerName}
                 price={p.price}
-                imageUrl={p.imageUrl}
+                imageUrl={safeUrl(p.imageUrl)}
               />
             ))}
           </div>

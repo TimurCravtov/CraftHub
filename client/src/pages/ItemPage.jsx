@@ -2,6 +2,7 @@ import ProductCard from "../component/ProductCard.jsx";
 import Header from "../component/Header.jsx";
 import { Filter, Grid3X3, List } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { safeUrl } from '../utils/sanitize.js'
 
 export default function ItemPage() {
     const products = [
@@ -120,7 +121,7 @@ export default function ItemPage() {
                             productName={product.productName}
                             sellerName={product.sellerName}
                             price={product.price}
-                            imageUrl={product.imageUrl}
+                            imageUrl={safeUrl(product.imageUrl)}
                         />
                     ))}
                 </div>

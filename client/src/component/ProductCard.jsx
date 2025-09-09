@@ -1,6 +1,9 @@
 import { Heart, ShoppingCart } from "lucide-react";
+import { useLikes } from '../likesContext.jsx'
 
-export default function ProductCard({ productName, sellerName, price, imageUrl }) {
+export default function ProductCard({ id, productName, sellerName, price, imageUrl }) {
+    const { isLiked, toggleLike } = useLikes()
+    const liked = isLiked(id)
     return (
         <div className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
             {/* Image */}
@@ -13,8 +16,8 @@ export default function ProductCard({ productName, sellerName, price, imageUrl }
 
                 {/* Floating Heart */}
                 <div className="absolute top-2 right-2">
-                    <button className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm text-pink-500 hover:text-pink-700 hover:bg-white/90 transition-all duration-300 shadow opacity-70 hover:scale-110">
-                        <Heart className="w-4 h-4" />
+                    <button onClick={(e) => { e.stopPropagation(); toggleLike({ id, productName, sellerName, price, imageUrl }) }} className={`flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm transition-all duration-300 shadow opacity-70 hover:scale-110 ${liked ? 'text-pink-600' : 'text-pink-500 hover:text-pink-700 hover:bg-white/90'}`}>
+                        <Heart className={`w-4 h-4 ${liked ? 'fill-pink-600' : ''}`} />
                     </button>
                 </div>
             </div>

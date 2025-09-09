@@ -13,8 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 import utm.server.features.image.google_storage.BucketConfig;
 import utm.server.features.image.google_storage.GoogleStorageImageService;
 
-import java.io.ByteArrayInputStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -57,8 +55,8 @@ class GoogleStorageImageServiceTest {
     }
 
     @Test
-    void getLink_ShouldReturnSignedUrl() {
-        String link = service.getLink("123.png");
+    void getSignedLink_ShouldReturnSignedUrl() {
+        String link = service.getSignedLink("123.png");
         assertThat(link).isNotNull();
     }
 

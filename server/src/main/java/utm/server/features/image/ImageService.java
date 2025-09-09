@@ -15,7 +15,10 @@ public interface ImageService {
     String upload(MultipartFile file, boolean isPublic);
     String getSignedLink(String imageId, Duration duration);
     String getPermanentLink(String imageId);
-
+    default String uploadPublicAndGetPermanentLink(MultipartFile file) {
+        String key = upload(file, true);
+        return getPermanentLink(key);
+    }
     boolean delete(String imageId);
     boolean exists(String imageId);
 }

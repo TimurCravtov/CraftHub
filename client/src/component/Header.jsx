@@ -69,10 +69,15 @@ export default function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <a href="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              CraftHub
+            <a href="/" className="flex items-center space-x-2">
+              <img src="/assets/logo.png" alt="Craft Hub Logo" className="h-8 w-8 object-contain" />
+              <span className="text-xl font-bold bg-gradient-to-r from-[#733c91] to-purple-600 bg-clip-text text-transparent">
+                CraftHub
+            </span>
+
             </a>
           </div>
+
 
           <nav className="hidden md:flex items-center space-x-8">
             <a href="/" className={`text-sm font-medium ${location.pathname === '/' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}>

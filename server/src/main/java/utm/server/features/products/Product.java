@@ -1,11 +1,9 @@
 package utm.server.features.products;
 
 import com.fasterxml.jackson.annotation.JsonTypeId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
+import utm.server.features.users.UserEntity;
 
 @Entity
 @Data
@@ -16,5 +14,8 @@ public class Product {
     private String title;
     private String description;
     private double price;
+    @ManyToOne
+    @JoinColumn(name = "seller_id", nullable = false)
+    private UserEntity seller;
 }
 

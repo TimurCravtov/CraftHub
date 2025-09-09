@@ -1,17 +1,22 @@
 package utm.server.features.users;
 
+import utm.server.features.jwt.JwtTokenPair;
+
 import java.util.ArrayList;
 
 
 public interface UserService {
 
-ArrayList<UserEntity> findAllUser();
-UserEntity findAllUserByID(long id);
+ArrayList<UserRequestDTO> findAllUser();
 
-ArrayList<UserEntity> getUsersByAccountTypeAndName(String accountType, String name);
-ArrayList<UserEntity> findAllUserByName(String name);
-UserEntity addUser(UserEntity userEntity);
+ArrayList<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name);
+ArrayList<UserRequestDTO> findAllUserByName(String name);
+UserRequestDTO addUser(UserEntity userEntity);
 void deleteAllData();
+
+public JwtTokenPair signUp(UserSignUpDTO request);
+
+public JwtTokenPair signIn(UserSignInDTO request);
 
 void deleteUserById(long id);
 

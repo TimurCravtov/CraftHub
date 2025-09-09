@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
+import utm.server.features.jwt.JwtTokenPair;
 
 
 @RestController
@@ -17,7 +18,7 @@ public class UserController {
     @PostMapping("/")
     public ResponseEntity<?> addUser(@RequestBody UserEntity user){
         try {
-            UserEntity saved = userService.addUser(user);
+            UserRequestDTO saved = userService.addUser(user);
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -27,23 +28,19 @@ public class UserController {
     }
 
     @GetMapping("/findall")
-    public ArrayList<UserEntity> getAllUser(){
+    public ArrayList<UserRequestDTO> getAllUser(){
         return userService.findAllUser();
     }
 
-    @GetMapping("/findbyid/{id}")
-    public UserEntity getUserUsingId(@PathVariable long id){
-        return userService.findAllUserByID(id);
-    }
 
     @GetMapping("/findbyname/{name}")
-    public ArrayList<UserEntity> getUserUsingName(@PathVariable String name){
+    public ArrayList<UserRequestDTO> getUserUsingName(@PathVariable String name){
         return userService.findAllUserByName(name);
 
     }
 
     @GetMapping("/findbytypeandname")
-    public ArrayList<UserEntity> getUsersByAccountTypeAndName(@RequestParam String accountType,
+    public ArrayList<UserRequestDTO> getUsersByAccountTypeAndName(@RequestParam String accountType,
                                                               @RequestParam String name){
         return userService.getUsersByAccountTypeAndName(accountType, name);
 
@@ -53,6 +50,30 @@ public class UserController {
     public void delete(){
         userService.deleteAllData();
     }
+
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO request){
+        try{
+            JwtTokenPair tokenPair = userService.signUp(request);
+            return ResponseEntity.ok(tokenPair);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("SignUp Error" + e.getMessage());
+        }
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<?> signIn(@RequestBody UserSignInDTO request){
+        try{
+            JwtTokenPair tokenPair = userService.signIn(request);
+            return ResponseEntity.ok(tokenPair);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("SignIn Error: " + e.getMessage());
+        }
+    }
+
 
 }
 

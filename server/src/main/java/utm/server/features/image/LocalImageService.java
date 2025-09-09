@@ -10,13 +10,22 @@ public class LocalImageService implements ImageService {
     @Value("${localimageuploads.url}")
     private String baseDir;
 
-    @Override
     public String upload(MultipartFile file) {
         return "";
     }
 
     @Override
+    public String upload(MultipartFile file, boolean isPublic) {
+        return "";
+    }
+
+    @Override
     public String getSignedLink(String imageId, Duration duration) {
+        return "";
+    }
+
+    @Override
+    public String getPermanentLink(String imageId) {
         return "";
     }
 

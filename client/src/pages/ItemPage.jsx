@@ -2,6 +2,7 @@ import ProductCard from "../component/ProductCard.jsx";
 import Header from "../component/Header.jsx";
 import { Filter, Grid3X3, List } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { safeUrl } from '../utils/sanitize.js'
 
 export default function ItemPage() {
@@ -31,6 +32,9 @@ export default function ItemPage() {
 
     const [itemsToShow, setItemsToShow] = useState(8)
     const [sortBy, setSortBy] = useState('Default')
+    const location = useLocation()
+
+    const searchQuery = useMemo(() => new URLSearchParams(location.search).get('q')?.toLowerCase() || '', [location.search])
 
     const sortedProducts = useMemo(() => {
         const copy = [...products]
@@ -46,7 +50,15 @@ export default function ItemPage() {
         return copy
     }, [products, sortBy])
 
-    const visibleProducts = useMemo(() => sortedProducts.slice(0, itemsToShow), [sortedProducts, itemsToShow])
+    const filteredProducts = useMemo(() => {
+        if (!searchQuery) return sortedProducts
+        return sortedProducts.filter(p =>
+            p.productName.toLowerCase().includes(searchQuery) ||
+            p.sellerName.toLowerCase().includes(searchQuery)
+        )
+    }, [sortedProducts, searchQuery])
+
+    const visibleProducts = useMemo(() => filteredProducts.slice(0, itemsToShow), [filteredProducts, itemsToShow])
 
     return (
         <div className="min-h-screen bg-white">

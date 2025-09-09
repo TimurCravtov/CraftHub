@@ -1,5 +1,5 @@
 import { Filter, Grid3X3, List, Star, Heart } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 
 const shops = [
@@ -67,6 +67,16 @@ const shops = [
 
 export default function Shops() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const q = (params.get('q') || '').toLowerCase()
+  const filtered = q
+    ? shops.filter((s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.artisan.toLowerCase().includes(q) ||
+        s.description.toLowerCase().includes(q)
+      )
+    : shops
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -124,7 +134,7 @@ export default function Shops() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          {shops.map((shop) => (
+          {filtered.map((shop) => (
             <div onClick={() => navigate(`/shops/${shop.id}`)} key={shop.id} className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
               <div className="relative h-48">
                 <img src={shop.image} alt={shop.name} className="w-full h-full object-cover" />

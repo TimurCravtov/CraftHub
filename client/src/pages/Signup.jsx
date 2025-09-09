@@ -46,7 +46,11 @@ export default function Signup() {
       <div className="flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white p-8 space-y-6">
           <div className="text-left">
-            <h1 className="text-lg font-medium text-black">LOGO</h1>
+          <img 
+                src="/assets/logo.png" 
+                alt="CraftHub Logo" 
+                className="h-8 w-auto"
+              />
           </div>
 
         <div className="space-y-6">

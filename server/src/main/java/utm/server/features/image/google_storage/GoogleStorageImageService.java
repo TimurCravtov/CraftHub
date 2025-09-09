@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import utm.server.features.image.ImageService;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +32,13 @@ public class GoogleStorageImageService implements ImageService {
         return String.format("gs://%s/%s", bucketConfig.getBucketName(), fileName);
     }
 
-
-
     @Override
-    public String getLink(String imageId) {
+    public String getSignedLink(String imageId, Duration duration) {
+        return "";
+    }
+
+
+    public String getSignedLink(String imageId) {
         return "";
     }
 

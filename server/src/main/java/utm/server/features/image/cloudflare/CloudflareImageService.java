@@ -9,10 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import utm.server.features.image.ImageService;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CloudflareImageService implements ImageService {
     private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     @Value("${cloudflare.r2.bucket}")
     private String bucket;
@@ -64,8 +70,20 @@ public class CloudflareImageService implements ImageService {
     }
 
     @Override
-    public String getLink(String imageId) {
-        return "";
+    public String getSignedLink(String imageId, Duration duration) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(imageId)
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(duration)
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        return s3Presigner.presignGetObject(presignRequest)
+                .url()
+                .toString();
     }
 
     @Override

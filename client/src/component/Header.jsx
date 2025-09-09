@@ -6,8 +6,12 @@ export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
   const searchInputRef = useRef(null)
   const searchPopupRef = useRef(null)
+
+  // Check if we're on a searchable page
+  const isSearchablePage = location.pathname === '/shops' || location.pathname === '/items'
 
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
@@ -16,7 +20,7 @@ export default function Header() {
   }, [isSearchOpen])
 
   function handleSearchClick() {
-    if (location.pathname !== '/shops') {
+    if (!isSearchablePage) {
       navigate('/shops#search')
       return
     }
@@ -44,7 +48,42 @@ export default function Header() {
     }
   }, [location, navigate])
 
-  // Close on outside click
+  // Sync searchTerm with URL ?q= when on searchable pages
+  useEffect(() => {
+    if (isSearchablePage) {
+      const params = new URLSearchParams(location.search)
+      const q = params.get('q') || ''
+      setSearchTerm(q)
+    }
+  }, [location, isSearchablePage])
+
+  function handleSearchChange(e) {
+    const value = e.target.value
+    setSearchTerm(value)
+    const params = new URLSearchParams(location.search)
+    if (value) params.set('q', value)
+    else params.delete('q')
+    
+    // Stay on current page if already on a searchable page, otherwise go to shops
+    const path = isSearchablePage ? location.pathname : '/shops'
+    
+    if (!isSearchablePage) {
+      navigate(`${path}?${params.toString()}`)
+      setIsSearchOpen(true)
+    } else {
+      navigate(`${path}?${params.toString()}`, { replace: true })
+    }
+  }
+
+  // Get appropriate placeholder text based on current page
+  function getSearchPlaceholder() {
+    if (location.pathname === '/items') {
+      return 'Search items...'
+    }
+    return 'Search artisan shops...'
+  }
+
+  // Close on outside click or escape key
   useEffect(() => {
     function handleClickOutside(event) {
       if (!isSearchOpen) return
@@ -117,7 +156,9 @@ export default function Header() {
             <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/cart' ? 'text-blue-600' : ''}`} onClick={() => navigate('/cart')}><ShoppingCart className="h-5 w-5" /></button>
           </div>
         </div>
-        {location.pathname === '/shops' && isSearchOpen && (
+        
+        {/* Search popup - now appears on both /shops and /items pages */}
+        {isSearchablePage && isSearchOpen && (
           <div className="fixed top-20 right-8 z-[100] w-[92%] max-w-xl">
             <div ref={searchPopupRef} className="p-[1px] rounded-2xl bg-gradient-to-r from-indigo-500/60 via-fuchsia-500/60 to-cyan-500/60 shadow-[0_8px_40px_rgba(99,102,241,0.25)]">
               <div className="rounded-2xl bg-white/80 backdrop-blur-xl border border-white/20">
@@ -126,7 +167,9 @@ export default function Header() {
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Search artisan shops..."
+                    placeholder={getSearchPlaceholder()}
+                    value={searchTerm}
+                    onChange={handleSearchChange}
                     className="w-full bg-transparent outline-none text-sm text-slate-800 placeholder:text-slate-400"
                   />
                   <button

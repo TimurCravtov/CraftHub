@@ -32,8 +32,8 @@ export default function ProductCard({ id, productName, sellerName, price, imageU
 
             {/* Content */}
             <div className="p-3">
-                <h2 className="text-sm font-semibold text-gray-900 truncate">{escapeText(productName)}</h2>
-                <p className="text-xs text-gray-500 truncate">{escapeText(sellerName)}</p>
+                <h2 className="text-sm font-semibold text-gray-900 truncate">{productName}</h2>
+                <p className="text-xs text-gray-500 truncate">{sellerName}</p>
 
                 {/* Price + Cart */}
                 <div className="mt-2 flex items-center justify-between">

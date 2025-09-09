@@ -19,7 +19,6 @@ public class GoogleStorageImageService implements ImageService {
     private final BucketConfig bucketConfig;
 
     @SneakyThrows
-    @Override
     public String upload(MultipartFile file) {
         String fileName = file.getOriginalFilename();
         if (fileName == null || fileName.isBlank()) {
@@ -33,7 +32,17 @@ public class GoogleStorageImageService implements ImageService {
     }
 
     @Override
+    public String upload(MultipartFile file, boolean isPublic) {
+        return "";
+    }
+
+    @Override
     public String getSignedLink(String imageId, Duration duration) {
+        return "";
+    }
+
+    @Override
+    public String getPermanentLink(String imageId) {
         return "";
     }
 

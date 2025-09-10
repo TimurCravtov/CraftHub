@@ -9,6 +9,27 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState('')
   const searchInputRef = useRef(null)
   const searchPopupRef = useRef(null)
+  const isSeller = (() => {
+    try {
+      const raw = localStorage.getItem('user')
+      if (!raw) return false
+      const u = JSON.parse(raw)
+      return (u?.accountType || u?.role) === 'seller'
+    } catch {
+      return false
+    }
+  })()
+  const hasShop = (() => {
+    try {
+      const rawUser = localStorage.getItem('user')
+      if (!rawUser) return false
+      const u = JSON.parse(rawUser)
+      const shopKey = `shop:${u?.id || u?.email || 'current'}`
+      return !!localStorage.getItem(shopKey)
+    } catch {
+      return false
+    }
+  })()
 
   // Check if we're on a searchable page
   const isSearchablePage = location.pathname === '/shops' || location.pathname === '/items'
@@ -152,6 +173,11 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center space-x-2">
+            {isSeller && !hasShop && (
+              <a href="/account" className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-full text-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow hover:opacity-90">
+                Create Shop
+              </a>
+            )}
             <button className="p-2 rounded hover:bg-slate-100" onClick={handleAccountClick}><User className="h-5 w-5" /></button>
             <button className={`p-2 rounded hover:bg-slate-100 ${isSearchOpen ? 'text-blue-600' : ''}`} onClick={handleSearchClick}>
               <Search className={`h-5 w-5 ${isSearchOpen ? 'text-blue-600' : ''}`} />

@@ -19,8 +19,8 @@ import Checkout from './pages/Checkout.jsx'
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Home />,
+    path: "/",
+    element: <Navigate to="/en" replace />, // redirect root to default lang
   },
   {
     path: '/signup',
@@ -65,17 +65,30 @@ const router = createBrowserRouter([
   {
     path: '*',
     element: <App />,
+    path: "/:lang",
+    children: [
+      { index: true, element: <Home /> },
+      { path: "signup", element: <Signup /> },
+      { path: "login", element: <Login /> },
+      { path: "shops", element: <Shops /> },
+      { path: "shops/:id", element: <ShopPage /> },
+      { path: "items", element: <ItemPage /> },
+      { path: "liked", element: <Liked /> },
+      { path: "cart", element: <Cart /> },
+      { path: "checkout", element: <Checkout /> },
+      { path: "*", element: <App /> },
+    ],
   },
 ])
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <LikesProvider>
-      <CartProvider>
-        <ToastProvider>
-          <RouterProvider router={router} />
-        </ToastProvider>
-      </CartProvider>
-    </LikesProvider>
-  </StrictMode>
+    <StrictMode>
+      <LikesProvider>
+        <CartProvider>
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
+        </CartProvider>
+      </LikesProvider>
+    </StrictMode>
 )

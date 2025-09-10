@@ -1,4 +1,5 @@
 package utm.server.features.users;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -6,6 +7,7 @@ import lombok.*;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import utm.server.features.billing.BillingEntity;
 import utm.server.features.products.Product;
 
 import java.util.Collection;
@@ -31,6 +33,9 @@ public class UserEntity implements UserDetails {
     private String accountType;
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private BillingEntity billingInfo;
 
     public UserEntity(String name, String email, String password, String accountType) {
         this.name = name;
@@ -38,7 +43,6 @@ public class UserEntity implements UserDetails {
         this.password = password;
         this.accountType = accountType;
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

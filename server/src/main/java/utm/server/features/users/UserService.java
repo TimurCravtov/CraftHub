@@ -1,6 +1,9 @@
 package utm.server.features.users;
 
 import utm.server.features.jwt.JwtTokenPair;
+import utm.server.features.users.dto.UserRequestDTO;
+import utm.server.features.users.dto.UserSignInDTO;
+import utm.server.features.users.dto.UserSignUpDTO;
 
 import java.util.ArrayList;
 
@@ -17,6 +20,9 @@ void deleteAllData();
 public JwtTokenPair signUp(UserSignUpDTO request);
 
 public JwtTokenPair signIn(UserSignInDTO request);
+
+
+
 
 void deleteUserById(long id);
 

@@ -1,5 +1,7 @@
 package utm.server.features.users;
 
+import utm.server.features.users.dto.UserRequestDTO;
+
 import java.util.ArrayList;
 
 public class UserMapper {

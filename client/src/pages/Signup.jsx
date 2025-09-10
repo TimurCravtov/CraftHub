@@ -12,7 +12,7 @@ export default function Signup() {
     e.preventDefault()
     const user = { name, email, password, accountType };
     try {
-      const response = await fetch("http://localhost:8080/api/users/signup", {
+      const response = await fetch("http://localhost:8080/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),

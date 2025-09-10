@@ -6,10 +6,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import utm.server.features.jwt.JwtService;
 import utm.server.features.jwt.JwtTokenPair;
+import utm.server.features.users.dto.UserRequestDTO;
+import utm.server.features.users.dto.UserSignInDTO;
+import utm.server.features.users.dto.UserSignUpDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -100,4 +102,9 @@ public class UserServiceImpl implements UserService{
        String refreshToken = jwtService.getJwtTokenPair(user).refreshToken();
        return new JwtTokenPair(accessToken, refreshToken);
    }
+
+
 }
+
+
+

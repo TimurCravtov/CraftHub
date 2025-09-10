@@ -1,12 +1,11 @@
-package utm.server.features.users;
+package utm.server.features.users.dto;
+
 
 import lombok.Data;
 
 @Data
-public class UserSignUpDTO {
-
+public class UserRequestDTO {
     private String name;
     private String email;
-    private String password;
     private String accountType;
 }

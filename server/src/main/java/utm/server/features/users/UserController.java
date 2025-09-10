@@ -1,11 +1,14 @@
 package utm.server.features.users;
 import java.util.ArrayList;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import utm.server.features.jwt.JwtTokenPair;
+import utm.server.features.users.dto.UserRequestDTO;
+import utm.server.features.users.dto.UserSignInDTO;
+import utm.server.features.users.dto.UserSignUpDTO;
 
 
 @RestController
@@ -52,27 +55,9 @@ public class UserController {
     }
 
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO request){
-        try{
-            JwtTokenPair tokenPair = userService.signUp(request);
-            return ResponseEntity.ok(tokenPair);
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("SignUp Error" + e.getMessage());
-        }
-    }
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> signIn(@RequestBody UserSignInDTO request){
-        try{
-            JwtTokenPair tokenPair = userService.signIn(request);
-            return ResponseEntity.ok(tokenPair);
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("SignIn Error: " + e.getMessage());
-        }
-    }
+
+
 
 
 }

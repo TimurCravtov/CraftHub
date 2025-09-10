@@ -17,6 +17,7 @@ import Cart from './pages/Cart.jsx'
 import { ToastProvider } from './context/toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 import {TranslationProvider} from "./context/translationContext.jsx";
+import Account from './pages/Account.jsx'
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <Login />,
+  },
+  {
+    path: '/account',
+    element: <Account />,
   },
   {
     path: '/shops',
@@ -64,6 +69,8 @@ const router = createBrowserRouter([
     element: <Checkout />,
   },
   {
+    path: '*',
+    element: <App />,
     path: "/:lang",
     children: [
       { index: true, element: <Home /> },
@@ -71,12 +78,18 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "shops", element: <Shops /> },
       { path: "shops/:id", element: <ShopPage /> },
-      { path: "items", element: <ItemPage /> },
+      { path: "shops/:id/Itempage", element: <ItemPage /> },
+      { path: "Itempage", element: <ItemPage /> },
+      { path: "items", element: <Items /> },
       { path: "liked", element: <Liked /> },
       { path: "cart", element: <Cart /> },
       { path: "checkout", element: <Checkout /> },
       { path: "*", element: <App /> },
     ],
+  },
+  {
+    path: '*',
+    element: <App />,
   },
 ])
 

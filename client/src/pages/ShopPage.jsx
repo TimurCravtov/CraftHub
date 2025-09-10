@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 import { Star, Heart, Search, ShoppingCart, User, Facebook, Instagram } from 'lucide-react'
 
 export default function ShopPage() {
   const [activeTab, setActiveTab] = useState('description')
   const navigate = useNavigate()
+  const { id } = useParams()
+  const shopName = 'Shop name'
 
   const relatedProducts = [
     { id: 1, name: 'Product name', description: 'Stylish ceramic', price: '20 lei', image: '/assets/modern-plant-store-interior.jpg' },
@@ -137,10 +139,10 @@ export default function ShopPage() {
           <div className="mt-8 flex justify-center">
             <button
               type="button"
-              onClick={() => navigate('/items')}
+              onClick={() => navigate(`/shops/${id}/Itempage?shopName=${encodeURIComponent(shopName)}`)}
               className="px-6 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors"
             >
-              Show More
+              View Shop Items
             </button>
           </div>
         </div>

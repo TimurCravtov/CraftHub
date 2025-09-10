@@ -2,51 +2,44 @@ import ProductCard from "../component/ProductCard.jsx";
 import Header from "../component/Header.jsx";
 import { Filter, Grid3X3, List } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { safeUrl } from '../utils/sanitize.js'
 import { productsApi } from '../utils/productsApi.js'
 
-export default function ItemPage() {
+export default function Items() {
     const [products, setProducts] = useState([])
-
     const [itemsToShow, setItemsToShow] = useState(8)
     const [sortBy, setSortBy] = useState('Default')
     const location = useLocation()
-    const { id: routeShopId } = useParams()
-    const params = useMemo(() => new URLSearchParams(location.search), [location.search])
-    const shopId = routeShopId || params.get('shopId')
-    const shopName = params.get('shopName')
-    const titleParam = params.get('title')
+    const fromShops = useMemo(() => new URLSearchParams(location.search).get('from') === 'shops', [location.search])
 
-    // Prepare fetching by seller or title when backend is ready
     useEffect(() => {
         let mounted = true
         ;(async () => {
             try {
-                let data = []
-                if (shopId) {
-                    // Future endpoint: /api/products/by-seller/{sellerId}
-                    data = await productsApi.getBySeller(shopId)
-                } else if (titleParam) {
-                    data = await productsApi.searchByTitle(titleParam)
-                } else {
-                    data = []
-                }
-
+                const data = await productsApi.getAll()
                 const normalized = (Array.isArray(data) ? data : []).map((p, idx) => ({
                     id: p.id ?? idx + 1,
                     productName: p.title ?? 'Untitled',
                     sellerName: p.seller?.name ?? 'Unknown seller',
                     price: p.price ?? 0,
-                    imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?craft',
+                    imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?handmade',
                 }))
+                // shuffle
+                for (let i = normalized.length - 1; i > 0; i -= 1) {
+                    const j = Math.floor(Math.random() * (i + 1))
+                    const tmp = normalized[i]
+                    normalized[i] = normalized[j]
+                    normalized[j] = tmp
+                }
                 if (mounted) setProducts(normalized)
             } catch (_) {
+                // fallback to empty list silently; UI still renders
                 if (mounted) setProducts([])
             }
         })()
         return () => { mounted = false }
-    }, [shopId, titleParam])
+    }, [])
 
     const searchQuery = useMemo(() => new URLSearchParams(location.search).get('q')?.toLowerCase() || '', [location.search])
 
@@ -84,26 +77,18 @@ export default function ItemPage() {
             >
                 <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
-                    <h1 className="text-4xl font-bold text-white mb-2">Shop Items</h1>
-                    {shopId ? (
-                        <div className="flex items-center space-x-2 text-white/80">
-                            <a href="/" className="hover:text-white">Home</a>
-                            <span>&gt;</span>
-                            <a href="/shops" className="hover:text-white">Shops</a>
-                            <span>&gt;</span>
-                            <span>{shopName ? shopName : `Shop ${shopId}`}</span>
-                            <span>&gt;</span>
-                            <span>Items</span>
-                        </div>
-                    ) : (
-                        <div className="flex items-center space-x-2 text-white/80">
-                            <a href="/" className="hover:text-white">Home</a>
-                            <span>&gt;</span>
-                            <a href="/shops" className="hover:text-white">Shops</a>
-                            <span>&gt;</span>
-                            <span>Items</span>
-                        </div>
-                    )}
+                    <h1 className="text-4xl font-bold text-white mb-4">Items</h1>
+                    <div className="flex items-center space-x-2 text-white/80">
+                        <a href="/" className="text-blue-400 hover:text-white">Home</a>
+                        <span>&gt;</span>
+                        {fromShops && (
+                            <>
+                                <a href="/shops" className="text-blue-400 hover:text-white">Shops</a>
+                                <span>&gt;</span>
+                            </>
+                        )}
+                        <span>Items</span>
+                    </div>
                 </div>
             </div>
 
@@ -151,12 +136,6 @@ export default function ItemPage() {
                     </div>
                 </div>
 
-                {!shopId && (
-                    <div className="mt-6 p-4 rounded-md bg-yellow-50 text-yellow-800 text-sm">
-                        No shop id detected. Navigate via a shop page (e.g., /shops/5/items) to see that shop's items.
-                    </div>
-                )}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
                     {visibleProducts.map((product) => (
                         <ProductCard
@@ -173,3 +152,5 @@ export default function ItemPage() {
         </div>
     );
 }
+
+

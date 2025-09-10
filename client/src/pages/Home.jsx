@@ -1,4 +1,5 @@
 import Header from '../component/Header.jsx'
+import { useNavigate } from 'react-router-dom'
 import ProductCard from '../component/ProductCard.jsx'
 import { useRef, useEffect, useMemo, useState } from 'react'
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -22,6 +23,7 @@ const shops = [
 export default function Home() {
   const featuredRef = useRef(null)
   const [activeCategory, setActiveCategory] = useState('All')
+  const navigate = useNavigate()
 
   const recent = [
     { id: 1, productName: 'Minimalist Table', sellerName: 'Andrei\'s Shop', price: 20, imageUrl: 'https://images.unsplash.com/photo-1505691723518-36a5ac3be353', category: 'Furniture' },
@@ -130,6 +132,7 @@ export default function Home() {
             <span>&gt;</span>
             <span>Welcome</span>
           </div>
+          
         </div>
       </div>
 

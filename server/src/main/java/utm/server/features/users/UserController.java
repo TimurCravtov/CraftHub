@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import utm.server.features.jwt.JwtTokenPair;
@@ -25,6 +26,11 @@ public class UserController {
                     .body("Error: " + e.getMessage());
         }
 
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserEntity user) {
+        return ResponseEntity.ok(new MeUserDto(user));
     }
 
     @GetMapping("/findall")

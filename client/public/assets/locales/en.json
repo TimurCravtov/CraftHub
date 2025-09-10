@@ -1,0 +1,22 @@
+{
+  "categories": {
+    "All": "All",
+    "Furniture": "Furniture",
+    "Ceramics": "Ceramics",
+    "Textiles": "Textiles",
+    "Jewelry": "Jewelry",
+    "Woodwork": "Woodwork",
+    "Glass": "Glass",
+    "Leather": "Leather",
+    "Art": "Art",
+    "Paper": "Paper",
+    "Stone": "Stone",
+    "Prints": "Prints",
+    "Baskets": "Baskets",
+    "Candles": "Candles"
+  },
+  "featured": "Featured",
+  "recentlyAdded": "Recently added",
+  "topShops": "Top rated shops",
+  "showMore": "Show more"
+}

@@ -1,5 +1,5 @@
 import Header from '../component/Header.jsx'
-import { useCart } from '../cartContext.jsx'
+import { useCart } from '../context/cartContext.jsx'
 
 export default function Checkout() {
   const { items, subtotal } = useCart()

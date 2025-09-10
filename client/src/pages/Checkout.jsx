@@ -39,21 +39,11 @@ export default function Checkout() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm text-slate-600 mb-1">Company Name (Optional)</label>
-            <input className="w-full border rounded-md px-3 py-2" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-slate-600 mb-1">Town / City</label>
               <input className="w-full border rounded-md px-3 py-2" />
             </div>
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">ZIP code</label>
-              <input className="w-full border rounded-md px-3 py-2" />
-            </div>
-          </div>
+          
 
           <div>
             <label className="block text-sm text-slate-600 mb-1">Street address</label>

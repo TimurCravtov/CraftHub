@@ -131,6 +131,12 @@ export default function Header() {
                 <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
               )}
             </a>
+            <a href="/items" className={`text-sm font-medium ${location.pathname === '/items' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}>
+              Items
+              {location.pathname === '/items' && (
+                <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
+              )}
+            </a>
             <a href="/about" className={`text-sm font-medium ${location.pathname === '/about' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}>
               About
               {location.pathname === '/about' && (

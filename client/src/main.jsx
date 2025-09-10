@@ -8,6 +8,7 @@ import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Shops from './pages/Shops.jsx'
 import ItemPage from "./pages/ItemPage.jsx";
+import Items from './pages/Items.jsx'
 import ShopPage from "./pages/ShopPage.jsx";
 import Liked from './pages/Liked.jsx'
 import { LikesProvider } from './likesContext.jsx'
@@ -38,8 +39,16 @@ const router = createBrowserRouter([
     element: <ShopPage />,
   },
   {
-    path: '/items',
+    path: '/shops/:id/Itempage',
     element: <ItemPage />,
+  },
+  {
+    path: '/Itempage',
+    element: <ItemPage />,
+  },
+  {
+    path: '/items',
+    element: <Items />,
   },
   {
     path: '/liked',

@@ -31,11 +31,11 @@ public class UserEntity implements UserDetails {
     private String password;
     @Column(nullable = false)
     private String accountType;
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Product> products;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private BillingEntity billingInfo;
+
+
 
     public UserEntity(String name, String email, String password, String accountType) {
         this.name = name;

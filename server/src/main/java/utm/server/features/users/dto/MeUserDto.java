@@ -1,6 +1,7 @@
-package utm.server.features.users;
+package utm.server.features.users.dto;
 
 import lombok.Getter;
+import utm.server.features.users.UserEntity;
 
 @Getter
 public class MeUserDto {

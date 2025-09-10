@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import utm.server.features.jwt.JwtTokenPair;
+import utm.server.features.users.dto.MeUserDto;
 import utm.server.features.users.dto.UserRequestDTO;
 import utm.server.features.users.dto.UserSignInDTO;
 import utm.server.features.users.dto.UserSignUpDTO;

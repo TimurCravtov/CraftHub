@@ -1,0 +1,44 @@
+package utm.server.features.shops;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import utm.server.features.products.Product;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/shops")
+public class ShopController {
+
+    private final ShopService shopService;
+
+    @Autowired
+    public ShopController(ShopService shopService) {
+        this.shopService = shopService;
+    }
+
+    @PostMapping("/addshop")
+    public ShopEntity addShop(@RequestBody ShopEntity shopEntity) {
+        return shopService.addShop(shopEntity);
+    }
+
+    @GetMapping("/")
+    public ArrayList<ShopEntity> getAllShops(){
+        return shopService.getAllShops();
+    }
+
+    @GetMapping("/name")
+    public ArrayList<ShopEntity> getShopsByName(@RequestParam String name) {
+        return shopService.getShopsByName(name);
+    }
+
+
+    @GetMapping("/{shopId}/products")
+    public List<Product> getProductsByShop(@PathVariable Long shopId){
+        return shopService.getProductsByShopId(shopId);
+    }
+
+
+}

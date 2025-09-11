@@ -4,7 +4,6 @@ import ProductCard from '../component/ProductCard.jsx'
 import { useRef, useEffect, useMemo, useState } from 'react'
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { safeUrl } from '../utils/sanitize.js'
-import { useTranslation } from '../context/translationContext.jsx'
 
 const shops = [
   { id: 1, name: "Luna's Ceramics", image: "/assets/modern-plant-store-interior.jpg", logo: "/assets/react.svg", rating: 4.9, reviews: 87, description: 'Handcrafted pottery & ceramic art pieces', artisan: 'Luna Martinez', category: 'Ceramics' },
@@ -37,25 +36,22 @@ export default function Home() {
     { id: 8, productName: 'Silver Ring', sellerName: 'Silversmith Studio', price: 39, imageUrl: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3', category: 'Jewelry' }
   ]
 
-  const { t } = useTranslation()
-
   const categories = useMemo(() => [
-    t('categories.All'),
-    t('categories.Furniture'),
-    t('categories.Ceramics'),
-    t('categories.Textiles'),
-    t('categories.Jewelry'),
-    t('categories.Woodwork'),
-    t('categories.Glass'),
-    t('categories.Leather'),
-    t('categories.Art'),
-    t('categories.Paper'),
-    t('categories.Stone'),
-    t('categories.Prints'),
-    t('categories.Baskets'),
-    t('categories.Candles')
-  ], [t])
-
+    'All',
+    'Furniture',
+    'Ceramics',
+    'Textiles',
+    'Jewelry',
+    'Woodwork',
+    'Glass',
+    'Leather',
+    'Art',
+    'Paper',
+    'Stone',
+    'Prints',
+    'Baskets',
+    'Candles'
+  ], [])
   const filteredRecent = useMemo(() => activeCategory === 'All' ? recent : recent.filter(r => r.category === activeCategory), [activeCategory, recent])
   const filteredShops = useMemo(() => activeCategory === 'All' ? shops : shops.filter(s => s.category === activeCategory), [activeCategory])
   const [shopsPage, setShopsPage] = useState(0)

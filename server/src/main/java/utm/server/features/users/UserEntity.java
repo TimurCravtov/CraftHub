@@ -6,6 +6,8 @@ import lombok.*;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import utm.server.authentication.model.TwoFactorData;
 import utm.server.features.products.Product;
 
 import java.util.Collection;
@@ -16,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table
+@Table(name = "users")
 public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +31,10 @@ public class UserEntity implements UserDetails {
     private String password;
     @Column(nullable = false)
     private String accountType;
+    
+    
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private TwoFactorData twoFactorData;
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 
@@ -37,6 +43,7 @@ public class UserEntity implements UserDetails {
         this.email = email;
         this.password = password;
         this.accountType = accountType;
+        
     }
 
 
@@ -46,8 +53,33 @@ public class UserEntity implements UserDetails {
     }
 
     @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
     public String getUsername() {
-        return this.id.toString();
+        return email; // Use email as username for authentication
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
 }

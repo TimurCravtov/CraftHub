@@ -1,11 +1,12 @@
 package utm.server.features.products;
 
-import com.fasterxml.jackson.annotation.JsonTypeId;
+//import com.fasterxml.jackson.annotation.JsonTypeId;
 import jakarta.persistence.*;
 import lombok.Data;
 import utm.server.features.users.UserEntity;
 
 @Entity
+@Table(name = "products")
 @Data
 public class Product {
     @Id

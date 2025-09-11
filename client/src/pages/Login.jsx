@@ -10,8 +10,29 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log('Signup attempt:', { name, email, password, accountType, agreedToTerms })
-  }
+
+    const user = { email, password };
+
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user),
+      });
+
+      if (!response.ok) throw new Error("Failed to log in");
+
+      const data = await response.json();
+      alert("Login successful: " + JSON.stringify(data));
+
+      // Reset form
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Login failed. Please try again.");
+    }
+  };
 
   const handleSocialLogin = (provider) => {
     console.log(`Login with ${provider}`)

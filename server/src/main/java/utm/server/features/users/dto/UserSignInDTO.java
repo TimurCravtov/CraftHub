@@ -1,4 +1,4 @@
-package utm.server.features.users;
+package utm.server.features.users.dto;
 
 import lombok.Data;
 

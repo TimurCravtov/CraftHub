@@ -9,22 +9,25 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState('')
   const searchInputRef = useRef(null)
   const searchPopupRef = useRef(null)
-  const isSeller = (() => {
+  function getSellerFromJwt() {
     try {
-      const raw = localStorage.getItem('user')
-      if (!raw) return false
-      const u = JSON.parse(raw)
-      return (u?.accountType || u?.role) === 'seller'
+      const authRaw = localStorage.getItem('auth')
+      if (!authRaw) return false
+      const auth = JSON.parse(authRaw)
+      const token = auth?.accessToken || auth?.token
+      if (!token || token.split('.').length !== 3) return false
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      return payload?.accountType === 'seller' || payload?.role === 'SELLER' || payload?.role === 'seller'
     } catch {
       return false
     }
-  })()
+  }
+  const isSeller = getSellerFromJwt()
   const hasShop = (() => {
     try {
-      const rawUser = localStorage.getItem('user')
-      if (!rawUser) return false
-      const u = JSON.parse(rawUser)
-      const shopKey = `shop:${u?.id || u?.email || 'current'}`
+      const auth = JSON.parse(localStorage.getItem('auth') || '{}')
+      const userId = auth?.userId
+      const shopKey = `shop:${userId || 'current'}`
       return !!localStorage.getItem(shopKey)
     } catch {
       return false

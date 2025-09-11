@@ -2,22 +2,26 @@ import { useState } from 'react'
 import Header from '../component/Header.jsx'
 
 export default function Account() {
-  const isSeller = (() => {
+  function isSellerFromJwt() {
     try {
-      const raw = localStorage.getItem('user')
-      if (!raw) return false
-      const u = JSON.parse(raw)
-      return (u?.accountType || u?.role) === 'seller'
+      const authRaw = localStorage.getItem('auth')
+      if (!authRaw) return false
+      const auth = JSON.parse(authRaw)
+      const token = auth?.accessToken || auth?.token
+      if (!token || token.split('.').length !== 3) return false
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      return payload?.accountType === 'seller' || payload?.role === 'SELLER' || payload?.role === 'seller'
     } catch {
       return false
     }
-  })()
+  }
+  const isSeller = isSellerFromJwt()
 
   // Persist a simple draft shop in localStorage (client-only placeholder)
   const currentUserKey = (() => {
     try {
-      const u = JSON.parse(localStorage.getItem('user') || '{}')
-      return `shop:${u?.id || u?.email || 'current'}`
+      const auth = JSON.parse(localStorage.getItem('auth') || '{}')
+      return `shop:${auth?.userId || 'current'}`
     } catch {
       return 'shop:current'
     }
@@ -55,8 +59,14 @@ export default function Account() {
     setForm(prev => ({ ...prev, [key]: key === 'gallery' ? files : files[0] }))
   }
 
-  const currentUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}') } catch { return {} } })()
-  const ownerDisplayName = currentUser?.name || currentUser?.email || (currentUser?.id ? `User ${currentUser.id}` : 'Owner')
+  const ownerDisplayName = (() => {
+    try {
+      const auth = JSON.parse(localStorage.getItem('auth') || '{}')
+      return auth?.name || auth?.email || (auth?.userId ? `User ${auth.userId}` : 'Owner')
+    } catch {
+      return 'Owner'
+    }
+  })()
 
   function handleSubmit(e) {
     e.preventDefault()

@@ -11,12 +11,16 @@ import ItemPage from "./pages/ItemPage.jsx";
 import Items from './pages/Items.jsx'
 import ShopPage from "./pages/ShopPage.jsx";
 import Liked from './pages/Liked.jsx'
-import { LikesProvider } from './likesContext.jsx'
-import { CartProvider } from './cartContext.jsx'
+import { LikesProvider } from './context/likesContext.jsx'
+import { CartProvider } from './context/cartContext.jsx'
 import Cart from './pages/Cart.jsx'
-import { ToastProvider } from './toastContext.jsx'
+import { ToastProvider } from './context/toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
+
+import {TranslationProvider} from "./context/translationContext.jsx";
+
 import Account from './pages/Account.jsx'
+
 
 const router = createBrowserRouter([
   {
@@ -93,12 +97,14 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-      <LikesProvider>
-        <CartProvider>
-          <ToastProvider>
-            <RouterProvider router={router} />
-          </ToastProvider>
-        </CartProvider>
-      </LikesProvider>
+      <TranslationProvider>
+        <LikesProvider>
+          <CartProvider>
+            <ToastProvider>
+              <RouterProvider router={router} />
+            </ToastProvider>
+          </CartProvider>
+        </LikesProvider>
+      </TranslationProvider>
     </StrictMode>
 )

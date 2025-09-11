@@ -47,8 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Extract user info from claims
             Long userId = Long.parseLong(claims.getSubject());
             String username = claims.get("username", String.class);
-
-            // Build minimal NonsUser object
+//
             UserEntity user = new UserEntity();
             user.setId(userId);
             user.setName(username);

@@ -16,11 +16,11 @@ import { CartProvider } from './context/cartContext.jsx'
 import Cart from './pages/Cart.jsx'
 import { ToastProvider } from './context/toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
-<<<<<<< HEAD
+
 import {TranslationProvider} from "./context/translationContext.jsx";
-=======
+
 import Account from './pages/Account.jsx'
->>>>>>> b8edfca87c0c163c9660392195090393d5ee80ba
+
 
 const router = createBrowserRouter([
   {

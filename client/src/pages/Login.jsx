@@ -8,7 +8,7 @@ export default function Login() {
   const [accountType, setAccountType] = useState('User')
   const [agreedToTerms, setAgreedToTerms] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     const user = { email, password };

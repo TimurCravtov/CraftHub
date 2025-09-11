@@ -2,6 +2,8 @@ package utm.server.features.shops;
 
 import org.springframework.stereotype.Service;
 import utm.server.features.products.Product;
+import utm.server.features.users.UserEntity;
+import utm.server.features.users.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +12,21 @@ import java.util.Optional;
 @Service
 public class ShopService {
     private final ShopRepository shopRepository;
-
-    public ShopService(ShopRepository shopRepository) {
+    private final UserRepository userRepository;
+    public ShopService(ShopRepository shopRepository, UserRepository userRepository) {
         this.shopRepository = shopRepository;
+        this.userRepository = userRepository;
     }
 
-    public ShopEntity addShop(ShopEntity shopEntity) {
+    public ShopEntity addShop(ShopRequestDTO shopRequest) {
+        UserEntity user = userRepository.findById(shopRequest.getUser_id())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + shopRequest.getUser_id()));
+
+        ShopEntity shopEntity = new ShopEntity();
+        shopEntity.setName(shopRequest.getName());
+        shopEntity.setDescription(shopRequest.getDescription());
+        shopEntity.setUser(user);
+
         return shopRepository.save(shopEntity);
     }
     public ArrayList<ShopEntity> getAllShops() {

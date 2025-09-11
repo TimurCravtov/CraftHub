@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import utm.server.features.billing.BillingEntity;
 import utm.server.features.products.Product;
+import utm.server.features.shops.ShopEntity;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,7 +35,9 @@ public class UserEntity implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private BillingEntity billingInfo;
-
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ShopEntity> shops;
 
 
     public UserEntity(String name, String email, String password, String accountType) {

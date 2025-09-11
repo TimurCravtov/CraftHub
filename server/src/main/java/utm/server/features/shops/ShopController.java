@@ -20,8 +20,8 @@ public class ShopController {
     }
 
     @PostMapping("/addshop")
-    public ShopEntity addShop(@RequestBody ShopEntity shopEntity) {
-        return shopService.addShop(shopEntity);
+    public ShopEntity addShop(@RequestBody ShopRequestDTO shopRequest) {
+        return shopService.addShop(shopRequest);
     }
 
     @GetMapping("/")

@@ -1,12 +1,15 @@
 package utm.server.features.shops;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import utm.server.features.products.Product;
+import utm.server.features.users.UserEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,4 +30,15 @@ public class ShopEntity {
     @OneToMany(mappedBy="shopEntity")
     @JsonManagedReference
     private List<Product> products;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
+    private UserEntity user;
+    @JsonProperty("user_id")
+    public Long getUserId() {
+        return user != null ? user.getId() : null;
+    }
+
+
+
 }

@@ -4,6 +4,7 @@ package utm.server.features.users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public ArrayList<UserRequestDTO> findAllUser(){
+    public List<UserRequestDTO> findAllUser(){
         
         var user_entities =  (ArrayList<UserEntity>) userRepository.findAll();
         return UserMapper.toDTOs(user_entities);
@@ -30,15 +31,15 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
-    public ArrayList<UserRequestDTO> findAllUserByName(String name){
+    public List<UserRequestDTO> findAllUserByName(String name){
 
-        ArrayList<UserEntity> user_entities = userRepository.findByName(name);
+        List<UserEntity> user_entities = userRepository.findByName(name);
         return UserMapper.toDTOs(user_entities);
     }
 
    @Override
-   public ArrayList<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name){
-        ArrayList<UserEntity> user_entities =
+   public List<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name){
+        List<UserEntity> user_entities =
                 userRepository.findByAccountTypeAndName(accountType, name);
        return UserMapper.toDTOs(user_entities);
     }

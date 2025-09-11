@@ -6,14 +6,15 @@ import utm.server.features.users.dto.UserSignInDTO;
 import utm.server.features.users.dto.UserSignUpDTO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public interface UserService {
 
-ArrayList<UserRequestDTO> findAllUser();
+List<UserRequestDTO> findAllUser();
 
-ArrayList<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name);
-ArrayList<UserRequestDTO> findAllUserByName(String name);
+List<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name);
+List<UserRequestDTO> findAllUserByName(String name);
 UserRequestDTO addUser(UserEntity userEntity);
 void deleteAllData();
 

@@ -31,7 +31,8 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private String accountType;
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private BillingEntity billingInfo;
@@ -40,7 +41,7 @@ public class UserEntity implements UserDetails {
     private List<ShopEntity> shops;
 
 
-    public UserEntity(String name, String email, String password, String accountType) {
+    public UserEntity(String name, String email, String password, AccountType accountType) {
         this.name = name;
         this.email = email;
         this.password = password;

@@ -17,7 +17,7 @@ import utm.server.features.users.dto.UserSignUpDTO;
 @RequiredArgsConstructor
 public class AuthController {
 
-    UserService userService;
+    private final UserService userService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO request){

@@ -3,6 +3,7 @@ package utm.server.features.users;
 import utm.server.features.users.dto.UserRequestDTO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserMapper {
     public static UserRequestDTO toDTO(UserEntity user){
@@ -13,9 +14,9 @@ public class UserMapper {
         return dto;
     }
 
-    public static ArrayList<UserRequestDTO> toDTOs(ArrayList<UserEntity> user_entities)
+    public static List<UserRequestDTO> toDTOs(List<UserEntity> user_entities)
     {
-        ArrayList<UserRequestDTO> dtos = new ArrayList<>();
+        List<UserRequestDTO> dtos = new ArrayList<>();
         for(var user : user_entities)
             dtos.add(UserMapper.toDTO(user));
 

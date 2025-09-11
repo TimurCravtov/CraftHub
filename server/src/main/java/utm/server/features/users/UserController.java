@@ -1,5 +1,6 @@
 package utm.server.features.users;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,19 +39,19 @@ public class UserController {
     }
 
     @GetMapping("/findall")
-    public ArrayList<UserRequestDTO> getAllUser(){
+    public List<UserRequestDTO> getAllUser(){
         return userService.findAllUser();
     }
 
 
     @GetMapping("/findbyname/{name}")
-    public ArrayList<UserRequestDTO> getUserUsingName(@PathVariable String name){
+    public List<UserRequestDTO> getUserUsingName(@PathVariable String name){
         return userService.findAllUserByName(name);
 
     }
 
     @GetMapping("/findbytypeandname")
-    public ArrayList<UserRequestDTO> getUsersByAccountTypeAndName(@RequestParam String accountType,
+    public List<UserRequestDTO> getUsersByAccountTypeAndName(@RequestParam String accountType,
                                                               @RequestParam String name){
         return userService.getUsersByAccountTypeAndName(accountType, name);
 

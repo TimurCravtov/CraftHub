@@ -54,14 +54,26 @@ export default function Header() {
 
   function handleAccountClick() {
     try {
-      const storedUser = localStorage.getItem('user')
-      if (storedUser) {
-        navigate('/account')
-      } else {
-        navigate('/signup')
+      const authRaw = localStorage.getItem('auth')
+      if (authRaw) {
+        const auth = JSON.parse(authRaw)
+        const token = auth?.accessToken || auth?.token
+        
+        if (token && token.split('.').length === 3) {
+          // Decode token and check expiration
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          
+          // Check if token has expired
+          if (payload.exp && payload.exp * 1000 > Date.now()) {
+            navigate('/account')
+            return
+          }
+        }
       }
+      // If no token, invalid token, or expired token - redirect to login
+      navigate('/login')
     } catch (_) {
-      navigate('/signup')
+      navigate('/login')
     }
   }
 
@@ -177,11 +189,11 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center space-x-2">
-            {isSeller && !hasShop && (
+            
               <a href="/account" className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-full text-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow hover:opacity-90">
                 Create Shop
               </a>
-            )}
+            
             <button className="p-2 rounded hover:bg-slate-100" onClick={handleAccountClick}><User className="h-5 w-5" /></button>
             <button className={`p-2 rounded hover:bg-slate-100 ${isSearchOpen ? 'text-blue-600' : ''}`} onClick={handleSearchClick}>
               <Search className={`h-5 w-5 ${isSearchOpen ? 'text-blue-600' : ''}`} />

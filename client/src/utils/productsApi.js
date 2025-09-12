@@ -1,4 +1,17 @@
-import { apiRequest } from './apiClient.js'
+import { apiRequest } from './apiClient'
+
+export const getProducts = () => 
+  apiRequest({ url: '/api/products' })
+
+export const getProduct = (id) => 
+  apiRequest({ url: `/api/products/${id}` })
+
+export const createProduct = (productData) => 
+  apiRequest({ 
+    url: '/api/products', 
+    method: 'POST', 
+    data: productData 
+  })
 
 export const productsApi = {
     async getAll() {

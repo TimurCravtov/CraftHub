@@ -1,38 +1,24 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../component/Header.jsx'
+import { authService } from '../services/authService'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: ''
+  })
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const user = { email, password };
-
     try {
-      const response = await fetch("http://localhost:8080/api/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user),
-      });
-
-      if (!response.ok) throw new Error("Failed to log in");
-
-      const data = await response.json();
-      alert("Login successful: " + JSON.stringify(data));
-
-      // Reset form
-      setEmail("");
-      setPassword("");
+      await authService.login(credentials)
+      navigate('/account')
     } catch (error) {
-      console.error("Error:", error);
-      alert("Login failed. Please try again.");
+      console.error('Login failed:', error)
     }
-  };
-
-  const handleSocialLogin = (provider) => {
-    console.log(`Login with ${provider}`);
-  };
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -56,8 +42,8 @@ export default function Login() {
                   id="email"
                   type="email"
                   placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={credentials.email}
+                  onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
                   className="h-12 w-full bg-gray-50/30 border border-gray-200/60 rounded-full px-6 focus:ring-2 focus:ring-gray-300 focus:border-gray-300 transition-all placeholder:text-gray-400/60 hover:border-gray-300"
                   required
                 />
@@ -71,8 +57,8 @@ export default function Login() {
                   id="password"
                   type="password"
                   placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={credentials.password}
+                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                   className="h-12 w-full bg-gray-50/30 border border-gray-200/60 rounded-full px-6 focus:ring-2 focus:ring-gray-300 focus:border-gray-300 transition-all placeholder:text-gray-400/60 hover:border-gray-300"
                   required
                 />

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '../component/Header.jsx'
 
 export default function Account() {
@@ -35,13 +35,14 @@ export default function Account() {
     }
   })()
   const [form, setForm] = useState({
-    shopName: '',
-    shopDescription: '',
-    ownerDescription: '',
-    coverImage: '',
-    avatarImage: '',
-    shopLogo: '',
-    gallery: [],
+    shopId: null,  // Will be populated when editing existing shop
+    items: [],
+    currentItem: {
+      name: '',
+      price: '',
+      description: '',
+      images: []
+    }
   })
   const [editing, setEditing] = useState({
     branding: false,
@@ -87,11 +88,124 @@ export default function Account() {
     }
   }
 
+  const handleItemChange = (e) => {
+    const { name, value } = e.target
+    setForm(prev => ({
+      ...prev,
+      currentItem: {
+        ...prev.currentItem,
+        [name]: value
+      }
+    }))
+  }
+
+  const handleItemImageChange = (e) => {
+    const files = Array.from(e.target.files || [])
+    setForm(prev => ({
+      ...prev,
+      currentItem: {
+        ...prev.currentItem,
+        images: files
+      }
+    }))
+  }
+
+  const handleAddItem = async () => {
+    const { name, price, description, images } = form.currentItem;
+    const shopId = form.shopId; // Will be null for new shops, populated for existing ones
+    
+    try {
+      const formData = new FormData();
+      formData.append('name', name.trim());
+      formData.append('price', price ? price.toString() : '0');
+      formData.append('description', description?.trim() || '');
+      
+      if (images?.length) {
+        images.forEach(image => {
+          formData.append('images', image);
+        });
+      }
+
+      // Different endpoints for new shop vs existing shop
+      const endpoint = shopId 
+        ? `http://localhost:8080/api/shops/${shopId}/products`
+        : 'http://localhost:8080/api/products';
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth'))?.token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create product');
+      }
+
+      const newProduct = await response.json();
+
+      // Update local state
+      setForm(prev => ({
+        ...prev,
+        items: [...prev.items, newProduct],
+        currentItem: {
+          name: '',
+          price: '',
+          description: '',
+          images: []
+        }
+      }));
+
+    } catch (error) {
+      console.error('Error creating product:', error);
+    }
+  }
+
+  const handleRemoveItem = (index) => {
+    setForm(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }))
+  }
+
+  useEffect(() => {
+    const loadExistingItems = async () => {
+      const shopId = new URLSearchParams(location.search).get('shopId');
+      
+      if (shopId) {
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/shops/${shopId}/products`,
+            {
+              headers: {
+                'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth'))?.token}`
+              }
+            }
+          );
+          
+          if (!response.ok) throw new Error('Failed to fetch shop items');
+          
+          const items = await response.json();
+          setForm(prev => ({
+            ...prev,
+            shopId,
+            items
+          }));
+          
+        } catch (error) {
+          console.error('Error loading shop items:', error);
+        }
+      }
+    };
+
+    loadExistingItems();
+  }, [location.search]);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Hero like ShopPage */}
       <div className="relative h-64 bg-cover bg-center" style={{ backgroundImage: `url(${form.coverImage ? URL.createObjectURL(form.coverImage) : '/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg'})` }}>
         <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
@@ -104,43 +218,6 @@ export default function Account() {
         </div>
       </div>
 
-      {!isSeller && (
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
-          <div className="border rounded-2xl bg-white p-6 text-center">
-            <h2 className="text-xl font-semibold mb-2">Seller access required</h2>
-            <p className="text-slate-600 text-sm">Sign in with a seller account to create or manage a shop.</p>
-          </div>
-        </div>
-      )}
-
-      {isSeller && existingShop && (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-          <div className="border rounded-2xl bg-white p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold">Your shop</h2>
-                <p className="text-sm text-slate-600">You can edit or delete your shop below.</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={() => window.location.assign('/account?edit=1')} className="px-4 py-2 rounded bg-gray-900 text-white hover:bg-gray-800">Edit</button>
-                <button type="button" onClick={() => { localStorage.removeItem(currentUserKey); window.location.reload(); }} className="px-4 py-2 rounded border hover:bg-slate-50">Delete shop</button>
-              </div>
-            </div>
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-2">
-                <h3 className="text-lg font-medium">{existingShop.shopName}</h3>
-                <p className="text-sm text-slate-600">Owner: {existingShop.ownerName}</p>
-                <p className="mt-3 text-slate-700 whitespace-pre-wrap">{existingShop.shopDescription}</p>
-              </div>
-              <div>
-                <div className="p-4 border rounded-lg text-sm text-slate-600">Logo/Images will appear here once uploaded.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isSeller && !existingShop && (
       <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Section: Branding & About You */}
         <div className="border rounded-2xl bg-white">
@@ -246,39 +323,165 @@ export default function Account() {
           )}
         </div>
 
-        {/* Section: Gallery */}
+        {/* Photos & gallery section */}
         <div className="border rounded-2xl bg-white">
           <div className="p-5 border-b flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">Photos & gallery</h2>
-              <span className="text-xs text-slate-500">Add images of your work</span>
+              <span className="text-xs text-slate-500">Add images and items for sale</span>
             </div>
             {!editing.gallery ? (
-              <button type="button" onClick={() => setEditing(e => ({ ...e, gallery: true }))} className="px-3 py-1.5 rounded-full text-xs text-white bg-gray-900 hover:bg-gray-800">Edit section</button>
+              <button 
+                type="button" 
+                onClick={() => setEditing(e => ({ ...e, gallery: true }))} 
+                className="px-3 py-1.5 rounded-full text-xs text-white bg-gray-900 hover:bg-gray-800"
+              >
+                Edit section
+              </button>
             ) : (
               <div className="flex items-center gap-2">
-                <button type="button" onClick={() => setEditing(e => ({ ...e, gallery: false }))} className="px-3 py-1.5 rounded border text-xs hover:bg-slate-50">Cancel</button>
-                <button type="button" onClick={() => setEditing(e => ({ ...e, gallery: false }))} className="px-3 py-1.5 rounded text-xs text-white bg-gray-900 hover:bg-gray-800">Save section</button>
+                <button 
+                  type="button" 
+                  onClick={() => setEditing(e => ({ ...e, gallery: false }))} 
+                  className="px-3 py-1.5 rounded border text-xs hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setEditing(e => ({ ...e, gallery: false }))} 
+                  className="px-3 py-1.5 rounded text-xs text-white bg-gray-900 hover:bg-gray-800"
+                >
+                  Save section
+                </button>
               </div>
             )}
           </div>
+          
           {!editing.gallery ? (
             <div className="p-5">
-              {form.gallery?.length ? (
+              {form.items?.length ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {form.gallery.map((f, i) => (
-                    <img key={i} src={URL.createObjectURL(f)} alt={`img-${i}`} className="h-28 w-full object-cover rounded-lg border" />
+                  {form.items.map((item, i) => (
+                    <div key={i} className="relative group">
+                      <img 
+                        src={URL.createObjectURL(item.images[0])} 
+                        alt={`item-${i}`} 
+                        className="h-28 w-full object-cover rounded-lg border"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 rounded-b-lg">
+                        <p className="text-sm font-medium">{item.name}</p>
+                        <p className="text-xs">${item.price}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-slate-600">No images yet. Add some to showcase your work.</p>
+                <p className="text-sm text-slate-600">No items yet. Add some to your shop.</p>
               )}
             </div>
           ) : (
-            <div className="p-5">
-              <input type="file" multiple accept="image/*" onChange={(e) => handleFiles(e, 'gallery')} className="block w-full text-sm" />
-              {form.gallery?.length > 0 && (
-                <p className="text-xs text-slate-500 mt-1">{form.gallery.length} file(s) selected</p>
+            <div className="p-5 space-y-6">
+              <div className="border rounded-lg p-4 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Item Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={form.currentItem.name}
+                    onChange={handleItemChange}
+                    className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="What are you selling?"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Price
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2 text-slate-500">$</span>
+                    <input
+                      type="number"
+                      name="price"
+                      value={form.currentItem.price}
+                      onChange={handleItemChange}
+                      className="w-full border rounded px-3 py-2 pl-7 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={form.currentItem.description}
+                    onChange={handleItemChange}
+                    rows={3}
+                    className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Tell buyers about your item..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Photos
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleItemImageChange}
+                    className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100"
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Add up to 5 photos to show your item's details
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleAddItem}
+                  className="w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors"
+                >
+                  Add Item
+                </button>
+              </div>
+
+              {/* Preview of added items */}
+              {form.items?.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium text-slate-700 mb-2">Added Items</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {form.items.map((item, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={URL.createObjectURL(item.images[0])}
+                          alt={`item-${index}`}
+                          className="h-28 w-full object-cover rounded-lg border"
+                        />
+                        <button
+                          onClick={() => handleRemoveItem(index)}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
+                        >
+                          <span className="sr-only">Remove</span>
+                          ×
+                        </button>
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 rounded-b-lg">
+                          <p className="text-sm font-medium">{item.name}</p>
+                          <p className="text-xs">${item.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -290,7 +493,6 @@ export default function Account() {
           <button type="submit" className="px-5 py-2 rounded bg-gray-900 text-white hover:bg-gray-800">Save</button>
         </div>
       </form>
-      )}
     </div>
   )
 }

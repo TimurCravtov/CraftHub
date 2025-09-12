@@ -107,7 +107,7 @@ export default function Signup() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setAccountType('BUYER')}
+                  onClick={() => setAccountType('Buyer')}
                   className={`h-10 rounded-full border transition-all ${accountType === 'BUYER' ? 'border-blue-600 text-white bg-gradient-to-r from-blue-600 to-purple-600' : 'border-gray-200/60 text-black bg-gray-50/30 hover:bg-gray-100/50'}`}
                 >
                   Buyer

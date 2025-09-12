@@ -23,7 +23,7 @@ public class OrderEntity {
     @Column
     private double total;
     @Column
-    private String status;
+    private Status status;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference

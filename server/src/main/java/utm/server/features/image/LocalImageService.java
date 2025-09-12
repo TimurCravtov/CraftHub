@@ -15,6 +15,16 @@ public class LocalImageService implements ImageService {
     }
 
     @Override
+    public String moveToPermanent(String tempKey) {
+        return "";
+    }
+
+    @Override
+    public String uploadTemp(MultipartFile file) {
+        return "";
+    }
+
+    @Override
     public String upload(MultipartFile file, boolean isPublic) {
         return "";
     }

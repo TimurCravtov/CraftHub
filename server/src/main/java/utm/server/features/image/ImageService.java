@@ -8,10 +8,10 @@ public interface ImageService {
 
     Duration standardLinkDuration = Duration.ofMinutes(15);
 
-    /**
-     * @param file The file to upload
-     * @return Filename of the file stored in service
-     */
+    String moveToPermanent(String tempKey);
+
+    String uploadTemp(MultipartFile file);
+
     String upload(MultipartFile file, boolean isPublic);
     String getSignedLink(String imageId, Duration duration);
     String getPermanentLink(String imageId);

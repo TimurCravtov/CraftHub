@@ -34,6 +34,73 @@ public class CloudflareImageService implements ImageService {
     @Value("${cloudflare.r2.endpoint}")
     private String endpoint;
 
+
+    @Override
+    @SneakyThrows
+    public String uploadTemp(MultipartFile file) {
+        String original = Optional.ofNullable(file.getOriginalFilename())
+                .orElseThrow(() -> new RuntimeException("Filename is missing"))
+                .toLowerCase();
+
+        String contentType = Optional.ofNullable(file.getContentType())
+                .orElseThrow(() -> new RuntimeException("Content-Type is unknown"));
+
+        String key = String.format("temp/%s-%s", UUID.randomUUID(), original);
+
+        PutObjectRequest req = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .contentType(contentType)
+                .build();
+
+        try {
+            s3Client.putObject(req, RequestBody.fromBytes(file.getBytes()));
+        } catch (IOException e) {
+            throw new FileUploadException("File upload to Cloudflare R2 failed", e);
+        }
+
+        return key; // return the object key in R2
+    }
+
+    /**
+     * Moves a file from temp/ folder to a permanent folder.
+     * @param tempKey Key of the temp file (e.g. "temp/uuid-filename.jpg")
+     * @return new key in permanent storage
+     */
+    @SneakyThrows
+    public String moveToPermanent(String tempKey) {
+        if (!tempKey.startsWith("temp/")) {
+            throw new IllegalArgumentException("Key does not belong to temp storage: " + tempKey);
+        }
+
+        // Extract original filename part after "temp/"
+        String original = tempKey.substring(tempKey.indexOf('-') + 1).toLowerCase();
+        String ext = getFileExtension(original);
+
+        // Determine target folder
+        String folder = switch (ext) {
+            case "jpg","jpeg","png","gif" -> "images";
+            case "mp4","mov"              -> "videos";
+            case "pdf","doc","docx","txt" -> "documents";
+            default -> throw new RuntimeException("Unsupported file type: " + ext);
+        };
+
+        String newKey = String.format("%s/%s-%s", folder, UUID.randomUUID(), original);
+
+        // Copy from temp → permanent
+        s3Client.copyObject(builder -> builder
+                .sourceBucket(bucket)
+                .sourceKey(tempKey)
+                .destinationBucket(bucket)
+                .destinationKey(newKey));
+
+        // Delete temp object
+        s3Client.deleteObject(builder -> builder.bucket(bucket).key(tempKey));
+
+        return newKey;
+    }
+
+
     /**
      * Uploads a file to Cloudflare R2.
      * @param file Multipart file

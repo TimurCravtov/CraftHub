@@ -34,11 +34,14 @@ public class ShopController {
         return shopService.getShopsByName(name);
     }
 
+    @GetMapping("/{shopId}")
+    public ShopEntity getShopById(@PathVariable Long shopId){
+        return shopService.getShopById(shopId);
+    }
 
     @GetMapping("/{shopId}/products")
     public List<Product> getProductsByShop(@PathVariable Long shopId){
         return shopService.getProductsByShopId(shopId);
     }
-
 
 }

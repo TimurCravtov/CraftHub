@@ -17,12 +17,17 @@ import Cart from './pages/Cart.jsx'
 import { ToastProvider } from './toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Account from './pages/Account.jsx'
-import {TranslationProvider} from "./context/translationContext.jsx";
+import {TranslationProvider, useTranslation} from "./context/translationContext.jsx";
+
+function RedirectToLocale() {
+  const { locale } = useTranslation();
+  return <Navigate to={`/${locale}/home`} replace />;
+}
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/en" replace />, // redirect root to default lang
+    element: <RedirectToLocale/>,
   },
   {
     path: '/signup',

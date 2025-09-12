@@ -3,7 +3,10 @@ import { createContext, useContext, useEffect, useState, useMemo } from "react";
 const TranslationContext = createContext();
 
 export function TranslationProvider({ children }) {
-    const [locale, setLocale] = useState("en");
+    const [locale, setLocale] = useState(() => {
+        return localStorage.getItem("locale") || "en";
+    });
+
     const [translations, setTranslations] = useState({});
 
     // Detect language from URL or localStorage

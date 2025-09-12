@@ -60,17 +60,10 @@ export default function Header() {
         const token = auth?.accessToken || auth?.token
         
         if (token && token.split('.').length === 3) {
-          // Decode token and check expiration
-          const payload = JSON.parse(atob(token.split('.')[1]))
-          
-          // Check if token has expired
-          if (payload.exp && payload.exp * 1000 > Date.now()) {
-            navigate('/account')
-            return
-          }
+          navigate('/account/shops')
+          return
         }
       }
-      // If no token, invalid token, or expired token - redirect to login
       navigate('/login')
     } catch (_) {
       navigate('/login')

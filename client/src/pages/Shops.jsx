@@ -1,4 +1,4 @@
-import { Filter, Grid3X3, List, Star, Heart } from 'lucide-react'
+import { Filter, Grid3X3, List, Heart } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 
@@ -8,8 +8,6 @@ const shops = [
     name: "Luna's Ceramics",
     image: "/assets/modern-plant-store-interior.jpg",
     logo: "/assets/react.svg",
-    rating: 4.9,
-    reviews: 87,
     description: 'Handcrafted pottery & ceramic art pieces',
     artisan: 'Luna Martinez',
   },
@@ -18,8 +16,6 @@ const shops = [
     name: 'Silversmith Studio',
     image: '/assets/modern-plant-store-interior.jpg',
     logo: '/assets/react.svg',
-    rating: 4.8,
-    reviews: 124,
     description: 'Custom jewelry & metalwork creations',
     artisan: 'Alex Chen',
   },
@@ -28,8 +24,6 @@ const shops = [
     name: 'Woven Dreams',
     image: '/assets/modern-plant-store-interior.jpg',
     logo: '/assets/react.svg',
-    rating: 4.7,
-    reviews: 156,
     description: 'Hand-woven textiles & fiber art',
     artisan: 'Maya Patel',
   },
@@ -38,8 +32,6 @@ const shops = [
     name: 'Woodcraft Atelier',
     image: '/assets/modern-plant-store-interior.jpg',
     logo: '/assets/react.svg',
-    rating: 4.9,
-    reviews: 92,
     description: 'Artisan furniture & wooden sculptures',
     artisan: 'David Kim',
   },
@@ -48,8 +40,6 @@ const shops = [
     name: 'Glass & Light',
     image: '/assets/modern-plant-store-interior.jpg',
     logo: '/assets/react.svg',
-    rating: 4.6,
-    reviews: 78,
     description: 'Blown glass art & lighting fixtures',
     artisan: 'Sofia Rodriguez',
   },
@@ -58,8 +48,6 @@ const shops = [
     name: 'Leather & Stitch',
     image: '/assets/modern-plant-store-interior.jpg',
     logo: '/assets/react.svg',
-    rating: 4.8,
-    reviews: 134,
     description: 'Handcrafted leather goods & accessories',
     artisan: 'James Wilson',
   },
@@ -126,8 +114,6 @@ export default function Shops() {
               <select className="border rounded px-2 py-1 bg-white">
                 <option>Default</option>
                 <option>Name A-Z</option>
-                <option>Rating</option>
-                <option>Reviews</option>
               </select>
             </div>
           </div>
@@ -153,16 +139,6 @@ export default function Shops() {
               <div className="p-3">
                 <h3 className="text-sm font-semibold text-gray-900 truncate">{shop.name}</h3>
                 <p className="text-xs text-gray-500 truncate">by {shop.artisan}</p>
-
-                <div className="mt-2 flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-4 w-4 ${i < Math.floor(shop.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                    ))}
-                    <span className="text-sm font-medium text-gray-900">{shop.rating}</span>
-                    <span className="text-xs text-gray-500">({shop.reviews})</span>
-                  </div>
-                </div>
               </div>
             </div>
           ))}
@@ -220,5 +196,3 @@ export default function Shops() {
     </div>
   )
 }
-
-

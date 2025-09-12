@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 import { Star, Heart, Search, ShoppingCart, User, Facebook, Instagram } from 'lucide-react'
 
+
 export default function ShopPage() {
   const [activeTab, setActiveTab] = useState('description')
   const navigate = useNavigate()
@@ -47,14 +48,6 @@ export default function ShopPage() {
 
           <div className="space-y-6">
             <h1 className="text-4xl font-bold text-gray-900">Person name</h1>
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <span className="text-gray-600">5 Customer Reviews</span>
-            </div>
             <p className="text-gray-600 leading-relaxed">
               Discover the fine, handmade best of craft in this artisan marketplace online where talented makers like you showcase their unique creations. From pottery to jewelry, each piece tells a story of passion and skill.
             </p>
@@ -66,8 +59,8 @@ export default function ShopPage() {
         </div>
 
         <div className="mt-16">
-          <div className="grid w-full grid-cols-3 max-w-md mx-auto border rounded-lg overflow-hidden">
-            {['description', 'additional', 'reviews'].map((tab) => (
+          <div className="grid w-full grid-cols-2 max-w-md mx-auto border rounded-lg overflow-hidden">
+            {['description', 'additional'].map((tab) => (
               <button
                 key={tab}
                 className={`px-4 py-2 text-sm ${activeTab === tab ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
@@ -75,7 +68,6 @@ export default function ShopPage() {
               >
                 {tab === 'description' && 'Description'}
                 {tab === 'additional' && 'Additional Information'}
-                {tab === 'reviews' && 'Reviews (5)'}
               </button>
             ))}
           </div>
@@ -94,12 +86,6 @@ export default function ShopPage() {
           {activeTab === 'additional' && (
             <div className="mt-8 max-w-4xl mx-auto text-gray-600">
               <p>Additional product information and specifications would go here.</p>
-            </div>
-          )}
-
-          {activeTab === 'reviews' && (
-            <div className="mt-8 max-w-4xl mx-auto text-gray-600">
-              <p>Customer reviews and ratings would be displayed here.</p>
             </div>
           )}
         </div>
@@ -150,5 +136,3 @@ export default function ShopPage() {
     </div>
   )
 }
-
-

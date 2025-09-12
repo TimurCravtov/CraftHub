@@ -37,6 +37,16 @@ public class ShopService {
         return shopRepository.findByName(name);
     }
 
+    public ShopEntity getShopById(Long shopId){
+        Optional<ShopEntity> shopEntityOptional = shopRepository.findById(shopId);
+        if (shopEntityOptional.isPresent()) {
+            ShopEntity shopEntity = shopEntityOptional.get();
+            return shopEntity;
+        } else {
+            throw new RuntimeException("Shop not found with id: " + shopId);
+        }
+    }
+
     public List<Product> getProductsByShopId(Long shopId) {
         Optional<ShopEntity> shopEntityOptional = shopRepository.findById(shopId);
 
@@ -46,7 +56,7 @@ public class ShopService {
         } else {
             throw new RuntimeException("Shop not found with id: " + shopId);
         }
-
-
     }
+
+
 }

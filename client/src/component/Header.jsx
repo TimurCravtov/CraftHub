@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { User, Search, Heart, ShoppingCart, X } from 'lucide-react'
+import {LanguagePicker} from "./LanguagePicker.jsx";
 
 export default function Header() {
   const location = useLocation()
@@ -188,7 +189,9 @@ export default function Header() {
             <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/liked' ? 'text-pink-600' : ''}`} onClick={() => navigate('/liked')}>
               <Heart className={`h-5 w-5 ${location.pathname === '/liked' ? 'text-pink-600 fill-pink-600' : ''}`} />
             </button>
-            <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/cart' ? 'text-blue-600' : ''}`} onClick={() => navigate('/cart')}><ShoppingCart className="h-5 w-5" /></button>
+            <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/cart' ? 'text-blue-600' : ''}`} onClick={() => navigate('/cart')}>
+              <ShoppingCart className="h-5 w-5" /></button>
+            <LanguagePicker />
           </div>
         </div>
         

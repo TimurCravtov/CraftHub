@@ -17,6 +17,7 @@ import Cart from './pages/Cart.jsx'
 import { ToastProvider } from './toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Account from './pages/Account.jsx'
+import {TranslationProvider} from "./context/translationContext.jsx";
 
 const router = createBrowserRouter([
   {
@@ -93,12 +94,14 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-      <LikesProvider>
-        <CartProvider>
-          <ToastProvider>
-            <RouterProvider router={router} />
-          </ToastProvider>
-        </CartProvider>
-      </LikesProvider>
+      <TranslationProvider>
+        <LikesProvider>
+          <CartProvider>
+            <ToastProvider>
+              <RouterProvider router={router} />
+            </ToastProvider>
+          </CartProvider>
+        </LikesProvider>
+      </TranslationProvider>
     </StrictMode>
 )

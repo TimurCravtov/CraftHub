@@ -33,6 +33,7 @@ public class UserController {
 
     }
 
+
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserEntity user) {
         return ResponseEntity.ok(new MeUserDto(user));
@@ -43,7 +44,10 @@ public class UserController {
         return userService.findAllUser();
     }
 
-
+    @GetMapping("{id}")
+    public UserRequestDTO getUserUsingId(@PathVariable Long id){
+        return userService.findUserById(id);
+    }
     @GetMapping("/findbyname/{name}")
     public List<UserRequestDTO> getUserUsingName(@PathVariable String name){
         return userService.findAllUserByName(name);

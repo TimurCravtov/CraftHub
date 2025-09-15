@@ -1,0 +1,17 @@
+package utm.server.authentication.service;
+
+import utm.server.authentication.dto.UserSignInDTO;
+import utm.server.authentication.dto.UserSignUpDTO;
+import utm.server.authentication.dto.UpdateUserDTO;
+import utm.server.features.jwt.JwtTokenPair;
+import utm.server.features.users.UserEntity;
+
+public interface AuthService {
+    JwtTokenPair signUp(UserSignUpDTO request);
+    JwtTokenPair signIn(UserSignInDTO request);
+    String enableTwoFactorAuthentication(Long userId); 
+    boolean verifyTwoFactorCode(Long userId, String code);
+    JwtTokenPair verifyTwoFactorSignIn(Long userId, String code);
+    UserEntity updateUser(Long userId, UpdateUserDTO request);
+    Long getUserIdFromToken(String token);
+}

@@ -73,22 +73,68 @@ export default function Account() {
     }
   })()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     try {
-      const payload = {
-        shopName: form.shopName,
-        ownerName: ownerDisplayName,
-        shopDescription: form.shopDescription,
-        ownerDescription: form.ownerDescription,
-        // images omitted in storage demo
-        hasShop: true,
+      const formData = new FormData()
+      
+      // Shop details
+      formData.append('shopName', form.shopName)
+      formData.append('description', form.shopDescription)
+      formData.append('ownerDescription', form.ownerDescription)
+      
+      // Shop images - sending as array of files
+      if (form.coverImage) {
+        formData.append('coverImage', form.coverImage)
       }
-      localStorage.setItem(currentUserKey, JSON.stringify(payload))
-      alert('Shop saved locally. (Client-only)')
-      window.location.reload()
-    } catch {
-      alert('Failed to save locally')
+      if (form.avatarImage) {
+        formData.append('avatarImage', form.avatarImage)
+      }
+      if (form.shopLogo) {
+        formData.append('logo', form.shopLogo)
+      }
+      
+      // Items with their images
+      form.items.forEach((item, index) => {
+        formData.append(`items[${index}].name`, item.name)
+        formData.append(`items[${index}].price`, item.price)
+        formData.append(`items[${index}].description`, item.description)
+        
+        // Each item can have multiple images
+        item.images.forEach((image, imageIndex) => {
+          // This creates an array-like structure in FormData for Spring to parse
+          formData.append(`items[${index}].images`, image)
+        })
+      })
+
+      // Log FormData entries for debugging
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1])
+      }
+
+      const response = await fetch('http://localhost:8080/api/shops', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth'))?.token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create shop')
+      }
+
+      const shop = await response.json()
+      
+      // Clear local storage shop data if it exists
+      localStorage.removeItem(currentUserKey)
+      
+      // Redirect to manage shops page
+      window.location.href = '/account/shops'
+
+    } catch (error) {
+      console.error('Failed to save shop:', error)
+      alert('Failed to save shop. Please try again.')
     }
   }
 

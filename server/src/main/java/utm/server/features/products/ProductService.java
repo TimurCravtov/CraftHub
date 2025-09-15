@@ -17,6 +17,8 @@ public class ProductService {
 
     public List<Product> findProductsByTitle(String title){return productRepository.findByTitle(title);}
 
+    public List<Product> findProductsByShopId(Long id){return productRepository.findByShopEntityId(id);}
+
     public Product addProduct(Product product){
         productRepository.save(product);
         return product;

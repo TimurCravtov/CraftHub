@@ -29,6 +29,10 @@ public class UserServiceImpl implements UserService{
         return UserMapper.toDTOs(user_entities);
     }
 
+    @Override
+    public UserRequestDTO findUserById(Long id){
+        return UserMapper.toDTO(userRepository.findById(id).get());
+    }
 
     @Override
     public List<UserRequestDTO> findAllUserByName(String name){

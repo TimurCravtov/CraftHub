@@ -2,6 +2,8 @@ package utm.server.features.shops;
 
 import org.springframework.stereotype.Service;
 import utm.server.features.products.Product;
+import utm.server.features.products.ProductRepository;
+import utm.server.features.products.dto.ProductCreationDto;
 import utm.server.features.users.UserEntity;
 import utm.server.features.users.UserRepository;
 
@@ -13,9 +15,12 @@ import java.util.Optional;
 public class ShopService {
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
-    public ShopService(ShopRepository shopRepository, UserRepository userRepository) {
+
+    private final ProductRepository productRepository;
+    public ShopService(ShopRepository shopRepository, UserRepository userRepository, ProductRepository productRepository) {
         this.shopRepository = shopRepository;
         this.userRepository = userRepository;
+        this.productRepository = productRepository;
     }
 
     public ShopEntity addShop(ShopRequestDTO shopRequest) {
@@ -26,8 +31,18 @@ public class ShopService {
         shopEntity.setName(shopRequest.getName());
         shopEntity.setDescription(shopRequest.getDescription());
         shopEntity.setUser(user);
-
-        return shopRepository.save(shopEntity);
+        ShopEntity savedShop = shopRepository.save(shopEntity);
+        if(shopRequest.getProducts() != null){
+            for (ProductCreationDto item : shopRequest.getProducts()) {
+                Product product = new Product();
+                product.setTitle(item.title());
+                product.setPrice(item.price());
+                product.setDescription(item.description());
+                product.setShopEntity(shopEntity);
+                productRepository.save(product);
+            }
+        }
+        return savedShop;
     }
     public ArrayList<ShopEntity> getAllShops() {
         return shopRepository.findAll();

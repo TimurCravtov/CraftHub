@@ -1,84 +1,82 @@
 import { Filter, Grid3X3, List, Heart } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../component/Header.jsx'
-
-const shops = [
-  {
-    id: 1,
-    name: "Luna's Ceramics",
-    image: "/assets/modern-plant-store-interior.jpg",
-    logo: "/assets/react.svg",
-    description: 'Handcrafted pottery & ceramic art pieces',
-    artisan: 'Luna Martinez',
-  },
-  {
-    id: 2,
-    name: 'Silversmith Studio',
-    image: '/assets/modern-plant-store-interior.jpg',
-    logo: '/assets/react.svg',
-    description: 'Custom jewelry & metalwork creations',
-    artisan: 'Alex Chen',
-  },
-  {
-    id: 3,
-    name: 'Woven Dreams',
-    image: '/assets/modern-plant-store-interior.jpg',
-    logo: '/assets/react.svg',
-    description: 'Hand-woven textiles & fiber art',
-    artisan: 'Maya Patel',
-  },
-  {
-    id: 4,
-    name: 'Woodcraft Atelier',
-    image: '/assets/modern-plant-store-interior.jpg',
-    logo: '/assets/react.svg',
-    description: 'Artisan furniture & wooden sculptures',
-    artisan: 'David Kim',
-  },
-  {
-    id: 5,
-    name: 'Glass & Light',
-    image: '/assets/modern-plant-store-interior.jpg',
-    logo: '/assets/react.svg',
-    description: 'Blown glass art & lighting fixtures',
-    artisan: 'Sofia Rodriguez',
-  },
-  {
-    id: 6,
-    name: 'Leather & Stitch',
-    image: '/assets/modern-plant-store-interior.jpg',
-    logo: '/assets/react.svg',
-    description: 'Handcrafted leather goods & accessories',
-    artisan: 'James Wilson',
-  },
-]
 
 export default function Shops() {
   const navigate = useNavigate()
   const location = useLocation()
   const params = new URLSearchParams(location.search)
   const q = (params.get('q') || '').toLowerCase()
+
+  const [shops, setShops] = useState([])
+  const [loading, setLoading] = useState(true)
+
+
+  useEffect(() => {
+    const fetchShops = async () => {
+      try {
+        const shopResponse = await fetch('http://localhost:8080/api/shops/')
+        const shopsData = await shopResponse.json()
+        
+      
+        const shopsWithArtisans = await Promise.all(
+          shopsData.map(async (shop) => {
+            const userResponse = await fetch(`http://localhost:8080/api/users/${shop.user_id}`)
+            const userData = await userResponse.json()
+            shop.artisan = userData.name  
+            return shop
+          })
+        )
+
+        setShops(shopsWithArtisans)
+      } catch (error) {
+        console.error('Error fetching shops or users:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchShops()
+  }, [])
+
   const filtered = q
-    ? shops.filter((s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.artisan.toLowerCase().includes(q) ||
-        s.description.toLowerCase().includes(q)
+    ? shops.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.artisan.toLowerCase().includes(q) ||
+          s.description.toLowerCase().includes(q)
       )
     : shops
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
       <div
         className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)' }}
+        style={{
+          backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)',
+        }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
           <h1 className="text-4xl font-bold text-white mb-4">Artisan Shops</h1>
-          <p className="text-white/90 mb-4 text-lg">Discover unique handmade creations from talented artisans</p>
+          <p className="text-white/90 mb-4 text-lg">
+            Discover unique handmade creations from talented artisans
+          </p>
           <div className="flex items-center space-x-2 text-white/80">
-            <a href="/" className="hover:text-white">Home</a>
+            <a href="/" className="hover:text-white">
+              Home
+            </a>
             <span>&gt;</span>
             <span>Shops</span>
           </div>
@@ -93,10 +91,14 @@ export default function Shops() {
               <span>Filter</span>
             </button>
             <div className="flex items-center space-x-2">
-              <button className="p-2 rounded hover:bg-slate-100"><Grid3X3 className="h-4 w-4" /></button>
-              <button className="p-2 rounded hover:bg-slate-100"><List className="h-4 w-4" /></button>
+              <button className="p-2 rounded hover:bg-slate-100">
+                <Grid3X3 className="h-4 w-4" />
+              </button>
+              <button className="p-2 rounded hover:bg-slate-100">
+                <List className="h-4 w-4" />
+              </button>
             </div>
-            <span className="text-sm text-slate-600">Showing 1-6 of 32 artisan shops</span>
+            <span className="text-sm text-slate-600">Showing {filtered.length} of {shops.length} artisan shops</span>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -121,7 +123,11 @@ export default function Shops() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {filtered.map((shop) => (
-            <div onClick={() => navigate(`/shops/${shop.id}`)} key={shop.id} className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
+            <div
+              onClick={() => navigate(`/shops/${shop.id}`)}
+              key={shop.id}
+              className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            >
               <div className="relative h-48">
                 <img src={shop.image} alt={shop.name} className="w-full h-full object-cover" />
 
@@ -132,7 +138,11 @@ export default function Shops() {
                 </div>
 
                 <div className="absolute bottom-3 left-3">
-                  <img src={shop.logo} alt={`${shop.name} logo`} className="w-10 h-10 rounded-full bg-white/90 p-1 shadow border" />
+                  <img
+                    src={shop.logo}
+                    alt={`${shop.name} logo`}
+                    className="w-10 h-10 rounded-full bg-white/90 p-1 shadow border"
+                  />
                 </div>
               </div>
 

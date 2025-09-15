@@ -16,6 +16,8 @@ List<UserRequestDTO> findAllUser();
 List<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name);
 List<UserRequestDTO> findAllUserByName(String name);
 UserRequestDTO addUser(UserEntity userEntity);
+
+UserRequestDTO findUserById(Long id);
 void deleteAllData();
 
 public JwtTokenPair signUp(UserSignUpDTO request);

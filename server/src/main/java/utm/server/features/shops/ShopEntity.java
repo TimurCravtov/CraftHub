@@ -27,9 +27,9 @@ public class ShopEntity {
     private String name;
     @Column(nullable = true)
     private String description;
-    @OneToMany(mappedBy="shopEntity")
+    @OneToMany(mappedBy="shopEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Product> products;
+    private List<Product> products = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference

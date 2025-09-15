@@ -29,4 +29,9 @@ public class ProductController {
         return productService.findProductsByTitle(title);
     }
 
+    @GetMapping("/by-shop/{id}")
+    public List<Product> getProductsByShop(@PathVariable Long id){
+        return productService.findProductsByShopId(id);
+    }
+
 }

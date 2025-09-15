@@ -121,14 +121,23 @@ export default function Home() {
       <div className="min-h-screen bg-white">
         <Header />
 
-        <div
-            className="relative h-64 bg-cover bg-center"
-            style={{ backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)' }}
-        >
+        <div className="relative h-64">
+          {/* Plain image */}
+          <img
+              src="/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg"
+              alt="Plant store"
+              className="w-full h-full object-cover brightness-40"
+          />
+
+          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
+
+          {/* Content */}
+          <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8">
             <h1 className="text-4xl font-bold text-white mb-4">Artisan Shops</h1>
-            <p className="text-white/90 mb-4 text-lg">Discover unique handmade creations from talented artisans</p>
+            <p className="text-white/90 mb-4 text-lg">
+              Discover unique handmade creations from talented artisans
+            </p>
             <div className="flex items-center space-x-2 text-white/80">
               <a href="/" className="hover:text-white">Home</a>
               <span>&gt;</span>

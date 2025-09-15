@@ -5,14 +5,14 @@ const API_BASE_URL = 'http://localhost:8080'
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json'
+    // 'Content-Type': 'application/json'
   }
 })
 
 axiosInstance.interceptors.request.use((config) => {
   const auth = JSON.parse(localStorage.getItem('auth') || '{}')
   if (auth.accessToken) {
-    config.headers.Authorization = `Bearer ${auth.accessToken}`
+    // config.headers.Authorization = `Bearer ${auth.accessToken}`
   }
   return config
 })

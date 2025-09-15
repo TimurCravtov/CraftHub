@@ -1,5 +1,6 @@
 import Header from './component/Header.jsx'
 
+
 export default function App() {
   return (
     <div className="min-h-screen bg-white">

@@ -11,6 +11,7 @@ import ItemPage from "./pages/ItemPage.jsx";
 import Items from './pages/Items.jsx'
 import ShopPage from "./pages/ShopPage.jsx";
 import Liked from './pages/Liked.jsx'
+import Settings from "./pages/Settings.jsx";
 import { LikesProvider } from './likesContext.jsx'
 import { CartProvider } from './cartContext.jsx'
 import Cart from './pages/Cart.jsx'
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
     element: <Checkout />,
   },
   {
+    path: '/settings',  
+    element: <Settings />,
+  },
+  {
     path: '*',
     element: <App />,
     path: "/:lang",
@@ -77,6 +82,7 @@ const router = createBrowserRouter([
       { path: "cart", element: <Cart /> },
       { path: "checkout", element: <Checkout /> },
       { path: "*", element: <App /> },
+      { path: "settings", element: <Settings /> },
     ],
   },
 ])

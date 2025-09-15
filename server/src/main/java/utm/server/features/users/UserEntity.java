@@ -1,18 +1,15 @@
 package utm.server.features.users;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-
-
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import utm.server.authentication.model.TwoFactorData;
 import utm.server.features.products.Product;
 
 import java.util.Collection;
 import java.util.List;
-
 
 @Data
 @NoArgsConstructor
@@ -23,18 +20,23 @@ public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String name;
+
     @Column(nullable = false, unique = true)
     private String email;
+
     @Column(nullable = false)
     private String password;
+
     @Column(nullable = false)
     private String accountType;
-    
-    
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // prevenim recursivitatea JSON
     private TwoFactorData twoFactorData;
+
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 
@@ -43,9 +45,7 @@ public class UserEntity implements UserDetails {
         this.email = email;
         this.password = password;
         this.accountType = accountType;
-        
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -59,7 +59,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email; // Use email as username for authentication
+        return email; // folosim email pentru autentificare
     }
 
     @Override
@@ -81,5 +81,4 @@ public class UserEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

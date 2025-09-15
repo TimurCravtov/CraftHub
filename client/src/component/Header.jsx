@@ -1,14 +1,26 @@
 import { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { User, Search, Heart, ShoppingCart, X } from 'lucide-react'
+import { User, Search, Heart, ShoppingCart, X, LogOut, Settings } from 'lucide-react'
+
+
 
 export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [user, setUser] = useState(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const searchInputRef = useRef(null)
   const searchPopupRef = useRef(null)
+
+  // Load user from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
 
   // Check if we're on a searchable page
   const isSearchablePage = location.pathname === '/shops' || location.pathname === '/items'
@@ -28,16 +40,18 @@ export default function Header() {
   }
 
   function handleAccountClick() {
-    try {
-      const storedUser = localStorage.getItem('user')
-      if (storedUser) {
-        navigate('/account')
-      } else {
-        navigate('/signup')
-      }
-    } catch (_) {
+    if (user) {
+      setMenuOpen((prev) => !prev)
+    } else {
       navigate('/signup')
     }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("user")
+    setUser(null)
+    setMenuOpen(false)
+    navigate("/")
   }
 
   // Open search automatically if navigated with #search, then clear hash
@@ -64,7 +78,6 @@ export default function Header() {
     if (value) params.set('q', value)
     else params.delete('q')
     
-    // Stay on current page if already on a searchable page, otherwise go to shops
     const path = isSearchablePage ? location.pathname : '/shops'
     
     if (!isSearchablePage) {
@@ -75,7 +88,6 @@ export default function Header() {
     }
   }
 
-  // Get appropriate placeholder text based on current page
   function getSearchPlaceholder() {
     if (location.pathname === '/items') {
       return 'Search items...'
@@ -86,14 +98,19 @@ export default function Header() {
   // Close on outside click or escape key
   useEffect(() => {
     function handleClickOutside(event) {
-      if (!isSearchOpen) return
+      if (!isSearchOpen && !menuOpen) return
       if (searchPopupRef.current && !searchPopupRef.current.contains(event.target)) {
         setIsSearchOpen(false)
       }
+      if (!event.target.closest("#user-menu")) {
+        setMenuOpen(false)
+      }
     }
     function handleKey(event) {
-      if (!isSearchOpen) return
-      if (event.key === 'Escape') setIsSearchOpen(false)
+      if (event.key === 'Escape') {
+        setIsSearchOpen(false)
+        setMenuOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('keydown', handleKey)
@@ -101,7 +118,7 @@ export default function Header() {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleKey)
     }
-  }, [isSearchOpen])
+  }, [isSearchOpen, menuOpen])
 
   return (
     <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur-md sticky top-0 z-50">
@@ -112,58 +129,92 @@ export default function Header() {
               <img src="/assets/logo.png" alt="Craft Hub Logo" className="h-8 w-8 object-contain" />
               <span className="text-xl font-bold bg-gradient-to-r from-[#733c91] to-purple-600 bg-clip-text text-transparent">
                 CraftHub
-            </span>
-
+              </span>
             </a>
           </div>
 
-
+          {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="/" className={`text-sm font-medium ${location.pathname === '/' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}>
-              Home
-              {location.pathname === '/' && (
-                <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
-              )}
-            </a>
-            <a href="/shops" className={`text-sm font-medium ${location.pathname === '/shops' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}>
-              Shops
-              {location.pathname === '/shops' && (
-                <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
-              )}
-            </a>
-            <a href="/items" className={`text-sm font-medium ${location.pathname === '/items' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}>
-              Items
-              {location.pathname === '/items' && (
-                <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
-              )}
-            </a>
-            <a href="/about" className={`text-sm font-medium ${location.pathname === '/about' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}>
-              About
-              {location.pathname === '/about' && (
-                <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
-              )}
-            </a>
-            <a href="/contact" className={`text-sm font-medium ${location.pathname === '/contact' ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}>
-              Contact
-              {location.pathname === '/contact' && (
-                <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
-              )}
-            </a>
+            {[
+              { href: "/", label: "Home" },
+              { href: "/shops", label: "Shops" },
+              { href: "/items", label: "Items" },
+              { href: "/about", label: "About" },
+              { href: "/contact", label: "Contact" },
+            ].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-medium ${location.pathname === link.href ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}
+              >
+                {link.label}
+                {location.pathname === link.href && (
+                  <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
+                )}
+              </a>
+            ))}
           </nav>
 
-          <div className="flex items-center space-x-2">
-            <button className="p-2 rounded hover:bg-slate-100" onClick={handleAccountClick}><User className="h-5 w-5" /></button>
-            <button className={`p-2 rounded hover:bg-slate-100 ${isSearchOpen ? 'text-blue-600' : ''}`} onClick={handleSearchClick}>
+          {/* Right side */}
+          <div className="flex items-center space-x-2 relative">
+            {/* User Icon + Dropdown */}
+            <div id="user-menu" className="relative">
+              <button
+                className="p-2 rounded hover:bg-slate-100 flex items-center gap-2"
+                onClick={handleAccountClick}
+              >
+                <User className="h-5 w-5" />
+                {user && <span className="text-sm font-medium">Hi, {user.name}</span>}
+              </button>
+
+              {menuOpen && user && (
+                <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border py-2 z-50">
+                  <button
+                    onClick={() => {
+                      navigate("/settings")
+                      setMenuOpen(false)
+                    }}
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-slate-100"
+                  >
+                    <Settings className="h-4 w-4" /> Settings
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-slate-100"
+                  >
+                    <LogOut className="h-4 w-4" /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Search */}
+            <button
+              className={`p-2 rounded hover:bg-slate-100 ${isSearchOpen ? 'text-blue-600' : ''}`}
+              onClick={handleSearchClick}
+            >
               <Search className={`h-5 w-5 ${isSearchOpen ? 'text-blue-600' : ''}`} />
             </button>
-            <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/liked' ? 'text-pink-600' : ''}`} onClick={() => navigate('/liked')}>
+
+            {/* Favorites */}
+            <button
+              className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/liked' ? 'text-pink-600' : ''}`}
+              onClick={() => navigate('/liked')}
+            >
               <Heart className={`h-5 w-5 ${location.pathname === '/liked' ? 'text-pink-600 fill-pink-600' : ''}`} />
             </button>
-            <button className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/cart' ? 'text-blue-600' : ''}`} onClick={() => navigate('/cart')}><ShoppingCart className="h-5 w-5" /></button>
+
+            {/* Cart */}
+            <button
+              className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/cart' ? 'text-blue-600' : ''}`}
+              onClick={() => navigate('/cart')}
+            >
+              <ShoppingCart className="h-5 w-5" />
+            </button>
           </div>
         </div>
         
-        {/* Search popup - now appears on both /shops and /items pages */}
+        {/* Search popup */}
         {isSearchablePage && isSearchOpen && (
           <div className="fixed top-20 right-8 z-[100] w-[92%] max-w-xl">
             <div ref={searchPopupRef} className="p-[1px] rounded-2xl bg-gradient-to-r from-indigo-500/60 via-fuchsia-500/60 to-cyan-500/60 shadow-[0_8px_40px_rgba(99,102,241,0.25)]">

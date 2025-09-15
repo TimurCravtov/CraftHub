@@ -1,5 +1,6 @@
 package utm.server.features.cart;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,19 +9,17 @@ import utm.server.features.cart.dto.CartItemRequest;
 import utm.server.features.cart.dto.CartItemResponse;
 import utm.server.features.cart.dto.CartResponse;
 import utm.server.features.users.UserEntity;
+import utm.server.features.users.UserRepository;
 
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cart")
+@RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
-    private final utm.server.features.users.UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public CartController(CartService cartService, utm.server.features.users.UserRepository userRepository) {
-        this.cartService = cartService;
-        this.userRepository = userRepository;
-    }
 
     // Helper method to create cart response
     private ResponseEntity<CartResponse> buildCartResponse(UserEntity user) {

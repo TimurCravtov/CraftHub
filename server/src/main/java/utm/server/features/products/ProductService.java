@@ -9,6 +9,7 @@ import utm.server.features.image.dto.ImageUploadResponse;
 import utm.server.features.products.dto.ProductCreationDto;
 import utm.server.features.products.permission.ProductEditPermissionService;
 import utm.server.features.products.product_images.ProductImageService;
+import utm.server.features.shops.ShopEntity;
 import utm.server.features.users.UserEntity;
 
 import java.util.ArrayList;
@@ -26,6 +27,12 @@ public class ProductService {
 
     public List<Product> findProductsByTitle(String title) {
         return productRepository.findByTitle(title);
+    }
+
+    public List<Product> findProductsByShopId(Long shopId) {
+        ShopEntity s = new ShopEntity();
+        s.setId(shopId);
+        return productRepository.findProductsByShopEntity(s);
     }
 
     @Transactional

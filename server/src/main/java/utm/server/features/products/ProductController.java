@@ -4,6 +4,7 @@ package utm.server.features.products;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import utm.server.except.NoRightsException;
 import utm.server.features.image.ImageService;
 import utm.server.features.image.dto.ImageUploadResponse;
 import utm.server.features.products.dto.ProductCreationDto;
@@ -22,10 +23,9 @@ public class ProductController {
     private final ImageService imageService;
 
     @PostMapping("/")
-    public Product createProduct(@RequestBody ProductCreationDto product, @AuthenticationPrincipal UserEntity user) {
+    public Product createProduct(@RequestBody ProductCreationDto product, @AuthenticationPrincipal UserEntity user) throws NoRightsException {
 
-        return null;
-//        return productService.addProduct(product);
+        return productService.addProduct(product, user);
     }
 
     @GetMapping("/findall")

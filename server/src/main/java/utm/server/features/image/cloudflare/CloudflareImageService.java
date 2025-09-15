@@ -65,7 +65,7 @@ public class CloudflareImageService implements ImageService {
         }
 
         // Return response with key and URL (for public, non-temporary files)
-        String url = (isPublic && !isTemp) ? getPermanentLink(key) : null;
+        String url = (isPublic) ? getSignedLink(key, Duration.ofDays(7)) : null;
         return new ImageUploadResponse(key, url);
     }
 

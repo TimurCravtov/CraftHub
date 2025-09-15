@@ -2,7 +2,7 @@ package utm.server.features.products;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import utm.server.features.users.UserRepository;
+import utm.server.features.shops.ShopEntity;
 
 import java.util.List;
 
@@ -10,5 +10,5 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByTitle(String title);
 
-    List<Product> findByShopEntityId(Long shopId);
+    List<Product> findProductsByShopEntity(ShopEntity shopId);
 }

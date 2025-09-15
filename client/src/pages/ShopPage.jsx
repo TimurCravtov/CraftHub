@@ -3,29 +3,52 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 import { Star, Heart, Search, ShoppingCart, User, Facebook, Instagram } from 'lucide-react'
 
-
 export default function ShopPage() {
   const [activeTab, setActiveTab] = useState('description')
   const navigate = useNavigate()
   const { id } = useParams()
-  const shopName = 'Shop name'
+  const [shopName, setShopName] = useState('')
+  const [shopDescription, setShopDescription] = useState('')
+  const [artisanName, setArtisanName] = useState('')
   const [relatedProducts, setRelatedProducts] = useState([])
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchShopDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/products/by-shop/${id}`)
-        if (!response.ok) {
-          throw new Error("Failed to fetch products")
+        // Fetch shop details by shop ID
+        const shopResponse = await fetch(`http://localhost:8080/api/shops/${id}`)
+        if (!shopResponse.ok) {
+          throw new Error("Failed to fetch shop details")
         }
-        const data = await response.json()
-        setRelatedProducts(data)
+        const shopData = await shopResponse.json()
+
+        // Set the shop name and description
+        setShopName(shopData.name)
+        setShopDescription(shopData.description)
+
+        // Fetch artisan details using the user_id from the shop data
+        const userResponse = await fetch(`http://localhost:8080/api/users/${shopData.user_id}`)
+        if (!userResponse.ok) {
+          throw new Error("Failed to fetch artisan details")
+        }
+        const userData = await userResponse.json()
+
+        // Set the artisan's name
+        setArtisanName(userData.name)
+        
+        // Fetch related products
+        const productsResponse = await fetch(`http://localhost:8080/api/products/by-shop/${id}`)
+        if (!productsResponse.ok) {
+          throw new Error("Failed to fetch related products")
+        }
+        const productsData = await productsResponse.json()
+        setRelatedProducts(productsData)
       } catch (error) {
-        console.error("Error fetching products:", error)
+        console.error("Error fetching data:", error)
       }
     }
 
-    if (id) fetchProducts()
+    if (id) fetchShopDetails()
   }, [id])
 
   return (
@@ -38,13 +61,13 @@ export default function ShopPage() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
-          <h1 className="text-4xl font-bold text-white mb-4">Shop name</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">{shopName}</h1>
           <div className="flex items-center space-x-2 text-white/80">
             <a href="/" className="hover:text-white">Home</a>
             <span>&gt;</span>
             <a href="/shops" className="hover:text-white">Shops</a>
             <span>&gt;</span>
-            <span>Shop name</span>
+            <span>{shopName}</span>
           </div>
         </div>
       </div>
@@ -58,7 +81,7 @@ export default function ShopPage() {
           </div>
 
           <div className="space-y-6">
-            <h1 className="text-4xl font-bold text-gray-900">Person name</h1>
+            <h1 className="text-4xl font-bold text-gray-900">{artisanName}</h1>
             <p className="text-gray-600 leading-relaxed">
               Discover the fine, handmade best of craft in this artisan marketplace online where talented makers like you showcase their unique creations. From pottery to jewelry, each piece tells a story of passion and skill.
             </p>
@@ -86,10 +109,7 @@ export default function ShopPage() {
           {activeTab === 'description' && (
             <div className="mt-8 max-w-4xl mx-auto text-gray-600 leading-relaxed space-y-4">
               <p>
-                Embodying the raw, temperate spirit of craft in this artisan marketplace online where talented makers like you showcase their unique creations and sell their handmade products.
-              </p>
-              <p>
-                Weighing in under 7 pounds, the Kilburn is a lightweight piece of vintage styled engineering. Setting the bar as one of the loudest speakers in its class, the Kilburn is a compact, stout-hearted hero with a well-balanced audio which boasts a clear midrange and extended highs for a sound that is both articulate and pronounced.
+                {shopDescription}
               </p>
             </div>
           )}

@@ -78,8 +78,7 @@ export default function Items() {
     const filteredProducts = useMemo(() => {
         if (!searchQuery) return sortedProducts
         return sortedProducts.filter(p =>
-            p.productName.toLowerCase().includes(searchQuery) ||
-            p.sellerName.toLowerCase().includes(searchQuery)
+            p.productName.toLowerCase().includes(searchQuery)
         )
     }, [sortedProducts, searchQuery])
 

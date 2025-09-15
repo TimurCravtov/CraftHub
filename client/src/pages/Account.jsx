@@ -59,8 +59,20 @@ export default function Account() {
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
-  function handleFiles(e, key) {
-    const files = Array.from(e.target.files || [])
+  function handleFiles(eOrFiles, key) {
+    // Accept either an event from an <input type="file"> or a FileList/array of files.
+    let files = []
+    if (eOrFiles?.target?.files) {
+      files = Array.from(eOrFiles.target.files || [])
+    } else if (Array.isArray(eOrFiles)) {
+      files = eOrFiles
+    } else if (eOrFiles instanceof FileList) {
+      files = Array.from(eOrFiles)
+    } else {
+      // Nothing to do
+      return
+    }
+
     setForm(prev => ({ ...prev, [key]: key === 'gallery' ? files : files[0] }))
   }
 
@@ -73,68 +85,22 @@ export default function Account() {
     }
   })()
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault()
     try {
-      const formData = new FormData()
-      
-      // Shop details
-      formData.append('shopName', form.shopName)
-      formData.append('description', form.shopDescription)
-      formData.append('ownerDescription', form.ownerDescription)
-      
-      // Shop images - sending as array of files
-      if (form.coverImage) {
-        formData.append('coverImage', form.coverImage)
+      const payload = {
+        shopName: form.shopName,
+        ownerName: ownerDisplayName,
+        shopDescription: form.shopDescription,
+        ownerDescription: form.ownerDescription,
+        // images omitted in storage demo
+        hasShop: true,
       }
-      if (form.avatarImage) {
-        formData.append('avatarImage', form.avatarImage)
-      }
-      if (form.shopLogo) {
-        formData.append('logo', form.shopLogo)
-      }
-      
-      // Items with their images
-      form.items.forEach((item, index) => {
-        formData.append(`items[${index}].name`, item.name)
-        formData.append(`items[${index}].price`, item.price)
-        formData.append(`items[${index}].description`, item.description)
-        
-        // Each item can have multiple images
-        item.images.forEach((image, imageIndex) => {
-          // This creates an array-like structure in FormData for Spring to parse
-          formData.append(`items[${index}].images`, image)
-        })
-      })
-
-      // Log FormData entries for debugging
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1])
-      }
-
-      const response = await fetch('http://localhost:8080/api/shops', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth'))?.token}`
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create shop')
-      }
-
-      const shop = await response.json()
-      
-      // Clear local storage shop data if it exists
-      localStorage.removeItem(currentUserKey)
-      
-      // Redirect to manage shops page
-      window.location.href = '/account/shops'
-
-    } catch (error) {
-      console.error('Failed to save shop:', error)
-      alert('Failed to save shop. Please try again.')
+      localStorage.setItem(currentUserKey, JSON.stringify(payload))
+      alert('Shop saved locally. (Client-only)')
+      window.location.reload()
+    } catch {
+      alert('Failed to save locally')
     }
   }
 
@@ -149,15 +115,72 @@ export default function Account() {
     }))
   }
 
-  const handleItemImageChange = (e) => {
-    const files = Array.from(e.target.files || [])
-    setForm(prev => ({
-      ...prev,
-      currentItem: {
-        ...prev.currentItem,
-        images: files
+  const handleItemImageChange = (input) => {
+    // Accept either a DOM input event (from a file input) or an image-like object
+    // (used by GallerySection to add previews and replace them after upload).
+    if (input?.target?.files) {
+      const files = Array.from(input.target.files || [])
+      setForm(prev => ({
+        ...prev,
+        currentItem: {
+          ...prev.currentItem,
+          images: files
+        }
+      }))
+      return
+    }
+
+    const image = input
+    if (!image) return
+
+    setForm(prev => {
+      const images = Array.isArray(prev.currentItem?.images) ? prev.currentItem.images.slice() : []
+
+      // If this is a temporary preview (uploading) with an id, append it.
+      if (image.uploading && image.id) {
+        // prevent duplicates
+        if (!images.some(img => img.id === image.id)) images.push(image)
+        return {
+          ...prev,
+          currentItem: {
+            ...prev.currentItem,
+            images
+          }
+        }
       }
-    }))
+
+      // If image has id, try to replace the preview with same id.
+      if (image.id) {
+        const idxById = images.findIndex(img => img.id === image.id)
+        if (idxById !== -1) {
+          images[idxById] = image
+          return {
+            ...prev,
+            currentItem: {
+              ...prev.currentItem,
+              images
+            }
+          }
+        }
+      }
+
+      // Otherwise try to find a matching uploading preview by url and replace it.
+      const idx = images.findIndex(img => img.uploading && img.url === image.url)
+      if (idx !== -1) {
+        images[idx] = image
+      } else {
+        // prevent duplicates when same url already present
+        if (!images.some(img => img.url === image.url)) images.push(image)
+      }
+
+      return {
+        ...prev,
+        currentItem: {
+          ...prev.currentItem,
+          images
+        }
+      }
+    })
   }
 
   const handleAddItem = async () => {
@@ -219,6 +242,20 @@ export default function Account() {
     }))
   }
 
+  const handleRemoveCurrentImage = (index) => {
+    setForm(prev => {
+      const images = Array.isArray(prev.currentItem?.images) ? prev.currentItem.images.slice() : []
+      images.splice(index, 1)
+      return {
+        ...prev,
+        currentItem: {
+          ...prev.currentItem,
+          images
+        }
+      }
+    })
+  }
+
   useEffect(() => {
     const loadExistingItems = async () => {
       const shopId = new URLSearchParams(location.search).get('shopId');
@@ -263,7 +300,7 @@ export default function Account() {
 
         <AboutShopSection form={form} editing={editing} setEditing={setEditing} handleChange={handleChange} handleFiles={handleFiles} />
 
-        <GallerySection form={form} editing={editing} setEditing={setEditing} handleItemChange={handleItemChange} handleItemImageChange={handleItemImageChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} />
+  <GallerySection form={form} editing={editing} setEditing={setEditing} handleItemChange={handleItemChange} handleItemImageChange={handleItemImageChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleRemoveCurrentImage={handleRemoveCurrentImage} />
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3">

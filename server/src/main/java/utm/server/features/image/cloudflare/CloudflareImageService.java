@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import utm.server.features.image.ImageService;
+import utm.server.features.image.dto.ImageUploadResponse;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -34,102 +35,21 @@ public class CloudflareImageService implements ImageService {
     @Value("${cloudflare.r2.endpoint}")
     private String endpoint;
 
-
-    @Override
     @SneakyThrows
-    public String uploadTemp(MultipartFile file) {
-        String original = Optional.ofNullable(file.getOriginalFilename())
+    public ImageUploadResponse upload(MultipartFile file, boolean isPublic, boolean isTemp) {
+        // Validate file
+        String originalFilename = Optional.ofNullable(file.getOriginalFilename())
                 .orElseThrow(() -> new RuntimeException("Filename is missing"))
                 .toLowerCase();
-
         String contentType = Optional.ofNullable(file.getContentType())
                 .orElseThrow(() -> new RuntimeException("Content-Type is unknown"));
+        String ext = getFileExtension(originalFilename);
 
-        String key = String.format("temp/%s-%s", UUID.randomUUID(), original);
+        // Determine folder
+        String folder = isTemp ? "temp" : determineFolder(ext, isPublic);
 
-        PutObjectRequest req = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .contentType(contentType)
-                .build();
-
-        try {
-            s3Client.putObject(req, RequestBody.fromBytes(file.getBytes()));
-        } catch (IOException e) {
-            throw new FileUploadException("File upload to Cloudflare R2 failed", e);
-        }
-
-        return key; // return the object key in R2
-    }
-
-    /**
-     * Moves a file from temp/ folder to a permanent folder.
-     * @param tempKey Key of the temp file (e.g. "temp/uuid-filename.jpg")
-     * @return new key in permanent storage
-     */
-    @SneakyThrows
-    public String moveToPermanent(String tempKey) {
-        if (!tempKey.startsWith("temp/")) {
-            throw new IllegalArgumentException("Key does not belong to temp storage: " + tempKey);
-        }
-
-        // Extract original filename part after "temp/"
-        String original = tempKey.substring(tempKey.indexOf('-') + 1).toLowerCase();
-        String ext = getFileExtension(original);
-
-        // Determine target folder
-        String folder = switch (ext) {
-            case "jpg","jpeg","png","gif" -> "images";
-            case "mp4","mov"              -> "videos";
-            case "pdf","doc","docx","txt" -> "documents";
-            default -> throw new RuntimeException("Unsupported file type: " + ext);
-        };
-
-        String newKey = String.format("%s/%s-%s", folder, UUID.randomUUID(), original);
-
-        // Copy from temp → permanent
-        s3Client.copyObject(builder -> builder
-                .sourceBucket(bucket)
-                .sourceKey(tempKey)
-                .destinationBucket(bucket)
-                .destinationKey(newKey));
-
-        // Delete temp object
-        s3Client.deleteObject(builder -> builder.bucket(bucket).key(tempKey));
-
-        return newKey;
-    }
-
-
-    /**
-     * Uploads a file to Cloudflare R2.
-     * @param file Multipart file
-     * @param isPublic true if the file should be public
-     * @return object key (can be used to generate signed URL for private files)
-     */
-    @SneakyThrows
-    public String upload(MultipartFile file, boolean isPublic) {
-        String original = Optional.ofNullable(file.getOriginalFilename())
-                .orElseThrow(() -> new RuntimeException("Filename is missing"))
-                .toLowerCase();
-
-        String contentType = Optional.ofNullable(file.getContentType())
-                .orElseThrow(() -> new RuntimeException("Content-Type is unknown"));
-
-        // Determine folder based on file extension
-        String ext = getFileExtension(original);
-        String folder = switch (ext) {
-            case "jpg","jpeg","png","gif" -> "images";
-            case "mp4","mov"              -> "videos";
-            case "pdf","doc","docx","txt" -> "documents";
-            default -> throw new RuntimeException("Unsupported file type: " + contentType);
-        };
-
-        if (!isPublic) {
-            folder = "private/" + folder; // private files in subfolder
-        }
-
-        String key = String.format("%s/%s-%s", folder, UUID.randomUUID(), original);
+        // Generate object key
+        String key = String.format("%s/%s.%s", folder, UUID.randomUUID(), ext);
 
         // Upload to R2
         PutObjectRequest req = PutObjectRequest.builder()
@@ -144,13 +64,38 @@ public class CloudflareImageService implements ImageService {
             throw new FileUploadException("File upload to Cloudflare R2 failed", e);
         }
 
-        return key;
+        // Return response with key and URL (for public, non-temporary files)
+        String url = (isPublic && !isTemp) ? getPermanentLink(key) : null;
+        return new ImageUploadResponse(key, url);
     }
 
-    /**
-     * Generates a signed URL for a private image.
-     */
-    @Override
+    @SneakyThrows
+    public ImageUploadResponse confirmUpload(String tempObjectKey) {
+        if (!tempObjectKey.startsWith("temp/")) {
+            throw new IllegalArgumentException("Key does not belong to temp storage: " + tempObjectKey);
+        }
+
+        // Extract file extension
+        String ext = getFileExtension(tempObjectKey);
+
+        // Determine permanent folder (assume public by default, as isPublic is not provided)
+        String folder = determineFolder(ext, true);
+        String newKey = String.format("%s/%s.%s", folder, UUID.randomUUID(), ext);
+
+        // Copy from temp to permanent
+        s3Client.copyObject(builder -> builder
+                .sourceBucket(bucket)
+                .sourceKey(tempObjectKey)
+                .destinationBucket(bucket)
+                .destinationKey(newKey));
+
+        // Delete temp object
+        s3Client.deleteObject(builder -> builder.bucket(bucket).key(tempObjectKey));
+
+        // Return response with new key and permanent URL
+        return new ImageUploadResponse(newKey, getPermanentLink(newKey));
+    }
+
     public String getSignedLink(String imageId, Duration duration) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
@@ -167,17 +112,11 @@ public class CloudflareImageService implements ImageService {
                 .toString();
     }
 
-    /**
-     * Returns a permanent URL for public images.
-     */
     @Override
     public String getPermanentLink(String imageId) {
         return String.format("%s/%s/%s", endpoint, bucket, imageId);
     }
 
-    /**
-     * Optional: delete object
-     */
     @Override
     public boolean delete(String imageId) {
         try {
@@ -188,9 +127,6 @@ public class CloudflareImageService implements ImageService {
         }
     }
 
-    /**
-     * Optional: check if object exists
-     */
     @Override
     public boolean exists(String imageId) {
         try {
@@ -206,5 +142,15 @@ public class CloudflareImageService implements ImageService {
             throw new IllegalArgumentException("Invalid file extension in filename: " + filename);
         }
         return filename.substring(idx + 1);
+    }
+
+    private String determineFolder(String ext, boolean isPublic) {
+        String folder = switch (ext) {
+            case "jpg", "jpeg", "png", "gif" -> "images";
+            case "mp4", "mov" -> "videos";
+            case "pdf", "doc", "docx", "txt" -> "documents";
+            default -> throw new RuntimeException("Unsupported file type: " + ext);
+        };
+        return isPublic ? folder : "private/" + folder;
     }
 }

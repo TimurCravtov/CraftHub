@@ -154,6 +154,39 @@ export default function Signup() {
     }
   };
 
+  const handleGoogleAuth = () => {
+    // Handle Google OAuth logic here
+    console.log("Google authentication clicked");
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+
+    // You can redirect to your Google OAuth endpoint or use Google's SDK
+    // Example: window.location.href = "http://localhost:8080/api/auth/google";
+  };
+
+  const handleFacebookAuth = () => {
+    // Handle Facebook OAuth logic here
+    console.log("Facebook authentication clicked");
+    // You can redirect to your Facebook OAuth endpoint or use Facebook's SDK
+    // Example: window.location.href = "http://localhost:8080/api/auth/facebook";
+  };
+
+  // Google Icon Component
+  const GoogleIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+  );
+
+  // Facebook Icon Component
+  const FacebookIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
+    </svg>
+  );
+
   return (
     <div className="min-h-screen bg-white">
       {/* <Header /> */}
@@ -173,6 +206,24 @@ export default function Signup() {
           <div className="form-container sign-up-container">
             <form onSubmit={handleSignUp} noValidate>
               <h1>Create Account</h1>
+              <div className="social-container">
+                <button
+                  type="button"
+                  className="social"
+                  onClick={handleGoogleAuth}
+                  title="Sign up with Google"
+                >
+                  <GoogleIcon />
+                </button>
+                <button
+                  type="button"
+                  className="social"
+                  onClick={handleFacebookAuth}
+                  title="Sign up with Facebook"
+                >
+                  <FacebookIcon />
+                </button>
+              </div>
               <span>or use your email for registration</span>
 
               <input
@@ -199,21 +250,21 @@ export default function Signup() {
                 onBlur={() => setPasswordTouched(true)}
               />
 
-              <div className="mt-2 mb-4 text-sm text-left">
+              <div className="password-requirements">
                 <div className={signupData.password.length >= MIN_LENGTH ? "text-green-600" : "text-gray-600"}>
-                  {signupData.password.length >= MIN_LENGTH ? "✓" : "•"} At least {MIN_LENGTH} characters
+                  {signupData.password.length >= MIN_LENGTH ? "✓" : "•"} {MIN_LENGTH} chars
                 </div>
                 <div className={reHasUpper.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                  {reHasUpper.test(signupData.password) ? "✓" : "•"} Uppercase letter
+                  {reHasUpper.test(signupData.password) ? "✓" : "•"} Upper
                 </div>
                 <div className={reHasLower.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                  {reHasLower.test(signupData.password) ? "✓" : "•"} Lowercase letter
+                  {reHasLower.test(signupData.password) ? "✓" : "•"} Lower
                 </div>
                 <div className={reHasDigit.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
                   {reHasDigit.test(signupData.password) ? "✓" : "•"} Number
                 </div>
                 <div className={reHasSpecial.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                  {reHasSpecial.test(signupData.password) ? "✓" : "•"} Special character
+                  {reHasSpecial.test(signupData.password) ? "✓" : "•"} Special
                 </div>
                 {passwordTouched && errors.password && (
                   <div className="text-sm text-red-600 mt-2">{errors.password}</div>
@@ -230,6 +281,24 @@ export default function Signup() {
           <div className="form-container sign-in-container">
             <form onSubmit={handleSignIn}>
               <h1>Sign in</h1>
+              <div className="social-container">
+                <button
+                  type="button"
+                  className="social"
+                  onClick={handleGoogleAuth}
+                  title="Sign in with Google"
+                >
+                  <GoogleIcon />
+                </button>
+                <button
+                  type="button"
+                  className="social"
+                  onClick={handleFacebookAuth}
+                  title="Sign in with Facebook"
+                >
+                  <FacebookIcon />
+                </button>
+              </div>
               <span>or use your account</span>
               <input
                 type="email"
@@ -270,7 +339,7 @@ export default function Signup() {
         </div>
       </div>
 
-      {/* Stilurile inline (rămân neschimbate) */}
+      {/* Updated styles with Google button */}
       <style>{`
         @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
         * { box-sizing: border-box; }
@@ -282,6 +351,50 @@ export default function Signup() {
         button:active { transform: scale(0.95); }
         button:focus { outline: none; }
         button.ghost { background-color: transparent; border-color: #FFFFFF; }
+        
+        /* Google and Facebook button styles */
+        .social-container {
+          margin: 15px 0;
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+        }
+        .social {
+          border: 1px solid #ddd;
+          border-radius: 50%;
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0;
+          height: 36px;
+          width: 36px;
+          background-color: #fff;
+          padding: 0;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          text-transform: none;
+          letter-spacing: 0;
+        }
+        .social:hover {
+          background-color: #f5f5f5;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .social:active {
+          transform: translateY(0);
+        }
+        
+        /* Compact password requirements for signup */
+        .password-requirements {
+          margin: 8px 0 12px 0;
+          text-align: left;
+          font-size: 11px;
+          line-height: 1.3;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2px;
+        }
+        
         form { background-color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 50px; height: 100%; text-align: center; }
         input { background-color: #eee; border: none; padding: 12px 15px; margin: 8px 0; width: 100%; }
         .container { background-color: #fff; border-radius: 10px; box-shadow: 0 14px 28px rgba(0,0,0,0.25),0 10px 10px rgba(0,0,0,0.22); position: relative; overflow: hidden; width: 768px; max-width: 100%; min-height: 480px; }

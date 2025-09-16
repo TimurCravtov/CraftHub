@@ -80,4 +80,16 @@ public class JwtService {
 
         return new JwtTokenPair(newAccessToken, refreshToken);
     }
+    public String generateToken(String email) {
+    Date now = new Date();
+    Date expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION);
+
+    return Jwts.builder()
+            .setSubject(email)  // aici pui email direct
+            .setIssuedAt(now)
+            .setExpiration(expiryDate)
+            .signWith(key, SignatureAlgorithm.HS256)
+            .compact();
+}
+
 }

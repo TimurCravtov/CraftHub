@@ -1,4 +1,4 @@
-package utm.server.authentication.dto;
+package utm.server.features.authentication.dto;
 
 import lombok.Data;
 

@@ -18,6 +18,9 @@ import Cart from './pages/Cart.jsx'
 import { ToastProvider } from './toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 
+// 🔥 nou: redirect page pentru Google OAuth2
+import Oauth2Redirect from './pages/Oauth2Redirect.jsx'
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -30,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <Login />,
+  },
+  {
+    path: '/oauth2/redirect',
+    element: <Oauth2Redirect />, // 🔥 ruta pentru callback Google
   },
   {
     path: '/shops',
@@ -67,6 +74,11 @@ const router = createBrowserRouter([
     path: '/settings',  
     element: <Settings />,
   },
+  {
+  path: '/oauth2/redirect',
+  element: <Oauth2Redirect />, // 🔥 ruta pentru callback Google
+},
+
   {
     path: '*',
     element: <App />,

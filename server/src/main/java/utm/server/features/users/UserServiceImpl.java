@@ -1,16 +1,12 @@
 package utm.server.features.users;
 
 import lombok.RequiredArgsConstructor;
+import utm.server.features.authentication.dto.AuthProvider;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-// import java.util.List;
-
-// import utm.server.features.users.UserRequestDTO;
-// import utm.server.features.users.UserEntity;
-// import utm.server.features.users.UserService;
-// import utm.server.features.users.UserMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +38,7 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = passwordEncoder.encode(userEntity.getPassword());
         userEntity.setPassword(encodedPassword);
         userRepository.save(userEntity);
-        return UserMapper.toDTO(userEntity); // Assuming UserMapper.toDTO exists
+        return UserMapper.toDTO(userEntity);
     }
 
     @Override
@@ -56,5 +52,27 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User with id " + id + " not found");
         }
         userRepository.deleteById(id);
+    }
+
+    // ✅ ONLY ADD THIS NEW METHOD
+    @Override
+    public void processOAuthPostLogin(String email) {
+        UserEntity user = userRepository.findByEmail(email).orElse(null);
+        
+        if (user == null) {
+            // Create new user for OAuth2 login
+            UserEntity newUser = new UserEntity();
+            newUser.setEmail(email);
+            newUser.setName("Google User");
+            newUser.setProvider(AuthProvider.GOOGLE);
+            newUser.setPassword("oauth2_user_no_password");
+            newUser.setAccountType("USER");
+            
+            userRepository.save(newUser);
+        } else {
+            // Update existing user with OAuth provider information
+            user.setProvider(AuthProvider.GOOGLE);
+            userRepository.save(user);
+        }
     }
 }

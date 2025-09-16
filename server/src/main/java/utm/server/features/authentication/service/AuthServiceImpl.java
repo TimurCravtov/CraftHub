@@ -1,12 +1,13 @@
-package utm.server.authentication.service;
+package utm.server.features.authentication.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import utm.server.authentication.dto.UserSignInDTO;
-import utm.server.authentication.dto.UserSignUpDTO;
-import utm.server.authentication.dto.UpdateUserDTO;
-import utm.server.authentication.model.TwoFactorData;
+
+import utm.server.features.authentication.dto.UpdateUserDTO;
+import utm.server.features.authentication.dto.UserSignInDTO;
+import utm.server.features.authentication.dto.UserSignUpDTO;
+import utm.server.features.authentication.model.TwoFactorData;
 import utm.server.features.jwt.JwtService;
 import utm.server.features.jwt.JwtTokenPair;
 import utm.server.features.users.UserEntity;
@@ -46,7 +47,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtTokenPair signIn(UserSignInDTO request) {
-        Optional<UserEntity> optionalUser = Optional.ofNullable(userRepository.findByEmail(request.getEmail()));
+        Optional<UserEntity> optionalUser = Optional.ofNullable(userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found")));
         if (!optionalUser.isPresent()) {
             throw new RuntimeException("User not found");
         }

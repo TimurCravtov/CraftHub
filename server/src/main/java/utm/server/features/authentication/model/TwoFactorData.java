@@ -1,4 +1,4 @@
-package utm.server.authentication.model;
+package utm.server.features.authentication.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

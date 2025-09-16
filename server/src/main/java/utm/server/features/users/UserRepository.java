@@ -1,21 +1,20 @@
 package utm.server.features.users;
 
-//import org.apache.catalina.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-//import java.util.List;
-
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
+    // schimbat findByEmail să întoarcă Optional
+    Optional<UserEntity> findByEmail(String email);
 
-UserEntity findByEmail(String email);
-ArrayList<UserEntity> findByName(String name);
-ArrayList<UserEntity> findByAccountTypeAndName(String accountType, String name);
+    ArrayList<UserEntity> findByName(String name);
 
-Boolean existsByEmail(String email);
+    ArrayList<UserEntity> findByAccountTypeAndName(String accountType, String name);
 
+    Boolean existsByEmail(String email);
 }

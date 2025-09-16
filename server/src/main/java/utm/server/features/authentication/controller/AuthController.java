@@ -1,10 +1,10 @@
-package utm.server.authentication.controller;
+package utm.server.features.authentication.controller;
 
 import lombok.RequiredArgsConstructor;
-import utm.server.authentication.dto.UserSignInDTO;
-import utm.server.authentication.dto.UserSignUpDTO;
-import utm.server.authentication.dto.UpdateUserDTO;
-import utm.server.authentication.service.AuthService;
+import utm.server.features.authentication.dto.UpdateUserDTO;
+import utm.server.features.authentication.dto.UserSignInDTO;
+import utm.server.features.authentication.dto.UserSignUpDTO;
+import utm.server.features.authentication.service.AuthService;
 import utm.server.features.jwt.JwtService;
 import utm.server.features.jwt.JwtTokenPair;
 import utm.server.features.jwt.RefreshRequest;

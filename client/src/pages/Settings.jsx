@@ -14,6 +14,7 @@ export default function Settings() {
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const isGoogleUser = user?.provider === "google"; // verificăm provider-ul
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,22 +29,23 @@ export default function Settings() {
       return;
     }
 
-    if (!form.currentPassword) {
+    if (!form.currentPassword && !isGoogleUser) {
       setMessage("Please enter your current password to confirm changes.");
       return;
     }
 
     try {
-      const body = { currentPassword: form.currentPassword };
-      if (form.newPassword) body.newPassword = form.newPassword;
-      if (form.newEmail) body.newEmail = form.newEmail;
+      const body = {};
+      if (!isGoogleUser) body.currentPassword = form.currentPassword;
+      if (form.newPassword && !isGoogleUser) body.newPassword = form.newPassword;
+      if (form.newEmail && !isGoogleUser) body.newEmail = form.newEmail;
       if (form.newName) body.newName = form.newName;
 
       const res = await fetch("http://localhost:8080/api/auth/update-user", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`
+          Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify(body),
       });
@@ -54,14 +56,7 @@ export default function Settings() {
       }
 
       const updatedUser = await res.json();
-
-      // 🔹 păstrăm și token-urile existente
-      const newUserData = {
-        ...user,
-        name: updatedUser.name,
-        email: updatedUser.email,
-      };
-
+      const newUserData = { ...user, ...updatedUser };
       localStorage.setItem("user", JSON.stringify(newUserData));
 
       setMessage("✅ Account updated successfully!");
@@ -93,21 +88,23 @@ export default function Settings() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Current Password */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Current Password
-            </label>
-            <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-              <Lock className="h-5 w-5 text-gray-400 mr-2" />
-              <input
-                type="password"
-                name="currentPassword"
-                value={form.currentPassword}
-                onChange={handleChange}
-                className="flex-1 bg-transparent outline-none"
-              />
+          {!isGoogleUser && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Current Password
+              </label>
+              <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+                <Lock className="h-5 w-5 text-gray-400 mr-2" />
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={form.currentPassword}
+                  onChange={handleChange}
+                  className="flex-1 bg-transparent outline-none"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* New Name */}
           <div>
@@ -139,8 +136,9 @@ export default function Settings() {
                 name="newPassword"
                 value={form.newPassword}
                 onChange={handleChange}
-                placeholder="Leave empty if unchanged"
+                placeholder={isGoogleUser ? "Not available for Google login" : "Leave empty if unchanged"}
                 className="flex-1 bg-transparent outline-none"
+                disabled={isGoogleUser}
               />
             </div>
           </div>
@@ -157,8 +155,9 @@ export default function Settings() {
                 name="newEmail"
                 value={form.newEmail}
                 onChange={handleChange}
-                placeholder="Leave empty if unchanged"
+                placeholder={isGoogleUser ? "Not available for Google login" : "Leave empty if unchanged"}
                 className="flex-1 bg-transparent outline-none"
+                disabled={isGoogleUser}
               />
             </div>
           </div>

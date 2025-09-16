@@ -1,13 +1,10 @@
 package utm.server.features.users;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import utm.server.features.authentication.dto.AuthProvider;
-import utm.server.features.authentication.model.TwoFactorData;
 import utm.server.features.products.Product;
 
 import java.util.Collection;
@@ -39,12 +36,18 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private AuthProvider provider = AuthProvider.LOCAL; // Default to LOCAL
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // prevenim recursivitatea JSON
-    private TwoFactorData twoFactorData;
-
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
+
+    // 🔹 Two-Factor Authentication fields
+    @Column
+    private String twoFactorSecret;
+
+    @Column(nullable = false)
+    private boolean twoFactorEnabled = false;
+    
+    @Column
+    private String tempTwoFactorSecret; // secret temporar până e confirmat
 
     public UserEntity(String name, String email, String password, String accountType) {
         this.name = name;
@@ -59,8 +62,7 @@ public class UserEntity implements UserDetails {
         this.email = email;
         this.accountType = accountType;
         this.provider = provider;
-        // Password might be null or empty for OAuth users
-        this.password = ""; // Or generate a random password for OAuth users
+        this.password = ""; // pentru utilizatorii OAuth
     }
 
     @Override
@@ -75,7 +77,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email; // folosim email pentru autentificare
+        return email;
     }
 
     @Override

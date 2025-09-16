@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Permit OPTIONS and public auth endpoints
         return "OPTIONS".equalsIgnoreCase(request.getMethod()) ||
                path.startsWith("/api/auth/signup") ||
+               path.startsWith("/api/auth/signin") ||
                path.startsWith("/api/auth/login") ||
                path.startsWith("/api/auth/refresh");
     }

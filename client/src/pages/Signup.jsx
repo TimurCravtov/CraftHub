@@ -12,6 +12,11 @@ export default function Signup() {
   const [loginSubmitting, setLoginSubmitting] = useState(false);
   const [loginError, setLoginError] = useState("");
 
+// 🔹 2FA states
+const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+const [twoFactorCode, setTwoFactorCode] = useState("");
+const [pendingUserId, setPendingUserId] = useState(null);
+
   const navigate = useNavigate();
 
   // Regex rules
@@ -22,23 +27,28 @@ export default function Signup() {
   const reHasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
   const reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  // Setup overlay buttons
   useEffect(() => {
     const signUpButton = document.getElementById("signUp");
     const signInButton = document.getElementById("signIn");
     const container = document.getElementById("container");
 
-    if (signUpButton && signInButton && container) {
-      signUpButton.addEventListener("click", () => {
-        container.classList.add("right-panel-active");
-      });
+    if (!signUpButton || !signInButton || !container) return;
 
-      signInButton.addEventListener("click", () => {
-        container.classList.remove("right-panel-active");
-      });
-    }
+    const handleSignUpClick = () => container.classList.add("right-panel-active");
+    const handleSignInClick = () => container.classList.remove("right-panel-active");
+
+    signUpButton.addEventListener("click", handleSignUpClick);
+    signInButton.addEventListener("click", handleSignInClick);
+
+    // Cleanup on unmount
+    return () => {
+      signUpButton.removeEventListener("click", handleSignUpClick);
+      signInButton.removeEventListener("click", handleSignInClick);
+    };
   }, []);
 
-  // validate fields whenever signupData changes
+  // Validate fields whenever signupData changes
   useEffect(() => {
     const newErrors = { name: "", email: "", password: "" };
 
@@ -107,7 +117,7 @@ export default function Signup() {
         JSON.stringify({
           name: signupData.name,
           email: signupData.email,
-          token: data.accessToken ?? data.token ?? null,
+          token: data.accessToken ?? null,
         })
       );
 
@@ -120,59 +130,99 @@ export default function Signup() {
     }
   };
 
-  const handleSignIn = async (e) => {
-    e.preventDefault();
-    setLoginError("");
-    setLoginSubmitting(true);
 
-    try {
-      const res = await fetch("http://localhost:8080/api/auth/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
-      });
-      if (!res.ok) {
-        const text = await res.text().catch(() => "Login failed");
-        throw new Error(text || "Login failed");
-      }
-      const data = await res.json();
 
+const handleSignIn = async (e) => {
+  e.preventDefault();
+  setLoginError("");
+  setLoginSubmitting(true);
+
+  try {
+    const res = await fetch("http://localhost:8080/api/auth/signin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(loginData),
+    });
+
+    const data = await res.json();
+
+    if (data.requires2FA) {
+      // 🔹 user trebuie să introducă cod 2FA
+      setTwoFactorRequired(true);
+      setPendingUserId(data.userId);
+      return;
+    }
+
+    if (res.ok) {
       localStorage.setItem(
         "user",
         JSON.stringify({
           email: loginData.email,
-          token: data.accessToken ?? data.token ?? null,
+          token: data.accessToken ?? null,
         })
       );
-
       navigate("/");
-    } catch (err) {
-      console.error("Login error:", err);
-      setLoginError(err.message || "Error while signing in");
-    } finally {
-      setLoginSubmitting(false);
+    } else {
+      throw new Error(data || "Login failed");
     }
-  };
+  } catch (err) {
+    console.error("Login error:", err);
+    setLoginError(err.message || "Error while signing in");
+  } finally {
+    setLoginSubmitting(false);
+  }
+};
+
+// 🔹 Verifică codul 2FA
+const handleVerify2FA = async (e) => {
+  e.preventDefault();
+  setLoginError("");
+  setLoginSubmitting(true);
+
+  try {
+    const res = await fetch("http://localhost:8080/api/auth/verify-2fa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: pendingUserId, code: twoFactorCode }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "Invalid 2FA code");
+      throw new Error(text || "Invalid 2FA code");
+    }
+
+    const data = await res.json();
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        email: loginData.email,
+        token: data.accessToken ?? null,
+      })
+    );
+
+    navigate("/");
+  } catch (err) {
+    console.error("2FA verification error:", err);
+    setLoginError(err.message || "Invalid 2FA code");
+  } finally {
+    setLoginSubmitting(false);
+  }
+};
 
   const handleGoogleAuth = () => {
-    // Handle Google OAuth logic here
     console.log("Google authentication clicked");
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
-
-    // You can redirect to your Google OAuth endpoint or use Google's SDK
-    // Example: window.location.href = "http://localhost:8080/api/auth/google";
   };
 
   const handleFacebookAuth = () => {
-    // Handle Facebook OAuth logic here
     console.log("Facebook authentication clicked");
-    // You can redirect to your Facebook OAuth endpoint or use Facebook's SDK
-    // Example: window.location.href = "http://localhost:8080/api/auth/facebook";
+    // window.location.href = "http://localhost:8080/api/auth/facebook";
   };
 
   // Google Icon Component
   const GoogleIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -182,7 +232,7 @@ export default function Signup() {
 
   // Facebook Icon Component
   const FacebookIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
     </svg>
   );
@@ -207,20 +257,10 @@ export default function Signup() {
             <form onSubmit={handleSignUp} noValidate>
               <h1>Create Account</h1>
               <div className="social-container">
-                <button
-                  type="button"
-                  className="social"
-                  onClick={handleGoogleAuth}
-                  title="Sign up with Google"
-                >
+                <button type="button" className="social" onClick={handleGoogleAuth}>
                   <GoogleIcon />
                 </button>
-                <button
-                  type="button"
-                  className="social"
-                  onClick={handleFacebookAuth}
-                  title="Sign up with Facebook"
-                >
+                <button type="button" className="social" onClick={handleFacebookAuth}>
                   <FacebookIcon />
                 </button>
               </div>
@@ -279,46 +319,46 @@ export default function Signup() {
 
           {/* Sign In */}
           <div className="form-container sign-in-container">
-            <form onSubmit={handleSignIn}>
-              <h1>Sign in</h1>
-              <div className="social-container">
-                <button
-                  type="button"
-                  className="social"
-                  onClick={handleGoogleAuth}
-                  title="Sign in with Google"
-                >
-                  <GoogleIcon />
-                </button>
-                <button
-                  type="button"
-                  className="social"
-                  onClick={handleFacebookAuth}
-                  title="Sign in with Facebook"
-                >
-                  <FacebookIcon />
-                </button>
-              </div>
-              <span>or use your account</span>
-              <input
-                type="email"
-                placeholder="Email"
-                value={loginData.email}
-                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={loginData.password}
-                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                required
-              />
-              {loginError && <div className="text-sm text-red-600 mb-2">{loginError}</div>}
-              <button type="submit" disabled={loginSubmitting}>
-                {loginSubmitting ? "Signing In..." : "Sign In"}
-              </button>
-            </form>
+      <form onSubmit={twoFactorRequired ? handleVerify2FA : handleSignIn}>
+  <h1>Sign in</h1>
+  {!twoFactorRequired ? (
+    <>
+      <input
+        type="email"
+        placeholder="Email"
+        value={loginData.email}
+        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={loginData.password}
+        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+        required
+      />
+    </>
+  ) : (
+    <>
+      <p className="mb-2 text-gray-700">Enter your 2FA code</p>
+      <input
+        type="text"
+        placeholder="6-digit code"
+        value={twoFactorCode}
+        onChange={(e) => setTwoFactorCode(e.target.value)}
+        required
+      />
+    </>
+  )}
+
+  {loginError && <div className="text-sm text-red-600 mb-2">{loginError}</div>}
+
+  <button type="submit" disabled={loginSubmitting}>
+    {loginSubmitting
+      ? (twoFactorRequired ? "Verifying..." : "Signing In...")
+      : (twoFactorRequired ? "Verify 2FA" : "Sign In")}
+  </button>
+</form>
           </div>
 
           {/* Overlay */}
@@ -338,8 +378,10 @@ export default function Signup() {
           </div>
         </div>
       </div>
+    
 
-      {/* Updated styles with Google button */}
+
+      {/* Styles */}
       <style>{`
         @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
         * { box-sizing: border-box; }
@@ -403,13 +445,13 @@ export default function Signup() {
         .container.right-panel-active .sign-in-container { transform: translateX(100%); }
         .sign-up-container { left: 0; width: 50%; opacity: 0; z-index: 1; }
         .container.right-panel-active .sign-up-container { transform: translateX(100%); opacity: 1; z-index: 5; animation: show 0.6s; }
-        @keyframes show { 0%,49.99%{opacity:0;z-index:1;} 50%,100%{opacity:1;z-index:5;} }
+        @keyframes show { 0% { opacity: 0; transform: scale(0.9);} 100% { opacity: 1; transform: scale(1);} }
         .overlay-container { position: absolute; top: 0; left: 50%; width: 50%; height: 100%; overflow: hidden; transition: transform 0.6s ease-in-out; z-index: 100; }
-        .container.right-panel-active .overlay-container { transform: translateX(-100%); }
-        .overlay { background: linear-gradient(to right, #FF4B2B, #FF416C); background-repeat: no-repeat; background-size: cover; background-position: 0 0; color: #FFFFFF; position: relative; left: -100%; height: 100%; width: 200%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
+        .container.right-panel-active .overlay-container{ transform: translateX(-100%); }
+        .overlay { background: #FF416C; background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C); background: linear-gradient(to right, #FF4B2B, #FF416C); background-repeat: no-repeat; background-size: cover; background-position: 0 0; color: #FFFFFF; position: relative; left: -100%; height: 100%; width: 200%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
         .container.right-panel-active .overlay { transform: translateX(50%); }
         .overlay-panel { position: absolute; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 40px; text-align: center; top: 0; height: 100%; width: 50%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
-        .overlay-left { transform: translateX(-20%); }
+        .overlay-left { transform: translateX(-20%); left: 0; }
         .container.right-panel-active .overlay-left { transform: translateX(0); }
         .overlay-right { right: 0; transform: translateX(0); }
         .container.right-panel-active .overlay-right { transform: translateX(20%); }

@@ -52,6 +52,7 @@ public class SecurityConfig {
                     "/api/auth/refresh",
                     "/oauth2/**",
                     "/login/oauth2/code/**",
+                    "/api/auth/verify-2fa",
                     "/error",
                     "/favicon.ico",
                     "/"

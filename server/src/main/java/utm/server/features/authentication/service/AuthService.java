@@ -10,8 +10,12 @@ public interface AuthService {
     JwtTokenPair signUp(UserSignUpDTO request);
     JwtTokenPair signIn(UserSignInDTO request);
     String enableTwoFactorAuthentication(Long userId); 
-    boolean verifyTwoFactorCode(Long userId, String code);
+    JwtTokenPair verifyTwoFactorCode(Long userId, String code);
     JwtTokenPair verifyTwoFactorSignIn(Long userId, String code);
     UserEntity updateUser(Long userId, UpdateUserDTO request);
     Long getUserIdFromToken(String token);
+
+    // 🔹 Adăugăm metoda pentru confirmarea 2FA
+    void confirmTwoFactorAuthentication(Long userId, String code);
+    
 }

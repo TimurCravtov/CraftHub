@@ -1,115 +1,106 @@
 package utm.server.features.users;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import utm.server.features.jwt.JwtService;
 import utm.server.features.jwt.JwtTokenPair;
 import utm.server.features.users.dto.UserRequestDTO;
-import utm.server.features.users.dto.UserSignInDTO;
-import utm.server.features.users.dto.UserSignUpDTO;
+import utm.server.features.authentication.dto.UserSignUpDTO;
+import utm.server.features.authentication.dto.AuthProvider;
+import utm.server.features.authentication.dto.UserSignInDTO;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
-    public List<UserRequestDTO> findAllUser(){
-        
-        var user_entities =  (ArrayList<UserEntity>) userRepository.findAll();
-        return UserMapper.toDTOs(user_entities);
+    public List<UserRequestDTO> findAllUser() {
+        List<UserEntity> userEntities = userRepository.findAll();
+        return UserMapper.toDTOs(userEntities);
     }
 
     @Override
-    public UserRequestDTO findUserById(Long id){
-        return UserMapper.toDTO(userRepository.findById(id).get());
+    public UserRequestDTO findUserById(Long id) {
+        return UserMapper.toDTO(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + id)));
     }
 
     @Override
-    public List<UserRequestDTO> findAllUserByName(String name){
-
-        List<UserEntity> user_entities = userRepository.findByName(name);
-        return UserMapper.toDTOs(user_entities);
-    }
-
-   @Override
-   public List<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name){
-        List<UserEntity> user_entities =
-                userRepository.findByAccountTypeAndName(accountType, name);
-       return UserMapper.toDTOs(user_entities);
+    public List<UserRequestDTO> findAllUserByName(String name) {
+        List<UserEntity> userEntities = userRepository.findByName(name);
+        return UserMapper.toDTOs(userEntities);
     }
 
     @Override
-    public UserRequestDTO addUser(UserEntity userEntity){
+    public List<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name) {
+        List<UserEntity> userEntities = userRepository.findByAccountTypeAndName(AccountType.fromString(accountType), name);
+        return UserMapper.toDTOs(userEntities);
+    }
 
+    @Override
+    public UserRequestDTO addUser(UserEntity userEntity) {
         String encodedPassword = passwordEncoder.encode(userEntity.getPassword());
         userEntity.setPassword(encodedPassword);
         userRepository.save(userEntity);
-
         return UserMapper.toDTO(userEntity);
     }
 
     @Override
-    public void deleteAllData(){
+    public void deleteAllData() {
         userRepository.deleteAll();
     }
 
     @Override
-    public void deleteUserById(long id){
-        if(!userRepository.existsById(id)){
+    public JwtTokenPair signUp(UserSignUpDTO request) {
+        return null;
+    }
+
+    @Override
+    public void deleteUserById(long id) {
+        if (!userRepository.existsById(id)) {
             throw new RuntimeException("User with id " + id + " not found");
         }
         userRepository.deleteById(id);
     }
 
     @Override
-    public JwtTokenPair signUp(UserSignUpDTO request){
-        if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email already exists");
+    public void processOAuthPostLogin(String email) {
+        UserEntity user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            // Create new user for OAuth2 login
+            UserEntity newUser = new UserEntity();
+            newUser.setEmail(email);
+            newUser.setName("Google User");
+            newUser.setProvider(AuthProvider.GOOGLE);
+            newUser.setPassword("oauth2_user_no_password");
+            newUser.setAccountType(AccountType.valueOf("USER"));
+
+            userRepository.save(newUser);
+        } else {
+            // Update existing user with OAuth provider information
+            user.setProvider(AuthProvider.GOOGLE);
+            userRepository.save(user);
         }
-
-        UserEntity newUser = new UserEntity();
-        newUser.setName(request.getName());
-        newUser.setEmail(request.getEmail());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUser.setAccountType(request.getAccountType());
-        userRepository.save(newUser);
-
-        String accessToken = jwtService.getJwtTokenPair(newUser).accessToken();
-        String refreshToken = jwtService.getJwtTokenPair(newUser).refreshToken();
-        return new JwtTokenPair(accessToken, refreshToken);
     }
 
-   @Override
-   public JwtTokenPair signIn(UserSignInDTO request){
-        Optional<UserEntity> optionalUser = Optional.ofNullable(userRepository.findByEmail(request.getEmail()));
+    @Override
+    public JwtTokenPair signIn(UserSignInDTO request) {
+        UserEntity user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if(!optionalUser.isPresent()){
-            throw new RuntimeException("User not found");
-        }
-
-        UserEntity user = optionalUser.get();
-
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-       String accessToken = jwtService.getJwtTokenPair(user).accessToken();
-       String refreshToken = jwtService.getJwtTokenPair(user).refreshToken();
-       return new JwtTokenPair(accessToken, refreshToken);
-   }
-
-
+        return jwtService.getJwtTokenPair(user);
+    }
 }
-
-
-

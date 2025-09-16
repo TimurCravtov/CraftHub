@@ -2,6 +2,7 @@ import Header from './component/Header.jsx'
 import ManageShops from './pages/ManageShops'
 import { Routes, Route } from 'react-router-dom';
 
+
 export default function App() {
   return (
     <div className="min-h-screen bg-white">

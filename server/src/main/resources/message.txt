@@ -1,0 +1,8 @@
+jwt.secret=MySuperSesfagasgasgshahasGAsfascretKey12345
+
+# Cloudflare R2 Configuration
+cloudflare.r2.endpoint=https://1bcad9eaf273e8f6148ab72a4322b028.r2.cloudflarestorage.com
+cloudflare.r2.accessKey=016be5a09bb733b9150dd15afd02a47b
+cloudflare.r2.secretKey=bae7a4105e6f9227255635849adf154626f01d7668f9f4bf52769524037884f5
+cloudflare.r2.bucket=handmadeshopapp
+

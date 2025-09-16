@@ -2,6 +2,7 @@ package utm.server.features.users;
 import java.util.ArrayList;
 import java.util.List;
 
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,14 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import utm.server.features.jwt.JwtTokenPair;
 import utm.server.features.users.dto.MeUserDto;
+import utm.server.features.authentication.dto.UserSignInDTO;
+import utm.server.features.authentication.dto.UserSignUpDTO;
 import utm.server.features.users.dto.UserRequestDTO;
-import utm.server.features.users.dto.UserSignInDTO;
-import utm.server.features.users.dto.UserSignUpDTO;
 
 
 @RestController
 @RequestMapping("/api/users")
-@RequiredArgsConstructor
+@RequiredArgsConstructor 
 public class UserController {
 
     private final UserService userService;
@@ -65,13 +66,5 @@ public class UserController {
     public void delete(){
         userService.deleteAllData();
     }
-
-
-
-
-
-
-
 }
-
 

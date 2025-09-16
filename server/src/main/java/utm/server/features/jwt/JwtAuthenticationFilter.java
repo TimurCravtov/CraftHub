@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import utm.server.features.users.UserEntity;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +27,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // Permit OPTIONS and public auth endpoints
+        return "OPTIONS".equalsIgnoreCase(request.getMethod()) ||
+               path.startsWith("/api/auth/signup") ||
+               path.startsWith("/api/auth/login") ||
+               path.startsWith("/api/auth/refresh");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             @NotNull HttpServletResponse response,
@@ -33,31 +44,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String authHeader = request.getHeader(HEADER_NAME);
-
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String jwt = authHeader.substring(BEARER_PREFIX.length());
-
         try {
             Claims claims = jwtService.validateToken(jwt);
-
-            // Extract user info from claims
             Long userId = Long.parseLong(claims.getSubject());
             String username = claims.get("username", String.class);
-//
+
             UserEntity user = new UserEntity();
             user.setId(userId);
             user.setName(username);
 
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(user, null, null);
-
+                    new UsernamePasswordAuthenticationToken(user, null, List.of());
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            // Set authentication in context
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         } catch (Exception e) {
@@ -68,6 +72,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
-
 }

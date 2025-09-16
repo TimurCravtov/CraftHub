@@ -3,6 +3,8 @@ package utm.server.features.products;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeId;
+//import com.fasterxml.jackson.annotation.JsonTypeId;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,11 +13,11 @@ import utm.server.features.categories.CategoryEntity;
 import utm.server.features.shops.ShopEntity;
 import utm.server.features.users.UserEntity;
 
+@Entity
+@Table(name = "products")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -10,7 +10,7 @@ import utm.server.features.image.dto.ImageUploadResponse;
 import utm.server.features.products.dto.ProductCreationDto;
 import utm.server.features.users.UserEntity;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

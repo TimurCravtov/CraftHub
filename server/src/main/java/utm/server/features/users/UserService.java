@@ -10,6 +10,5 @@ public interface UserService {
     void deleteAllData();
     void deleteUserById(long id);
     
-    // Add this method
     void processOAuthPostLogin(String email);
 }

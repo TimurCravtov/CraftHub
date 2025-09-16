@@ -9,7 +9,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-    // schimbat findByEmail să întoarcă Optional
     Optional<UserEntity> findByEmail(String email);
 
     ArrayList<UserEntity> findByName(String name);

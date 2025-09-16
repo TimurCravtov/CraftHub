@@ -55,7 +55,6 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        // 🔹 Dacă userul are 2FA activ, NU returnăm token direct
         if (user.isTwoFactorEnabled()) {
             throw new RuntimeException("2FA_REQUIRED");
         }
@@ -63,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
         return jwtService.getJwtTokenPair(user);
     }
 
-    // 🔹 Enable 2FA
     @Override
     public String enableTwoFactorAuthentication(Long userId) {
         UserEntity user = userRepository.findById(userId)
@@ -76,7 +74,6 @@ public class AuthServiceImpl implements AuthService {
         GoogleAuthenticator gAuth = new GoogleAuthenticator();
         GoogleAuthenticatorKey key = gAuth.createCredentials();
 
-        // Salvează doar secretul temporar
         user.setTempTwoFactorSecret(key.getKey());
         userRepository.save(user);
 
@@ -97,7 +94,6 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    // 🔹 Confirm 2FA (noua metodă)
     @Override
     public void confirmTwoFactorAuthentication(Long userId, String code) {
         UserEntity user = userRepository.findById(userId)
@@ -115,14 +111,12 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid 2FA code");
         }
 
-        // Confirmăm 2FA: mutăm secretul temporar în secretul oficial
         user.setTwoFactorSecret(tempSecret);
         user.setTwoFactorEnabled(true);
-        user.setTempTwoFactorSecret(null); // ștergem secretul temporar
+        user.setTempTwoFactorSecret(null); 
         userRepository.save(user);
     }
 
-    // 🔹 Verify 2FA login
   @Override
 public JwtTokenPair verifyTwoFactorCode(Long userId, String code) {
     UserEntity user = userRepository.findById(userId).orElseThrow();
@@ -159,7 +153,6 @@ public JwtTokenPair verifyTwoFactorSignIn(Long userId, String code) {
 }
 
 
-    // 🔹 Update user
     @Override
     public UserEntity updateUser(Long userId, UpdateUserDTO request) {
         UserEntity user = userRepository.findById(userId)

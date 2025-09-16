@@ -15,7 +15,6 @@ public interface AuthService {
     UserEntity updateUser(Long userId, UpdateUserDTO request);
     Long getUserIdFromToken(String token);
 
-    // 🔹 Adăugăm metoda pentru confirmarea 2FA
     void confirmTwoFactorAuthentication(Long userId, String code);
     
 }

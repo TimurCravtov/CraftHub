@@ -34,12 +34,11 @@ public class UserEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AuthProvider provider = AuthProvider.LOCAL; // Default to LOCAL
+    private AuthProvider provider = AuthProvider.LOCAL; 
 
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 
-    // 🔹 Two-Factor Authentication fields
     @Column
     private String twoFactorSecret;
 
@@ -47,14 +46,14 @@ public class UserEntity implements UserDetails {
     private boolean twoFactorEnabled = false;
     
     @Column
-    private String tempTwoFactorSecret; // secret temporar până e confirmat
+    private String tempTwoFactorSecret; 
 
     public UserEntity(String name, String email, String password, String accountType) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.accountType = accountType;
-        this.provider = AuthProvider.LOCAL; // Default for traditional registration
+        this.provider = AuthProvider.LOCAL; 
     }
 
     public UserEntity(String name, String email, String accountType, AuthProvider provider) {
@@ -62,7 +61,7 @@ public class UserEntity implements UserDetails {
         this.email = email;
         this.accountType = accountType;
         this.provider = provider;
-        this.password = ""; // pentru utilizatorii OAuth
+        this.password = ""; 
     }
 
     @Override

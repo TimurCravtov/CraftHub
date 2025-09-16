@@ -57,7 +57,6 @@ public class AuthController {
         }
     }
     
-    // 🔹 Enable 2FA pentru userul logat (salvează secret temporar)
     @PostMapping("/me/enable-2fa")
     public ResponseEntity<?> enableTwoFactorAuthentication(
             @RequestHeader("Authorization") String authHeader
@@ -74,7 +73,6 @@ public class AuthController {
         }
     }
 
-    // 🔹 Confirm 2FA după ce utilizatorul introduce codul din aplicație
    @PostMapping("/me/confirm-2fa")
 public ResponseEntity<?> confirmTwoFactorAuthentication(
         @RequestHeader("Authorization") String authHeader,
@@ -101,7 +99,6 @@ public ResponseEntity<?> verifyTwoFactor(@RequestBody Map<String, String> body) 
         Long userId = Long.parseLong(body.get("userId"));
         String code = body.get("code");
 
-        // 👉 Apelăm metoda corectă din service
         JwtTokenPair tokenPair = authenticationService.verifyTwoFactorSignIn(userId, code);
 
         return ResponseEntity.ok(tokenPair);

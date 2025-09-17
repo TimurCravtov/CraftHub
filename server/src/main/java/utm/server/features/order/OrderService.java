@@ -88,7 +88,9 @@ public class OrderService {
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPrice(product.getPrice()); // Save current price
+
+            // Fix: Convert double to BigDecimal
+            orderItem.setPrice(BigDecimal.valueOf(product.getPrice())); // Convert double to BigDecimal
             orderItem.setProductName(product.getTitle()); // Save current name
 
             // Add to order

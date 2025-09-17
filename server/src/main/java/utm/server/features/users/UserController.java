@@ -1,12 +1,18 @@
 package utm.server.features.users;
 import java.util.ArrayList;
+import java.util.List;
+
 //import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
-
-//import utm.server.features.jwt.JwtTokenPair;
+import utm.server.features.jwt.JwtTokenPair;
+import utm.server.features.users.dto.MeUserDto;
+import utm.server.features.authentication.dto.UserSignInDTO;
+import utm.server.features.authentication.dto.UserSignUpDTO;
+import utm.server.features.users.dto.UserRequestDTO;
 
 
 @RestController
@@ -28,20 +34,29 @@ public class UserController {
 
     }
 
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserEntity user) {
+        return ResponseEntity.ok(new MeUserDto(user));
+    }
+
     @GetMapping("/findall")
-    public ArrayList<UserRequestDTO> getAllUser(){
+    public List<UserRequestDTO> getAllUser(){
         return userService.findAllUser();
     }
 
-
+    @GetMapping("{id}")
+    public UserRequestDTO getUserUsingId(@PathVariable Long id){
+        return userService.findUserById(id);
+    }
     @GetMapping("/findbyname/{name}")
-    public ArrayList<UserRequestDTO> getUserUsingName(@PathVariable String name){
+    public List<UserRequestDTO> getUserUsingName(@PathVariable String name){
         return userService.findAllUserByName(name);
 
     }
 
     @GetMapping("/findbytypeandname")
-    public ArrayList<UserRequestDTO> getUsersByAccountTypeAndName(@RequestParam String accountType,
+    public List<UserRequestDTO> getUsersByAccountTypeAndName(@RequestParam String accountType,
                                                               @RequestParam String name){
         return userService.getUsersByAccountTypeAndName(accountType, name);
 
@@ -51,6 +66,5 @@ public class UserController {
     public void delete(){
         userService.deleteAllData();
     }
-
-
 }
+

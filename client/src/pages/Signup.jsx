@@ -1,31 +1,28 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../component/Header.jsx";
 
 export default function Signup() {
-  const [signupData, setSignupData] = useState({ name: "", email: "", password: "" });
-  const [errors, setErrors] = useState({ name: "", email: "", password: "" });
-  const [passwordTouched, setPasswordTouched] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [signupData, setSignupData] = useState({ name: "", email: "", password: "" });
+    const [errors, setErrors] = useState({ name: "", email: "", password: "" });
+    const [passwordTouched, setPasswordTouched] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [loginSubmitting, setLoginSubmitting] = useState(false);
   const [loginError, setLoginError] = useState("");
 
-// 🔹 2FA states
 const [twoFactorRequired, setTwoFactorRequired] = useState(false);
 const [twoFactorCode, setTwoFactorCode] = useState("");
 const [pendingUserId, setPendingUserId] = useState(null);
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  // Regex rules
-  const MIN_LENGTH = 8;
-  const reHasUpper = /[A-Z]/;
-  const reHasLower = /[a-z]/;
-  const reHasDigit = /[0-9]/;
-  const reHasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
-  const reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const MIN_LENGTH = 8;
+    const reHasUpper = /[A-Z]/;
+    const reHasLower = /[a-z]/;
+    const reHasDigit = /[0-9]/;
+    const reHasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+    const reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   // Setup overlay buttons
   useEffect(() => {
@@ -48,69 +45,68 @@ const [pendingUserId, setPendingUserId] = useState(null);
     };
   }, []);
 
-  // Validate fields whenever signupData changes
   useEffect(() => {
     const newErrors = { name: "", email: "", password: "" };
 
-    if (!signupData.name.trim()) {
-      newErrors.name = "Name is required";
-    }
+        if (!signupData.name.trim()) {
+            newErrors.name = "Name is required";
+        }
 
-    if (!signupData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!reEmail.test(signupData.email.trim())) {
-      newErrors.email = "Invalid email";
-    }
+        if (!signupData.email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!reEmail.test(signupData.email.trim())) {
+            newErrors.email = "Invalid email";
+        }
 
-    const pwd = signupData.password || "";
-    if (!pwd) {
-      newErrors.password = "Password is required";
-    } else {
-      if (pwd.length < MIN_LENGTH) {
-        newErrors.password = `Password must be at least ${MIN_LENGTH} characters long`;
-      } else if (!reHasUpper.test(pwd)) {
-        newErrors.password = "Password must contain at least one uppercase letter";
-      } else if (!reHasLower.test(pwd)) {
-        newErrors.password = "Password must contain at least one lowercase letter";
-      } else if (!reHasDigit.test(pwd)) {
-        newErrors.password = "Password must contain at least one number";
-      } else if (!reHasSpecial.test(pwd)) {
-        newErrors.password = "Password must contain at least one special character";
-      }
-    }
+        const pwd = signupData.password || "";
+        if (!pwd) {
+            newErrors.password = "Password is required";
+        } else {
+            if (pwd.length < MIN_LENGTH) {
+                newErrors.password = `Password must be at least ${MIN_LENGTH} characters long`;
+            } else if (!reHasUpper.test(pwd)) {
+                newErrors.password = "Password must contain at least one uppercase letter";
+            } else if (!reHasLower.test(pwd)) {
+                newErrors.password = "Password must contain at least one lowercase letter";
+            } else if (!reHasDigit.test(pwd)) {
+                newErrors.password = "Password must contain at least one number";
+            } else if (!reHasSpecial.test(pwd)) {
+                newErrors.password = "Password must contain at least one special character";
+            }
+        }
 
-    setErrors(newErrors);
-  }, [signupData]);
+        setErrors(newErrors);
+    }, [signupData]);
 
-  const isFormValid = () => {
-    return (
-      !errors.name &&
-      !errors.email &&
-      !errors.password &&
-      signupData.name.trim() &&
-      signupData.email.trim() &&
-      signupData.password
-    );
-  };
+    const isFormValid = () => {
+        return (
+            !errors.name &&
+            !errors.email &&
+            !errors.password &&
+            signupData.name.trim() &&
+            signupData.email.trim() &&
+            signupData.password
+        );
+    };
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    setPasswordTouched(true);
+    const handleSignUp = async (e) => {
+        e.preventDefault();
+        setPasswordTouched(true);
 
-    if (!isFormValid()) return;
+        if (!isFormValid()) return;
 
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("http://localhost:8080/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...signupData, accountType: "USER" }),
-      });
-      if (!res.ok) {
-        const text = await res.text().catch(() => "Signup failed");
-        throw new Error(text || "Signup failed");
-      }
-      const data = await res.json();
+        setIsSubmitting(true);
+        try {
+            const res = await fetch("http://localhost:8080/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...signupData, accountType: "USER" }),
+            });
+            if (!res.ok) {
+                const text = await res.text().catch(() => "Signup failed");
+                throw new Error(text || "Signup failed");
+            }
+            const data = await res.json();
 
       localStorage.setItem(
         "user",
@@ -121,14 +117,14 @@ const [pendingUserId, setPendingUserId] = useState(null);
         })
       );
 
-      navigate("/");
-    } catch (err) {
-      console.error("Signup error:", err);
-      alert(typeof err === "string" ? err : err.message || "Error while signing up");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+            navigate("/");
+        } catch (err) {
+            console.error("Signup error:", err);
+            alert(typeof err === "string" ? err : err.message || "Error while signing up");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
 
 
@@ -137,17 +133,19 @@ const handleSignIn = async (e) => {
   setLoginError("");
   setLoginSubmitting(true);
 
-  try {
-    const res = await fetch("http://localhost:8080/api/auth/signin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(loginData),
-    });
-
-    const data = await res.json();
+        try {
+            const res = await fetch("http://localhost:8080/api/auth/signin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(loginData),
+            });
+            if (!res.ok) {
+                const text = await res.text().catch(() => "Login failed");
+                throw new Error(text || "Login failed");
+            }
+            const data = await res.json();
 
     if (data.requires2FA) {
-      // 🔹 user trebuie să introducă cod 2FA
       setTwoFactorRequired(true);
       setPendingUserId(data.userId);
       return;
@@ -173,7 +171,6 @@ const handleSignIn = async (e) => {
   }
 };
 
-// 🔹 Verifică codul 2FA
 const handleVerify2FA = async (e) => {
   e.preventDefault();
   setLoginError("");
@@ -219,8 +216,8 @@ const handleVerify2FA = async (e) => {
     console.log("Facebook authentication clicked");
     // window.location.href = "http://localhost:8080/api/auth/facebook";
   };
+  
 
-  // Google Icon Component
   const GoogleIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -230,25 +227,22 @@ const handleVerify2FA = async (e) => {
     </svg>
   );
 
-  // Facebook Icon Component
   const FacebookIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
     </svg>
   );
 
-  return (
-    <div className="min-h-screen bg-white">
-      {/* <Header /> */}
-
-      <div className="absolute top-4 left-4">
-        <button
-          onClick={() => window.history.back()}
-          className="flex items-center space-x-2 text-black hover:text-blue-600"
-        >
-          <span>Back</span>
-        </button>
-      </div>
+    return (
+        <div className="min-h-screen bg-white">
+            <div className="absolute top-4 left-4">
+                <button
+                    onClick={() => window.history.back()}
+                    className="flex items-center space-x-2 text-black hover:text-blue-600"
+                >
+                    <span>Back</span>
+                </button>
+            </div>
 
       <div className="flex justify-center items-center mt-10">
         <div className="container" id="container">
@@ -266,56 +260,56 @@ const handleVerify2FA = async (e) => {
               </div>
               <span>or use your email for registration</span>
 
-              <input
-                type="text"
-                placeholder="Name"
-                value={signupData.name}
-                onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
-              />
-              {errors.name && <div className="text-sm text-red-600">{errors.name}</div>}
+                            <input
+                                type="text"
+                                placeholder="Name"
+                                value={signupData.name}
+                                onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
+                            />
+                            {errors.name && <div className="text-sm text-red-600">{errors.name}</div>}
 
-              <input
-                type="email"
-                placeholder="Email"
-                value={signupData.email}
-                onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-              />
-              {errors.email && <div className="text-sm text-red-600">{errors.email}</div>}
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={signupData.email}
+                                onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                            />
+                            {errors.email && <div className="text-sm text-red-600">{errors.email}</div>}
 
-              <input
-                type="password"
-                placeholder="Password"
-                value={signupData.password}
-                onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                onBlur={() => setPasswordTouched(true)}
-              />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={signupData.password}
+                                onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                                onBlur={() => setPasswordTouched(true)}
+                            />
 
-              <div className="password-requirements">
-                <div className={signupData.password.length >= MIN_LENGTH ? "text-green-600" : "text-gray-600"}>
-                  {signupData.password.length >= MIN_LENGTH ? "✓" : "•"} {MIN_LENGTH} chars
-                </div>
-                <div className={reHasUpper.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                  {reHasUpper.test(signupData.password) ? "✓" : "•"} Upper
-                </div>
-                <div className={reHasLower.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                  {reHasLower.test(signupData.password) ? "✓" : "•"} Lower
-                </div>
-                <div className={reHasDigit.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                  {reHasDigit.test(signupData.password) ? "✓" : "•"} Number
-                </div>
-                <div className={reHasSpecial.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                  {reHasSpecial.test(signupData.password) ? "✓" : "•"} Special
-                </div>
-                {passwordTouched && errors.password && (
-                  <div className="text-sm text-red-600 mt-2">{errors.password}</div>
-                )}
-              </div>
+                            <div className="password-requirements">
+                                <div className={signupData.password.length >= MIN_LENGTH ? "text-green-600" : "text-gray-600"}>
+                                    {signupData.password.length >= MIN_LENGTH ? "✓" : "•"} {MIN_LENGTH} chars
+                                </div>
+                                <div className={reHasUpper.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
+                                    {reHasUpper.test(signupData.password) ? "✓" : "•"} Upper
+                                </div>
+                                <div className={reHasLower.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
+                                    {reHasLower.test(signupData.password) ? "✓" : "•"} Lower
+                                </div>
+                                <div className={reHasDigit.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
+                                    {reHasDigit.test(signupData.password) ? "✓" : "•"} Number
+                                </div>
+                                <div className={reHasSpecial.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
+                                    {reHasSpecial.test(signupData.password) ? "✓" : "•"} Special
+                                </div>
+                                {passwordTouched && errors.password && (
+                                    <div className="text-sm text-red-600 mt-2">{errors.password}</div>
+                                )}
+                            </div>
 
-              <button type="submit" disabled={!isFormValid() || isSubmitting}>
-                {isSubmitting ? "Creating..." : "Sign Up"}
-              </button>
-            </form>
-          </div>
+                            <button type="submit" disabled={!isFormValid() || isSubmitting}>
+                                {isSubmitting ? "Creating..." : "Sign Up"}
+                            </button>
+                        </form>
+                    </div>
 
           {/* Sign In */}
           <div className="form-container sign-in-container">
@@ -393,50 +387,10 @@ const handleVerify2FA = async (e) => {
         button:active { transform: scale(0.95); }
         button:focus { outline: none; }
         button.ghost { background-color: transparent; border-color: #FFFFFF; }
-        
-        /* Google and Facebook button styles */
-        .social-container {
-          margin: 15px 0;
-          display: flex;
-          gap: 10px;
-          justify-content: center;
-        }
-        .social {
-          border: 1px solid #ddd;
-          border-radius: 50%;
-          display: inline-flex;
-          justify-content: center;
-          align-items: center;
-          margin: 0;
-          height: 36px;
-          width: 36px;
-          background-color: #fff;
-          padding: 0;
-          transition: all 0.3s ease;
-          cursor: pointer;
-          text-transform: none;
-          letter-spacing: 0;
-        }
-        .social:hover {
-          background-color: #f5f5f5;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .social:active {
-          transform: translateY(0);
-        }
-        
-        /* Compact password requirements for signup */
-        .password-requirements {
-          margin: 8px 0 12px 0;
-          text-align: left;
-          font-size: 11px;
-          line-height: 1.3;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 2px;
-        }
-        
+        .social-container { margin: 15px 0; display: flex; gap: 10px; justify-content: center; }
+        .social { border: 1px solid #ddd; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; height: 36px; width: 36px; background-color: #fff; cursor: pointer; transition: all 0.3s ease; }
+        .social:hover { background-color: #f5f5f5; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .password-requirements { margin: 8px 0 12px 0; text-align: left; font-size: 11px; line-height: 1.3; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
         form { background-color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 50px; height: 100%; text-align: center; }
         input { background-color: #eee; border: none; padding: 12px 15px; margin: 8px 0; width: 100%; }
         .container { background-color: #fff; border-radius: 10px; box-shadow: 0 14px 28px rgba(0,0,0,0.25),0 10px 10px rgba(0,0,0,0.22); position: relative; overflow: hidden; width: 768px; max-width: 100%; min-height: 480px; }
@@ -456,6 +410,7 @@ const handleVerify2FA = async (e) => {
         .overlay-right { right: 0; transform: translateX(0); }
         .container.right-panel-active .overlay-right { transform: translateX(20%); }
       `}</style>
-    </div>
-  );
+        </div>
+    );
 }
+

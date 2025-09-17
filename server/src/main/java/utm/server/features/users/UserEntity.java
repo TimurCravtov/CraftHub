@@ -1,11 +1,14 @@
 package utm.server.features.users;
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import utm.server.features.billing.BillingEntity;
+
 import utm.server.features.authentication.dto.AuthProvider;
 import utm.server.features.products.Product;
+import utm.server.features.shops.ShopEntity;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,14 +33,22 @@ public class UserEntity implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String accountType;
+
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private BillingEntity billingInfo;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ShopEntity> shops;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuthProvider provider = AuthProvider.LOCAL; 
 
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Product> products;
+    // @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private List<Product> products;
 
     @Column
     private String twoFactorSecret;
@@ -48,7 +59,7 @@ public class UserEntity implements UserDetails {
     @Column
     private String tempTwoFactorSecret; 
 
-    public UserEntity(String name, String email, String password, String accountType) {
+    public UserEntity(String name, String email, String password, AccountType accountType) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -56,10 +67,22 @@ public class UserEntity implements UserDetails {
         this.provider = AuthProvider.LOCAL; 
     }
 
+    // public UserEntity(String name, String email, String accountType, AuthProvider provider) {
+    //     this.name = name;
+    //     this.email = email;
+    //     this.accountType = accountType;
+    //     this.provider = provider;
+    //     this.password = ""; 
+    // }   
+    //ACEASTA FUNCTIE ERA INITIALA SI AM EROARE CA NU RECUNOASTE accountType CA PARAMETRU
     public UserEntity(String name, String email, String accountType, AuthProvider provider) {
         this.name = name;
         this.email = email;
-        this.accountType = accountType;
+        try {
+            this.accountType = AccountType.valueOf(accountType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid account type: " + accountType);
+        }
         this.provider = provider;
         this.password = ""; 
     }

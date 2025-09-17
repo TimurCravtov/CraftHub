@@ -25,8 +25,9 @@ export default function ItemPage() {
             try {
                 let data = []
                 if (shopId) {
-                    // Future endpoint: /api/products/by-seller/{sellerId}
-                    data = await productsApi.getBySeller(shopId)
+                    const res = await fetch(`http://localhost:8080/api/products/by-shop/${shopId}`)
+                if (!res.ok) throw new Error('Failed to fetch products by shop ID')
+                data = await res.json()
                 } else if (titleParam) {
                     data = await productsApi.searchByTitle(titleParam)
                 } else {
@@ -36,7 +37,6 @@ export default function ItemPage() {
                 const normalized = (Array.isArray(data) ? data : []).map((p, idx) => ({
                     id: p.id ?? idx + 1,
                     productName: p.title ?? 'Untitled',
-                    sellerName: p.seller?.name ?? 'Unknown seller',
                     price: p.price ?? 0,
                     imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?craft',
                 }))
@@ -67,8 +67,7 @@ export default function ItemPage() {
     const filteredProducts = useMemo(() => {
         if (!searchQuery) return sortedProducts
         return sortedProducts.filter(p =>
-            p.productName.toLowerCase().includes(searchQuery) ||
-            p.sellerName.toLowerCase().includes(searchQuery)
+            p.productName.toLowerCase().includes(searchQuery)
         )
     }, [sortedProducts, searchQuery])
 
@@ -163,7 +162,6 @@ export default function ItemPage() {
                             key={product.id}
                             id={product.id}
                             productName={product.productName}
-                            sellerName={product.sellerName}
                             price={product.price}
                             imageUrl={safeUrl(product.imageUrl)}
                         />

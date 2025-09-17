@@ -1,0 +1,22 @@
+{
+  "categories": {
+    "All": "Все",
+    "Furniture": "Мебель",
+    "Ceramics": "Керамика",
+    "Textiles": "Текстиль",
+    "Jewelry": "Ювелирные изделия",
+    "Woodwork": "Дерево",
+    "Glass": "Стекло",
+    "Leather": "Кожа",
+    "Art": "Искусство",
+    "Paper": "Бумага",
+    "Stone": "Камень",
+    "Prints": "Печать",
+    "Baskets": "Корзины",
+    "Candles": "Свечи"
+  },
+  "featured": "Рекомендуем",
+  "recentlyAdded": "Недавно добавлено",
+  "topShops": "Лучшие магазины",
+  "showMore": "Показать больше"
+}

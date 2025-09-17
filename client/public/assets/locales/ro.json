@@ -1,0 +1,22 @@
+{
+  "categories": {
+    "All": "Toate",
+    "Furniture": "Mobilier",
+    "Ceramics": "Ceramică",
+    "Textiles": "Țesături",
+    "Jewelry": "Bijuterii",
+    "Woodwork": "Lemn",
+    "Glass": "Sticlă",
+    "Leather": "Piele",
+    "Art": "Artă",
+    "Paper": "Hârtie",
+    "Stone": "Piatră",
+    "Prints": "Printuri",
+    "Baskets": "Coșuri",
+    "Candles": "Lumânări"
+  },
+  "featured": "Recomandate",
+  "recentlyAdded": "Adăugat recent",
+  "topShops": "Magazine de top",
+  "showMore": "Arată mai mult"
+}

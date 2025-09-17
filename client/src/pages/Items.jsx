@@ -17,11 +17,29 @@ export default function Items() {
         let mounted = true
         ;(async () => {
             try {
-                const data = await productsApi.getAll()
+                const productsResponse = await fetch("http://localhost:8080/api/products/findall")
+                if (!productsResponse.ok) throw new Error("Failed to fetch products")
+                const data = await productsResponse.json()
+
+                const validProducts = data.filter(product => product.shop_id !== null)
+                const productsWithShops = await Promise.all(
+                    
+                validProducts.map(async (product) => {
+                const id = BigInt(product.shop_id)
+                const shopResponse = await fetch(`http://localhost:8080/api/shops/${id}`)
+                const shopData = await shopResponse.json()
+                product.sellerName = shopData.name  
+                return product
+          })
+        )
+
+        setProducts(productsWithShops)
+
+
                 const normalized = (Array.isArray(data) ? data : []).map((p, idx) => ({
                     id: p.id ?? idx + 1,
                     productName: p.title ?? 'Untitled',
-                    sellerName: p.seller?.name ?? 'Unknown seller',
+                    sellerName: p.sellerName ?? 'Unknown seller',
                     price: p.price ?? 0,
                     imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?handmade',
                 }))
@@ -60,8 +78,7 @@ export default function Items() {
     const filteredProducts = useMemo(() => {
         if (!searchQuery) return sortedProducts
         return sortedProducts.filter(p =>
-            p.productName.toLowerCase().includes(searchQuery) ||
-            p.sellerName.toLowerCase().includes(searchQuery)
+            p.productName.toLowerCase().includes(searchQuery)
         )
     }, [sortedProducts, searchQuery])
 

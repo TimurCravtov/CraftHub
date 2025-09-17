@@ -1,35 +1,35 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+import axios from 'axios'
 
-export async function apiRequest(path, options = {}) {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), options.timeoutMs ?? 15000)
+const API_BASE_URL = 'http://localhost:8080'
 
-    try {
-        const response = await fetch(`${API_BASE_URL}${path}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...(options.headers || {}),
-            },
-            credentials: 'include',
-            signal: controller.signal,
-            ...options,
-        })
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    // 'Content-Type': 'application/json'
+  }
+})
 
-        if (!response.ok) {
-            const text = await response.text().catch(() => '')
-            const error = new Error(text || `Request failed with ${response.status}`)
-            error.status = response.status
-            throw error
-        }
+axiosInstance.interceptors.request.use((config) => {
+  const auth = JSON.parse(localStorage.getItem('auth') || '{}')
+  if (auth.accessToken) {
+    config.headers.Authorization = `Bearer ${auth.accessToken}`
+  }
+  return config
+})
 
-        const contentType = response.headers.get('content-type') || ''
-        if (contentType.includes('application/json')) {
-            return response.json()
-        }
-        return response.text()
-    } finally {
-        clearTimeout(timeoutId)
+export const apiRequest = async ({ url, method = 'GET', data = null }) => {
+  try {
+    const response = await axiosInstance({ url, method, data })
+    return response.data
+  } catch (error) {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth')
+      window.location.href = '/login'
     }
+    throw error
+  }
 }
+
+export default axiosInstance
 
 

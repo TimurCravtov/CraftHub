@@ -37,6 +37,7 @@ export default function Liked() {
                 sellerName={p.sellerName}
                 price={p.price}
                 imageUrl={safeUrl(p.imageUrl)}
+                shopId={p.shopId}
               />
             ))}
           </div>

@@ -1,19 +1,31 @@
 import { Heart, ShoppingCart, Check } from "lucide-react";
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLikes } from '../likesContext.jsx'
 import { useCart } from '../cartContext.jsx'
 import { useToast } from '../toastContext.jsx'
 import { escapeText, safeUrl } from '../utils/sanitize.js'
 
-export default function ProductCard({ id, productName, sellerName, price, imageUrl }) {
+export default function ProductCard({ id, productName, sellerName, price, imageUrl, shopId }) {
     const { isLiked, toggleLike } = useLikes()
     const liked = isLiked(id)
     const { addToCart, items } = useCart()
     const [justAdded, setJustAdded] = useState(false)
     const inCart = items?.some(p => p.id === id)
     const { showToast } = useToast()
+    const navigate = useNavigate()
+
+    const handleCardClick = () => {
+        if (shopId) {
+            navigate(`/product/${shopId}/${id}`)
+        }
+    }
+
     return (
-        <div className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
+        <div 
+            className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            onClick={handleCardClick}
+        >
             {/* Image */}
             <div className="relative h-48">
                 <img

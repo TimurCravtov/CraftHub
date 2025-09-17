@@ -190,6 +190,7 @@ export default function Home() {
                       sellerName={p.sellerName}
                       price={p.price}
                       imageUrl={p.imageUrl}
+                      shopId={p.shopId}
                   />
               ))}
             </div>

@@ -39,6 +39,7 @@ export default function ItemPage() {
                     productName: p.title ?? 'Untitled',
                     price: p.price ?? 0,
                     imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?craft',
+                    shopId: shopId,
                 }))
                 if (mounted) setProducts(normalized)
             } catch (_) {
@@ -164,6 +165,7 @@ export default function ItemPage() {
                             productName={product.productName}
                             price={product.price}
                             imageUrl={safeUrl(product.imageUrl)}
+                            shopId={product.shopId}
                         />
                     ))}
                 </div>

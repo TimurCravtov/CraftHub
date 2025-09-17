@@ -29,6 +29,7 @@ export default function Items() {
                 const shopResponse = await fetch(`http://localhost:8080/api/shops/${id}`)
                 const shopData = await shopResponse.json()
                 product.sellerName = shopData.name  
+                product.shopId = product.shop_id
                 return product
           })
         )
@@ -42,6 +43,7 @@ export default function Items() {
                     sellerName: p.sellerName ?? 'Unknown seller',
                     price: p.price ?? 0,
                     imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?handmade',
+                    shopId: p.shopId ?? p.shop_id,
                 }))
                 // shuffle
                 for (let i = normalized.length - 1; i > 0; i -= 1) {
@@ -162,6 +164,7 @@ export default function Items() {
                             sellerName={product.sellerName}
                             price={product.price}
                             imageUrl={safeUrl(product.imageUrl)}
+                            shopId={product.shopId}
                         />
                     ))}
                 </div>

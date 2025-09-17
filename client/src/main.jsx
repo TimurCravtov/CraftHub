@@ -10,6 +10,7 @@ import Shops from './pages/Shops.jsx'
 import ItemPage from './pages/ItemPage.jsx'
 import Items from './pages/Items.jsx'
 import ShopPage from './pages/ShopPage.jsx'
+import ProductDetail from './pages/ProductDetail.jsx'
 import Liked from './pages/Liked.jsx'
 import Settings from './pages/Settings.jsx'
 import { LikesProvider } from './likesContext.jsx'
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
     element: <Items />,
   },
   {
+    path: '/product/:shopId/:productId',
+    element: <ProductDetail />,
+  },
+  {
     path: '/liked',
     element: <Liked />,
   },
@@ -97,6 +102,7 @@ const router = createBrowserRouter([
       { path: 'shops/:id/Itempage', element: <ItemPage /> },
       { path: 'Itempage', element: <ItemPage /> },
       { path: 'items', element: <Items /> },
+      { path: 'product/:shopId/:productId', element: <ProductDetail /> },
       { path: 'liked', element: <Liked /> },
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },

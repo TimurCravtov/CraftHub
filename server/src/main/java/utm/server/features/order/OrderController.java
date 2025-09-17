@@ -1,7 +1,14 @@
 package utm.server.features.order;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import utm.server.features.order.dto.OrderCreateRequest;
+import utm.server.features.order.dto.OrderResponseDTO;
+import utm.server.features.users.UserEntity;
 
 import java.util.List;
 
@@ -12,14 +19,66 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping("/")
-    public OrderEntity createOrder(@RequestBody OrderDTO orderDTO){
-        return orderService.createOrder(orderDTO);
+    @GetMapping
+    public ResponseEntity<List<OrderResponseDTO>> getUserOrders(@AuthenticationPrincipal UserEntity user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(orderService.getUserOrders(user));
     }
 
-    @GetMapping("/{userId}")
-    public List<OrderEntity> findOrdersByUserId(@PathVariable Long userId){
-        return orderService.findOrdersByUserId(userId);
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable Long orderId,
+            @AuthenticationPrincipal UserEntity user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            OrderResponseDTO order = orderService.getOrderById(orderId, user);
+            return ResponseEntity.ok(order);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
+    @PostMapping("/create")
+    public ResponseEntity<OrderResponseDTO> createOrderFromCart(@RequestBody OrderCreateRequest request,
+            @AuthenticationPrincipal UserEntity user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            OrderResponseDTO order = orderService.createOrderFromCart(user, request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(order);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{orderId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<OrderResponseDTO> updateOrderStatus(@PathVariable Long orderId,
+            @RequestParam Status status,
+            @AuthenticationPrincipal UserEntity user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            OrderResponseDTO order = orderService.updateOrderStatus(orderId, status, user);
+            return ResponseEntity.ok(order);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleExceptions(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("An error occurred: " + e.getMessage());
+    }
 }

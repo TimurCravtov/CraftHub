@@ -29,9 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        // Permit OPTIONS and public auth endpoints
         return "OPTIONS".equalsIgnoreCase(request.getMethod()) ||
                path.startsWith("/api/auth/signup") ||
+               path.startsWith("/api/auth/signin") ||
                path.startsWith("/api/auth/login") ||
                path.startsWith("/api/auth/refresh");
     }

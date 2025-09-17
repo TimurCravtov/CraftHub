@@ -9,18 +9,19 @@ import utm.server.features.users.UserEntity;
 @Table(name = "two_factor_data")
 @Data
 public class TwoFactorData {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    @JsonBackReference // prevenim recursivitatea JSON
+    @JsonBackReference
     private UserEntity user;
 
     @Column(name = "two_factor_secret")
-    private String twoFactorSecret; // pentru TOTP
+    private String twoFactorSecret;
 
     @Column(name = "two_factor_enabled")
-    private boolean twoFactorEnabled; // pentru TOTP
+    private boolean twoFactorEnabled;
 }

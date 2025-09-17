@@ -27,6 +27,8 @@ public interface UserService {
     public JwtTokenPair signIn(UserSignInDTO request);
 
     void deleteUserById(long id);
+    
+    // Add this method
     void processOAuthPostLogin(String email);
 
 }

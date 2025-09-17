@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import utm.server.features.billing.BillingEntity;
 
 import utm.server.features.authentication.dto.AuthProvider;
-import utm.server.features.authentication.model.TwoFactorData;
 import utm.server.features.products.Product;
 import utm.server.features.shops.ShopEntity;
 
@@ -18,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor
 @Entity
+@Table(name = "users")
 public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,23 +45,47 @@ public class UserEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AuthProvider provider = AuthProvider.LOCAL; // Default to LOCAL
+    private AuthProvider provider = AuthProvider.LOCAL; 
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // prevenim recursivitatea JSON
-    private TwoFactorData twoFactorData;
+    // @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private List<Product> products;
 
-//    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Product> products;
+    @Column
+    private String twoFactorSecret;
+
+    @Column(nullable = false)
+    private boolean twoFactorEnabled = false;
+    
+    @Column
+    private String tempTwoFactorSecret; 
 
     public UserEntity(String name, String email, String password, AccountType accountType) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.accountType = accountType;
-        // Default for traditional registration
+        this.provider = AuthProvider.LOCAL; 
     }
 
+    // public UserEntity(String name, String email, String accountType, AuthProvider provider) {
+    //     this.name = name;
+    //     this.email = email;
+    //     this.accountType = accountType;
+    //     this.provider = provider;
+    //     this.password = ""; 
+    // }   
+    //ACEASTA FUNCTIE ERA INITIALA SI AM EROARE CA NU RECUNOASTE accountType CA PARAMETRU
+    public UserEntity(String name, String email, String accountType, AuthProvider provider) {
+        this.name = name;
+        this.email = email;
+        try {
+            this.accountType = AccountType.valueOf(accountType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid account type: " + accountType);
+        }
+        this.provider = provider;
+        this.password = ""; 
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

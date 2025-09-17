@@ -76,7 +76,6 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null) {
-            // Create new user for OAuth2 login
             UserEntity newUser = new UserEntity();
             newUser.setEmail(email);
             newUser.setName("Google User");
@@ -86,7 +85,6 @@ public class UserServiceImpl implements UserService {
 
             userRepository.save(newUser);
         } else {
-            // Update existing user with OAuth provider information
             user.setProvider(AuthProvider.GOOGLE);
             userRepository.save(user);
         }

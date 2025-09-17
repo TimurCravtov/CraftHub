@@ -53,18 +53,17 @@ public class SecurityConfig {
                     "/api/auth/refresh",
                     "/oauth2/**",
                     "/login/oauth2/code/**",
+                    "/api/auth/verify-2fa",
                     "/error",
                     "/favicon.ico",
                     "/"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            // Login clasic REST
             .formLogin(form -> form
                 .loginProcessingUrl("/api/auth/login")
                 .permitAll()
             )
-            // OAuth2 Google
                 .oauth2Login(oauth2 -> oauth2
                 .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
                 .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
@@ -72,7 +71,6 @@ public class SecurityConfig {
                 .successHandler(oAuth2SuccessHandler)
             )
 
-            // Return 401 JSON dacă nu e autentificat
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((req, res, e) -> {
                     res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

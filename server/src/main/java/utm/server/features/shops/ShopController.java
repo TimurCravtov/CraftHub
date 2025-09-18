@@ -1,9 +1,11 @@
 package utm.server.features.shops;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import utm.server.features.products.Product;
+import utm.server.features.shops.dto.ShopCreationRequestDTO;
+import utm.server.features.users.UserEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +22,8 @@ public class ShopController {
     }
 
     @PostMapping("/addshop")
-    public ShopEntity addShop(@RequestBody ShopRequestDTO shopRequest) {
-        return shopService.addShop(shopRequest);
+    public ShopEntity addShop(@RequestBody ShopCreationRequestDTO shopRequest, @AuthenticationPrincipal UserEntity user) {
+        return shopService.addShop(shopRequest, user);
     }
 
     @GetMapping("/")

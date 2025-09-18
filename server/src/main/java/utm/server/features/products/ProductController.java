@@ -9,14 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import utm.server.except.ErrorMessage;
 import utm.server.except.NoRightsException;
 import utm.server.features.image.ImageService;
-import utm.server.features.image.dto.ImageUploadResponse;
+import utm.server.features.users.security.UserSecurityPrincipal;
 import utm.server.features.products.dto.ProductCreationDto;
 import utm.server.features.products.dto.ProductDto;
-import utm.server.features.users.UserEntity;
 
 //import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -27,7 +25,7 @@ public class ProductController {
     private final ImageService imageService;
 
     @PostMapping("/")
-    public ProductDto createProduct(@RequestBody ProductCreationDto product, @AuthenticationPrincipal UserEntity user) throws NoRightsException {
+    public ProductDto createProduct(@RequestBody ProductCreationDto product, @AuthenticationPrincipal UserSecurityPrincipal user) throws NoRightsException {
 
         return productService.addProduct(product, user);
     }

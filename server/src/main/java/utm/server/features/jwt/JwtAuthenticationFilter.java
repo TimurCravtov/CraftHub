@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import utm.server.features.users.UserEntity;
+import utm.server.features.users.security.UserSecurityPrincipal;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,11 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Claims claims = jwtService.validateToken(jwt);
             Long userId = Long.parseLong(claims.getSubject());
-            String username = claims.get("username", String.class);
 
-            UserEntity user = new UserEntity();
+            UserSecurityPrincipal user = new UserSecurityPrincipal();
             user.setId(userId);
-            user.setName(username);
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(user, null, List.of());

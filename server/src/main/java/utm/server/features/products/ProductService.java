@@ -13,6 +13,8 @@ import utm.server.features.products.permission.ProductEditPermissionService;
 import utm.server.features.products.product_images.ProductImageService;
 import utm.server.features.shops.ShopEntity;
 import utm.server.features.users.UserEntity;
+import utm.server.features.users.security.UserSecurityPrincipal;
+import utm.server.features.users.security.UserSecurityPrincipalMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductEditPermissionService productEditPermissionService;
     private final ProductImageService productImageService;
+    private final UserSecurityPrincipalMapper userSecurityPrincipalMapper;
 
     public Optional<ProductDto> findById(Long id) {
         return  productRepository.findById(id).map(productMapper::toDto);
@@ -55,8 +58,11 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductDto addProduct(ProductCreationDto product, UserEntity authUser) throws NoRightsException {
-        if (!productEditPermissionService.hasRightsToEditProducts(product.shopId(), authUser)) {
+    public ProductDto addProduct(ProductCreationDto product, UserSecurityPrincipal authUser) throws NoRightsException {
+
+        UserEntity user = userSecurityPrincipalMapper.getUser(authUser);
+
+        if (!productEditPermissionService.hasRightsToEditProducts(product.shopId(), user)) {
             throw new NoRightsException("Wrong");
         }
 

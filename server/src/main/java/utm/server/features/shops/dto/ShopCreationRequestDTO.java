@@ -1,4 +1,4 @@
-package utm.server.features.shops;
+package utm.server.features.shops.dto;
 
 import lombok.Data;
 import utm.server.features.products.dto.ProductCreationDto;
@@ -6,9 +6,8 @@ import utm.server.features.products.dto.ProductCreationDto;
 import java.util.List;
 
 @Data
-public class ShopRequestDTO {
+public class ShopCreationRequestDTO {
     private String name;
     private String description;
-    private Long user_id;
     private List<ProductCreationDto> products;
 }

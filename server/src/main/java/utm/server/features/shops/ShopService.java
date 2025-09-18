@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import utm.server.features.products.Product;
 import utm.server.features.products.ProductRepository;
 import utm.server.features.products.dto.ProductCreationDto;
+import utm.server.features.shops.dto.ShopCreationRequestDTO;
 import utm.server.features.users.UserEntity;
 import utm.server.features.users.UserRepository;
 
@@ -23,9 +24,9 @@ public class ShopService {
         this.productRepository = productRepository;
     }
 
-    public ShopEntity addShop(ShopRequestDTO shopRequest) {
-        UserEntity user = userRepository.findById(shopRequest.getUser_id())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + shopRequest.getUser_id()));
+    public ShopEntity addShop(ShopCreationRequestDTO shopRequest, UserEntity user) {
+
+         user = userRepository.findById(user.getId()).orElseThrow(() -> new RuntimeException("User not found"));
 
         ShopEntity shopEntity = new ShopEntity();
         shopEntity.setName(shopRequest.getName());

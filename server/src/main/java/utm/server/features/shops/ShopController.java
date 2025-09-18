@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import utm.server.features.products.Product;
 import utm.server.features.shops.dto.ShopCreationRequestDTO;
 import utm.server.features.users.UserEntity;
+import utm.server.features.users.security.UserSecurityPrincipal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class ShopController {
     }
 
     @PostMapping("/addshop")
-    public ShopEntity addShop(@RequestBody ShopCreationRequestDTO shopRequest, @AuthenticationPrincipal UserEntity user) {
+    public ShopEntity addShop(@RequestBody ShopCreationRequestDTO shopRequest, @AuthenticationPrincipal UserSecurityPrincipal user) {
         return shopService.addShop(shopRequest, user);
     }
 

@@ -1,5 +1,7 @@
 package utm.server.features.shops;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import utm.server.features.products.Product;
 import utm.server.features.products.ProductRepository;
@@ -7,31 +9,33 @@ import utm.server.features.products.dto.ProductCreationDto;
 import utm.server.features.shops.dto.ShopCreationRequestDTO;
 import utm.server.features.users.UserEntity;
 import utm.server.features.users.UserRepository;
+import utm.server.features.users.security.UserSecurityPrincipal;
+import utm.server.features.users.security.UserSecurityPrincipalMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ShopService {
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
-
+    private final UserSecurityPrincipalMapper userMapper;
     private final ProductRepository productRepository;
-    public ShopService(ShopRepository shopRepository, UserRepository userRepository, ProductRepository productRepository) {
-        this.shopRepository = shopRepository;
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-    }
 
-    public ShopEntity addShop(ShopCreationRequestDTO shopRequest, UserEntity user) {
+    @Transactional
+    public ShopEntity addShop(ShopCreationRequestDTO shopRequest, UserSecurityPrincipal user) {
 
-         user = userRepository.findById(user.getId()).orElseThrow(() -> new RuntimeException("User not found"));
+        if (shopRepository.existsByUserId(user.getId()))
+            throw new RuntimeException("A shop is already linked to a user");
 
         ShopEntity shopEntity = new ShopEntity();
+
         shopEntity.setName(shopRequest.getName());
         shopEntity.setDescription(shopRequest.getDescription());
-        shopEntity.setUser(user);
+        shopEntity.setUser(UserEntity.builder().id(user.getId()).build());
+
         ShopEntity savedShop = shopRepository.save(shopEntity);
         if(shopRequest.getProducts() != null){
             for (ProductCreationDto item : shopRequest.getProducts()) {
@@ -56,8 +60,7 @@ public class ShopService {
     public ShopEntity getShopById(Long shopId){
         Optional<ShopEntity> shopEntityOptional = shopRepository.findById(shopId);
         if (shopEntityOptional.isPresent()) {
-            ShopEntity shopEntity = shopEntityOptional.get();
-            return shopEntity;
+            return shopEntityOptional.get();
         } else {
             throw new RuntimeException("Shop not found with id: " + shopId);
         }

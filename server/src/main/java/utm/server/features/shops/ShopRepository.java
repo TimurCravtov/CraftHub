@@ -11,5 +11,6 @@ import java.util.ArrayList;
 public interface ShopRepository extends JpaRepository<ShopEntity, Long> {
     ArrayList<ShopEntity> findByName(String name);
     ArrayList<ShopEntity> findAll();
+    boolean existsByUserId(Long userId);
 
 }

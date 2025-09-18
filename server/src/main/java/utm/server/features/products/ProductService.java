@@ -15,6 +15,7 @@ import utm.server.features.shops.ShopEntity;
 import utm.server.features.users.UserEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,10 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductEditPermissionService productEditPermissionService;
     private final ProductImageService productImageService;
+
+    public Optional<ProductDto> findById(Long id) {
+        return  productRepository.findById(id).map(productMapper::toDto);
+    }
 
     public List<ProductDto> findAllProducts() {
         return productRepository.findAll()

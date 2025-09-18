@@ -2,8 +2,11 @@ package utm.server.features.products;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import utm.server.except.ErrorMessage;
 import utm.server.except.NoRightsException;
 import utm.server.features.image.ImageService;
 import utm.server.features.image.dto.ImageUploadResponse;
@@ -27,6 +30,14 @@ public class ProductController {
     public ProductDto createProduct(@RequestBody ProductCreationDto product, @AuthenticationPrincipal UserEntity user) throws NoRightsException {
 
         return productService.addProduct(product, user);
+    }
+
+    @GetMapping("/findById/{id}")
+    public ResponseEntity<?> findById(@PathVariable Long id) {
+        return productService.findById(id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(404)
+                        .body(new ErrorMessage(HttpStatus.NOT_FOUND.value(), "Product with Id not found")));
     }
 
     @GetMapping("/findall")

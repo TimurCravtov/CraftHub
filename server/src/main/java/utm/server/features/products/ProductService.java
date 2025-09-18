@@ -43,10 +43,12 @@ public class ProductService {
         List<ImageUploadResponse> permanentImages = product.productImagesTemp().stream().map(img -> imageService.confirmUpload(img.key())).toList();
 
 
-        Product productToSave = new Product();
-        productToSave.setDescription(product.description());
-        productToSave.setTitle(product.title());
-        productToSave.setPrice(product.price());
+        Product productToSave = Product.builder()
+                        .description(product.description())
+                        .title(product.title())
+                        .price(product.price())
+                        .build();
+
         Product saved = productRepository.save(productToSave);
         productImageService.saveAll(permanentImages, saved);
         return saved;

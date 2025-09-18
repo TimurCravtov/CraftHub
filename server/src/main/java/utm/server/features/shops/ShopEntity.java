@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import utm.server.features.products.Product;
@@ -18,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table
 public class ShopEntity {
     @Id
@@ -25,6 +27,9 @@ public class ShopEntity {
     private Long id;
     @Column(nullable = false)
     private String name;
+
+    private String imageUrlKey;
+
     @Column(nullable = true)
     private String description;
     @OneToMany(mappedBy="shopEntity", cascade = CascadeType.ALL, orphanRemoval = true)

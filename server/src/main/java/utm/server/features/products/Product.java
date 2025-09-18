@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeId;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import utm.server.features.categories.CategoryEntity;
@@ -16,6 +17,7 @@ import utm.server.features.users.UserEntity;
 @Entity
 @Table(name = "products")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
@@ -38,6 +40,5 @@ public class Product {
     public Long getShopId() {
         return shopEntity != null ? shopEntity.getId() : null;
     }
-
 }
 

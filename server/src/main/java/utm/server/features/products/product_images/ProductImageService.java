@@ -26,4 +26,8 @@ public class ProductImageService {
 
         return repository.saveAll(entities);
     }
+
+    public List<ProductImageEntity> findAllByProductId(Long productId) {
+        return repository.findAllByProductIdOrderByOrderNumberAsc(productId);
+    }
 }

@@ -69,7 +69,7 @@ export default function Checkout() {
             <div className="divide-y">
               {items.map(it => (
                 <div key={it.id} className="flex items-center justify-between py-2 text-sm">
-                  <span className="text-slate-700">{it.productName} <span className="text-slate-400">x {it.qty}</span></span>
+                  <span className="text-slate-700">{it.title} <span className="text-slate-400">x {it.qty}</span></span>
                   <span className="font-medium">{formatted(it.price * it.qty)}</span>
                 </div>
               ))}

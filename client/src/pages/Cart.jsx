@@ -43,10 +43,10 @@ export default function Cart() {
                 <div key={it.id} className="grid grid-cols-12 items-center p-3">
                   <div className="col-span-6 flex items-center gap-3">
                     <div className="w-12 h-12 rounded-md overflow-hidden bg-slate-100">
-                      <img src={it.imageUrl} alt={it.productName} className="w-full h-full object-cover" />
+                      <img src={it.imageUrl} alt={it.title} className="w-full h-full object-cover" />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-slate-900">{it.productName}</div>
+                      <div className="text-sm font-medium text-slate-900">{it.title}</div>
                       <button onClick={() => removeFromCart(it.id)} className="mt-1 inline-flex items-center gap-1 text-xs text-red-600 hover:underline">
                         <Trash className="h-3.5 w-3.5" /> Remove
                       </button>

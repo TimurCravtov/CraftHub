@@ -28,14 +28,14 @@ export default function Home() {
   const navigate = useNavigate()
 
   const recent = [
-    { id: 1, productName: 'Minimalist Table', sellerName: 'Andrei\'s Shop', price: 20, imageUrl: 'https://images.unsplash.com/photo-1505691723518-36a5ac3be353', category: 'Furniture' },
-    { id: 2, productName: 'Handmade Vase', sellerName: 'Maria Handmade', price: 35, imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4', category: 'Ceramics' },
-    { id: 3, productName: 'Wooden Chair', sellerName: 'Crafts by Ion', price: 50, imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc', category: 'Furniture' },
-    { id: 4, productName: 'Ceramic Cup', sellerName: 'Luna\'s Ceramics', price: 12, imageUrl: 'https://images.unsplash.com/photo-1503602642458-232111445657', category: 'Ceramics' },
-    { id: 5, productName: 'Macrame Wall', sellerName: 'Woven Dreams', price: 28, imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4', category: 'Textiles' },
-    { id: 6, productName: 'Leather Wallet', sellerName: 'Leather & Stitch', price: 22, imageUrl: 'https://images.unsplash.com/photo-1511381939415-c1a43ea3a07b', category: 'Leather' },
-    { id: 7, productName: 'Glass Pendant', sellerName: 'Glass & Light', price: 42, imageUrl: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7', category: 'Glass' },
-    { id: 8, productName: 'Silver Ring', sellerName: 'Silversmith Studio', price: 39, imageUrl: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3', category: 'Jewelry' }
+    { id: 1, title: 'Minimalist Table', sellerName: 'Andrei\'s Shop', price: 20, imageUrl: 'https://images.unsplash.com/photo-1505691723518-36a5ac3be353', category: 'Furniture' },
+    { id: 2, title: 'Handmade Vase', sellerName: 'Maria Handmade', price: 35, imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4', category: 'Ceramics' },
+    { id: 3, title: 'Wooden Chair', sellerName: 'Crafts by Ion', price: 50, imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc', category: 'Furniture' },
+    { id: 4, title: 'Ceramic Cup', sellerName: 'Luna\'s Ceramics', price: 12, imageUrl: 'https://images.unsplash.com/photo-1503602642458-232111445657', category: 'Ceramics' },
+    { id: 5, title: 'Macrame Wall', sellerName: 'Woven Dreams', price: 28, imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4', category: 'Textiles' },
+    { id: 6, title: 'Leather Wallet', sellerName: 'Leather & Stitch', price: 22, imageUrl: 'https://images.unsplash.com/photo-1511381939415-c1a43ea3a07b', category: 'Leather' },
+    { id: 7, title: 'Glass Pendant', sellerName: 'Glass & Light', price: 42, imageUrl: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7', category: 'Glass' },
+    { id: 8, title: 'Silver Ring', sellerName: 'Silversmith Studio', price: 39, imageUrl: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3', category: 'Jewelry' }
   ]
 
   const categories = useMemo(() => [
@@ -186,7 +186,7 @@ export default function Home() {
                   <ProductCard
                       key={p.id}
                       id={p.id}
-                      productName={p.productName}
+                      title={p.title}
                       sellerName={p.sellerName}
                       price={p.price}
                       imageUrl={p.imageUrl}

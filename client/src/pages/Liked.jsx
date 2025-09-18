@@ -33,7 +33,7 @@ export default function Liked() {
               <ProductCard
                 key={p.id}
                 id={p.id}
-                productName={p.productName}
+                title={p.title}
                 sellerName={p.sellerName}
                 price={p.price}
                 imageUrl={safeUrl(p.imageUrl)}

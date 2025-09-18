@@ -78,7 +78,7 @@ export default function ProductDetail() {
         if (!product) return
         toggleLike({
             id: product.id,
-            productName: product.title,
+            title: product.title,
             sellerName: shop?.name || 'Unknown',
             price: product.price,
             imageUrl: product.imageUrl

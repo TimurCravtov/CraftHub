@@ -137,10 +137,10 @@ export default function ShopPage() {
               <div key={product.id} className="group cursor-pointer hover:shadow-lg transition-shadow rounded-2xl overflow-hidden border">
                 <div className="p-0">
                   <div className="aspect-square bg-gray-50 overflow-hidden">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
                   </div>
                   <div className="p-3">
-                    <h3 className="text-sm font-semibold text-gray-900 truncate">{product.name}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 truncate">{product.title}</h3>
                     <p className="text-xs text-gray-500 truncate">{product.description}</p>
                     <div className="mt-2 flex items-center justify-between">
                       <p className="text-sm font-semibold text-gray-900">{product.price}</p>

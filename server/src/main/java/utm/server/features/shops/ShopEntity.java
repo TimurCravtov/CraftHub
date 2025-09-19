@@ -28,7 +28,8 @@ public class ShopEntity {
     @Column(nullable = false)
     private String name;
 
-    private String imageUrlKey;
+    private String shopBannerImageKey;
+    private String shopImageKey;
 
     @Column(nullable = true)
     private String description;

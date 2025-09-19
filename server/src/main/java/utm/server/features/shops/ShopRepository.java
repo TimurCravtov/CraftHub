@@ -2,6 +2,7 @@ package utm.server.features.shops;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import utm.server.features.products.Product;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 public interface ShopRepository extends JpaRepository<ShopEntity, Long> {
     ArrayList<ShopEntity> findByName(String name);
     @NotNull ArrayList<ShopEntity> findAll();
-    boolean existsByUserId(Long userId);
+
+    boolean existsByUser_Id(Long userId);
 
 }

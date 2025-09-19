@@ -27,7 +27,7 @@ public class ShopService {
     @Transactional
     public ShopEntity addShop(ShopCreationRequestDTO shopRequest, UserSecurityPrincipal user) {
 
-        if (shopRepository.existsByUserId(user.getId()))
+        if (shopRepository.existsByUser_Id(user.getId()))
             throw new RuntimeException("A shop is already linked to a user");
 
         ShopEntity shopEntity = new ShopEntity();

@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table
@@ -58,7 +58,9 @@ public class UserEntity implements UserDetails {
     private boolean twoFactorEnabled = false;
     
     @Column
-    private String tempTwoFactorSecret; 
+    private String tempTwoFactorSecret;
+
+    private String profilePictureKey;
 
     public UserEntity(String name, String email, String password, AccountType accountType) {
         this.name = name;
@@ -68,14 +70,6 @@ public class UserEntity implements UserDetails {
         this.provider = AuthProvider.LOCAL; 
     }
 
-    // public UserEntity(String name, String email, String accountType, AuthProvider provider) {
-    //     this.name = name;
-    //     this.email = email;
-    //     this.accountType = accountType;
-    //     this.provider = provider;
-    //     this.password = ""; 
-    // }   
-    //ACEASTA FUNCTIE ERA INITIALA SI AM EROARE CA NU RECUNOASTE accountType CA PARAMETRU
     public UserEntity(String name, String email, String accountType, AuthProvider provider) {
         this.name = name;
         this.email = email;

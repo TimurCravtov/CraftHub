@@ -1,25 +1,31 @@
 package utm.server.features.users;
 
-import utm.server.features.users.dto.UserRequestDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import utm.server.features.image.ImageService;
+import utm.server.features.users.dto.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
+@RequiredArgsConstructor
 public class UserMapper {
-    public static UserRequestDTO toDTO(UserEntity user){
-        UserRequestDTO dto = new UserRequestDTO();
-        dto.setName(user.getName());
-        dto.setEmail(user.getEmail());
-        dto.setAccountType(user.getAccountType());
-        return dto;
+
+    private final ImageService imageService;
+
+    public UserDto toDTO(UserEntity user) {
+
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .accountType(user.getAccountType())
+                .profilePictureLink(imageService.getPermanentLink(user.getProfilePictureKey()))
+                .build();
     }
 
-    public static List<UserRequestDTO> toDTOs(List<UserEntity> user_entities)
-    {
-        List<UserRequestDTO> dtos = new ArrayList<>();
-        for(var user : user_entities)
-            dtos.add(UserMapper.toDTO(user));
-
-        return dtos;
+    public List<UserDto> toDTOs(List<UserEntity> userEntities) {
+        return userEntities.stream().map(this::toDTO).toList();
     }
 }

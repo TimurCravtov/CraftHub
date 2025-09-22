@@ -5,13 +5,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import utm.server.features.jwt.JwtService;
 import utm.server.features.jwt.JwtTokenPair;
-import utm.server.features.users.dto.UserRequestDTO;
+import utm.server.features.users.dto.UserDto;
 import utm.server.features.authentication.dto.UserSignUpDTO;
 import utm.server.features.authentication.dto.AuthProvider;
 import utm.server.features.authentication.dto.UserSignInDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,37 +19,34 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserMapper userMapper;
 
     @Override
-    public List<UserRequestDTO> findAllUser() {
-        List<UserEntity> userEntities = userRepository.findAll();
-        return UserMapper.toDTOs(userEntities);
+    public List<UserDto> findAllUser() {
+        return userMapper.toDTOs(userRepository.findAll());
     }
 
     @Override
-    public UserRequestDTO findUserById(Long id) {
-        return UserMapper.toDTO(userRepository.findById(id)
+    public UserDto findUserById(Long id) {
+        return userMapper.toDTO(userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id " + id)));
     }
 
     @Override
-    public List<UserRequestDTO> findAllUserByName(String name) {
-        List<UserEntity> userEntities = userRepository.findByName(name);
-        return UserMapper.toDTOs(userEntities);
+    public List<UserDto> findAllUserByName(String name) {
+        return userMapper.toDTOs(userRepository.findByName(name));
     }
 
     @Override
-    public List<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name) {
-        List<UserEntity> userEntities = userRepository.findByAccountTypeAndName(AccountType.fromString(accountType), name);
-        return UserMapper.toDTOs(userEntities);
+    public List<UserDto> getUsersByAccountTypeAndName(String provider, String name) {
+        return userMapper.toDTOs(userRepository.findByProviderAndName(AuthProvider.valueOf(provider.toUpperCase()), name));
     }
 
     @Override
-    public UserRequestDTO addUser(UserEntity userEntity) {
-        String encodedPassword = passwordEncoder.encode(userEntity.getPassword());
-        userEntity.setPassword(encodedPassword);
+    public UserDto addUser(UserEntity userEntity) {
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userRepository.save(userEntity);
-        return UserMapper.toDTO(userEntity);
+        return userMapper.toDTO(userEntity);
     }
 
     @Override
@@ -60,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public JwtTokenPair signUp(UserSignUpDTO request) {
-        return null;
+        return null; // implementare separată dacă e nevoie
     }
 
     @Override
@@ -76,17 +72,10 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null) {
-            // Create new user for OAuth2 login
-            UserEntity newUser = new UserEntity();
-            newUser.setEmail(email);
-            newUser.setName("Google User");
-            newUser.setProvider(AuthProvider.GOOGLE);
+            UserEntity newUser = new UserEntity(email, "Google User", AuthProvider.GOOGLE);
             newUser.setPassword("oauth2_user_no_password");
-            newUser.setAccountType(AccountType.valueOf("USER"));
-
             userRepository.save(newUser);
         } else {
-            // Update existing user with OAuth provider information
             user.setProvider(AuthProvider.GOOGLE);
             userRepository.save(user);
         }

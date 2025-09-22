@@ -1,9 +1,14 @@
 package utm.server.features.shops;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import utm.server.features.products.Product;
+import utm.server.features.products.ProductService;
+import utm.server.features.products.dto.ProductDto;
+import utm.server.features.shops.dto.ShopCreationRequestDTO;
+import utm.server.features.users.UserEntity;
+import utm.server.features.users.security.UserSecurityPrincipal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +18,17 @@ import java.util.List;
 public class ShopController {
 
     private final ShopService shopService;
+    private final ProductService productService;
 
     @Autowired
-    public ShopController(ShopService shopService) {
+    public ShopController(ShopService shopService, ProductService productService) {
         this.shopService = shopService;
+        this.productService = productService;
     }
 
     @PostMapping("/addshop")
-    public ShopEntity addShop(@RequestBody ShopRequestDTO shopRequest) {
-        return shopService.addShop(shopRequest);
+    public ShopEntity addShop(@RequestBody ShopCreationRequestDTO shopRequest, @AuthenticationPrincipal UserSecurityPrincipal user) {
+        return shopService.addShop(shopRequest, user);
     }
 
     @GetMapping("/")
@@ -40,8 +47,7 @@ public class ShopController {
     }
 
     @GetMapping("/{shopId}/products")
-    public List<Product> getProductsByShop(@PathVariable Long shopId){
-        return shopService.getProductsByShopId(shopId);
+    public List<ProductDto> getProductsByShop(@PathVariable Long shopId) {
+        return productService.findProductsByShopId(shopId);
     }
-
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 import { authService } from '../services/authService'
+import { useSecurityContext } from '../context/securityContext.jsx'
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
@@ -9,6 +10,7 @@ export default function Login() {
     password: ''
   })
   const navigate = useNavigate()
+  const { sanitizeInput, validateInput } = useSecurityContext()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -83,7 +85,7 @@ export default function Login() {
                       placeholder="Enter your email"
                       value={credentials.email}
                       onChange={(e) =>
-                          setCredentials({ ...credentials, email: e.target.value })
+                          setCredentials({ ...credentials, email: sanitizeInput(e.target.value, 'email') })
                       }
                       className="h-12 w-full bg-gray-50/30 border border-gray-200/60 rounded-full px-6 focus:ring-2 focus:ring-gray-300 focus:border-gray-300 transition-all placeholder:text-gray-400/60 hover:border-gray-300"
                       required
@@ -103,7 +105,7 @@ export default function Login() {
                       placeholder="Password"
                       value={credentials.password}
                       onChange={(e) =>
-                          setCredentials({ ...credentials, password: e.target.value })
+                          setCredentials({ ...credentials, password: sanitizeInput(e.target.value, 'password') })
                       }
                       className="h-12 w-full bg-gray-50/30 border border-gray-200/60 rounded-full px-6 focus:ring-2 focus:ring-gray-300 focus:border-gray-300 transition-all placeholder:text-gray-400/60 hover:border-gray-300"
                       required

@@ -4,12 +4,13 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import Signup from './pages/Signup.jsx'
-import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
+import Home from './pages/Home.jsx'
 import Shops from './pages/Shops.jsx'
 import ItemPage from './pages/ItemPage.jsx'
 import Items from './pages/Items.jsx'
 import ShopPage from './pages/ShopPage.jsx'
+import ProductDetail from './pages/ProductDetail.jsx'
 import Liked from './pages/Liked.jsx'
 import Settings from './pages/Settings.jsx'
 import { LikesProvider } from './likesContext.jsx'
@@ -19,6 +20,7 @@ import { ToastProvider } from './toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Account from './pages/Account.jsx'
 import { TranslationProvider, useTranslation } from './context/translationContext.jsx'
+import { SecurityProvider } from './context/securityContext.jsx'
 
 // 🔥 nou: redirect page pentru Google OAuth2
 import Oauth2Redirect from './pages/Oauth2Redirect.jsx'
@@ -36,10 +38,6 @@ const router = createBrowserRouter([
   {
     path: '/signup',
     element: <Signup />,
-  },
-  {
-    path: '/login',
-    element: <Login />,
   },
   {
     path: '/account',
@@ -70,6 +68,10 @@ const router = createBrowserRouter([
     element: <Items />,
   },
   {
+    path: '/product/:shopId/:productId',
+    element: <ProductDetail />,
+  },
+  {
     path: '/liked',
     element: <Liked />,
   },
@@ -97,6 +99,7 @@ const router = createBrowserRouter([
       { path: 'shops/:id/Itempage', element: <ItemPage /> },
       { path: 'Itempage', element: <ItemPage /> },
       { path: 'items', element: <Items /> },
+      { path: 'product/:shopId/:productId', element: <ProductDetail /> },
       { path: 'liked', element: <Liked /> },
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },
@@ -112,14 +115,16 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-      <TranslationProvider>
-        <LikesProvider>
-          <CartProvider>
-            <ToastProvider>
-              <RouterProvider router={router} />
-            </ToastProvider>
-          </CartProvider>
-        </LikesProvider>
-      </TranslationProvider>
+      <SecurityProvider>
+        <TranslationProvider>
+          <LikesProvider>
+            <CartProvider>
+              <ToastProvider>
+                <RouterProvider router={router} />
+              </ToastProvider>
+            </CartProvider>
+          </LikesProvider>
+        </TranslationProvider>
+      </SecurityProvider>
     </StrictMode>
 )

@@ -19,6 +19,12 @@ export const productsApi = {
         return apiRequest('/api/products/findall', { method: 'GET' })
     },
 
+    async getById(productId) {
+        // GET /api/products/{id}
+        const safeId = encodeURIComponent(String(productId))
+        return apiRequest(`/api/products/${safeId}`, { method: 'GET' })
+    },
+
     async searchByTitle(title) {
         // GET /api/products/{title}
         const safeTitle = encodeURIComponent(title)

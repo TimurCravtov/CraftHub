@@ -33,7 +33,6 @@ public class CustomOAuth2User implements OAuth2User {
         return oauth2User.getAttribute("email");     
     }
     
-    // You might want to add more methods based on your needs:
     public String getFirstName() {
         String name = getName();
         if (name != null && name.contains(" ")) {

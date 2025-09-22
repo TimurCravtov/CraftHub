@@ -36,9 +36,10 @@ export default function ItemPage() {
 
                 const normalized = (Array.isArray(data) ? data : []).map((p, idx) => ({
                     id: p.id ?? idx + 1,
-                    productName: p.title ?? 'Untitled',
+                    title: p.title ?? 'Untitled',
                     price: p.price ?? 0,
                     imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?craft',
+                    shopId: shopId,
                 }))
                 if (mounted) setProducts(normalized)
             } catch (_) {
@@ -53,7 +54,7 @@ export default function ItemPage() {
     const sortedProducts = useMemo(() => {
         const copy = [...products]
         if (sortBy === 'Name A-Z') {
-            return copy.sort((a, b) => a.productName.localeCompare(b.productName))
+            return copy.sort((a, b) => a.title.localeCompare(b.title))
         }
         if (sortBy === 'Price: Low to High') {
             return copy.sort((a, b) => a.price - b.price)
@@ -67,7 +68,7 @@ export default function ItemPage() {
     const filteredProducts = useMemo(() => {
         if (!searchQuery) return sortedProducts
         return sortedProducts.filter(p =>
-            p.productName.toLowerCase().includes(searchQuery)
+            p.title.toLowerCase().includes(searchQuery)
         )
     }, [sortedProducts, searchQuery])
 
@@ -161,9 +162,10 @@ export default function ItemPage() {
                         <ProductCard
                             key={product.id}
                             id={product.id}
-                            productName={product.productName}
+                            title={product.title}
                             price={product.price}
                             imageUrl={safeUrl(product.imageUrl)}
+                            shopId={product.shopId}
                         />
                     ))}
                 </div>

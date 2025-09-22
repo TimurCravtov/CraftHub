@@ -28,10 +28,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         String email = null;
 
-        // Debug: logăm clasa principalului
-        System.out.println("Authentication principal class: " + authentication.getPrincipal().getClass().getName());
-
-        // Verificăm tipul obiectului principal
         if (authentication.getPrincipal() instanceof CustomOAuth2User customUser) {
             email = customUser.getEmail();
         } else if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
@@ -39,18 +35,12 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         }
 
         if (email == null) {
-            System.err.println("ERROR: Could not extract email from OAuth2 principal!");
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not extract email");
             return;
         }
 
-        // Generăm token JWT
         String token = jwtService.generateToken(email);
-        System.out.println("Generated JWT token: " + token);
-
-        // Redirect către frontend
         String redirectUrl = clientBaseUrl + "/oauth2/redirect?token=" + token;
-        System.out.println("Redirecting to: " + redirectUrl);
         response.sendRedirect(redirectUrl);
     }
 }

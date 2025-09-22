@@ -1,24 +1,23 @@
 package utm.server.features.users;
 
 import utm.server.features.jwt.JwtTokenPair;
-import utm.server.features.users.dto.UserRequestDTO;
+import utm.server.features.users.dto.UserDto;
 import utm.server.features.authentication.dto.UserSignInDTO;
 import utm.server.features.authentication.dto.UserSignUpDTO;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface UserService {
-    List<UserRequestDTO> findAllUser();
+    List<UserDto> findAllUser();
 
-    List<UserRequestDTO> getUsersByAccountTypeAndName(String accountType, String name);
+    List<UserDto> getUsersByAccountTypeAndName(String accountType, String name);
 
-    List<UserRequestDTO> findAllUserByName(String name);
+    List<UserDto> findAllUserByName(String name);
 
-    UserRequestDTO addUser(UserEntity userEntity);
+    UserDto addUser(UserEntity userEntity);
 
-    UserRequestDTO findUserById(Long id);
+    UserDto findUserById(Long id);
 
     void deleteAllData();
 
@@ -27,6 +26,8 @@ public interface UserService {
     public JwtTokenPair signIn(UserSignInDTO request);
 
     void deleteUserById(long id);
+    
+    // Add this method
     void processOAuthPostLogin(String email);
 
 }

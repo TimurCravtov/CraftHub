@@ -1,14 +1,12 @@
 package utm.server.features.users;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import utm.server.features.billing.BillingEntity;
-
 import utm.server.features.authentication.dto.AuthProvider;
-import utm.server.features.authentication.model.TwoFactorData;
-import utm.server.features.products.Product;
 import utm.server.features.shops.ShopEntity;
 
 import java.util.Collection;
@@ -18,7 +16,10 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor
 @Entity
+@Builder
+@Table(name = "users")
 public class UserEntity implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,36 +33,44 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-
-    @Enumerated(EnumType.STRING)
-    private AccountType accountType;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private BillingEntity billingInfo;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ShopEntity> shops;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AuthProvider provider = AuthProvider.LOCAL; // Default to LOCAL
+    private AuthProvider provider = AuthProvider.LOCAL;
+    //added default account type BUYER
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountType accountType = AccountType.BUYER;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // prevenim recursivitatea JSON
-    private TwoFactorData twoFactorData;
+    @Column
+    private String twoFactorSecret;
 
-//    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Product> products;
+    @Column(nullable = false)
+    private boolean twoFactorEnabled = false;
 
-    public UserEntity(String name, String email, String password, AccountType accountType) {
+    @Column
+    private String tempTwoFactorSecret;
+
+    public UserEntity(String name, String email, String password, AuthProvider provider) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.accountType = accountType;
-        // Default for traditional registration
+        this.provider = provider != null ? provider : AuthProvider.LOCAL;
     }
 
+    public UserEntity(String name, String email, AuthProvider provider) {
+        this.name = name;
+        this.email = email;
+        this.password = ""; // pentru OAuth
+        this.provider = provider != null ? provider : AuthProvider.LOCAL;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

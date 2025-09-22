@@ -1,6 +1,5 @@
 package utm.server.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,13 +11,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import utm.server.config.OAuth2AuthenticationSuccessHandler;
 import utm.server.features.authentication.service.CustomOAuth2UserService;
 import utm.server.features.jwt.JwtAuthenticationFilter;
 import utm.server.features.jwt.JwtService;
@@ -46,20 +43,18 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        /// to allow testing of order
-                        // .requestMatchers(
-                        // "/api/auth/login",
-                        // "/api/auth/signup",
-                        // "/api/auth/signin",
-                        // "/api/auth/refresh",
-                        // "/oauth2/**",
-                        // "/login/oauth2/code/**",
-                        // "/error",
-                        // "/favicon.ico",
-                        // "/",
-                        // "/api/products/findall"
-                        // ).permitAll()
-                        // .anyRequest().authenticated()
+                        .requestMatchers(
+                        "/api/auth/login",
+                        "/api/auth/signup",
+                        "/api/auth/signin",
+                        "/api/auth/refresh",
+                        "/oauth2/**",
+                        "/login/oauth2/code/**",
+                        "/error",
+                        "/favicon.ico",
+                        "/",
+                        "/api/products/findall"
+                        ).permitAll() // DONT FORGET TO ADD SECURITY
                         .anyRequest().permitAll())
                 // Login clasic REST
                 .formLogin(form -> form
@@ -93,7 +88,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(clientBaseUrl));
+        config.setAllowedOriginPatterns(List.of(clientBaseUrl));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization"));

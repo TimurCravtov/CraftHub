@@ -29,6 +29,7 @@ export default function Items() {
                 const shopResponse = await fetch(`http://localhost:8080/api/shops/${id}`)
                 const shopData = await shopResponse.json()
                 product.sellerName = shopData.name  
+                product.shopId = product.shop_id
                 return product
           })
         )
@@ -38,10 +39,11 @@ export default function Items() {
 
                 const normalized = (Array.isArray(data) ? data : []).map((p, idx) => ({
                     id: p.id ?? idx + 1,
-                    productName: p.title ?? 'Untitled',
+                    title: p.title ?? 'Untitled',
                     sellerName: p.sellerName ?? 'Unknown seller',
                     price: p.price ?? 0,
                     imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?handmade',
+                    shopId: p.shopId ?? p.shop_id,
                 }))
                 // shuffle
                 for (let i = normalized.length - 1; i > 0; i -= 1) {
@@ -64,7 +66,7 @@ export default function Items() {
     const sortedProducts = useMemo(() => {
         const copy = [...products]
         if (sortBy === 'Name A-Z') {
-            return copy.sort((a, b) => a.productName.localeCompare(b.productName))
+            return copy.sort((a, b) => a.title.localeCompare(b.title))
         }
         if (sortBy === 'Price: Low to High') {
             return copy.sort((a, b) => a.price - b.price)
@@ -78,7 +80,7 @@ export default function Items() {
     const filteredProducts = useMemo(() => {
         if (!searchQuery) return sortedProducts
         return sortedProducts.filter(p =>
-            p.productName.toLowerCase().includes(searchQuery)
+            p.title.toLowerCase().includes(searchQuery)
         )
     }, [sortedProducts, searchQuery])
 
@@ -158,10 +160,11 @@ export default function Items() {
                         <ProductCard
                             key={product.id}
                             id={product.id}
-                            productName={product.productName}
+                            title={product.title}
                             sellerName={product.sellerName}
                             price={product.price}
                             imageUrl={safeUrl(product.imageUrl)}
+                            shopId={product.shopId}
                         />
                     ))}
                 </div>

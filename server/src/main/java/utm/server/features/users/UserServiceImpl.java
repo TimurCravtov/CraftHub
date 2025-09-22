@@ -23,8 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> findAllUser() {
-        List<UserEntity> userEntities = userRepository.findAll();
-        return userMapper.toDTOs(userEntities);
+        return userMapper.toDTOs(userRepository.findAll());
     }
 
     @Override
@@ -35,20 +34,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> findAllUserByName(String name) {
-        List<UserEntity> userEntities = userRepository.findByName(name);
-        return userMapper.toDTOs(userEntities);
+        return userMapper.toDTOs(userRepository.findByName(name));
     }
 
     @Override
-    public List<UserDto> getUsersByAccountTypeAndName(String accountType, String name) {
-        List<UserEntity> userEntities = userRepository.findByAccountTypeAndName(AccountType.fromString(accountType), name);
-        return userMapper.toDTOs(userEntities);
+    public List<UserDto> getUsersByAccountTypeAndName(String provider, String name) {
+        return userMapper.toDTOs(userRepository.findByProviderAndName(AuthProvider.valueOf(provider.toUpperCase()), name));
     }
 
     @Override
     public UserDto addUser(UserEntity userEntity) {
-        String encodedPassword = passwordEncoder.encode(userEntity.getPassword());
-        userEntity.setPassword(encodedPassword);
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userRepository.save(userEntity);
         return userMapper.toDTO(userEntity);
     }
@@ -60,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public JwtTokenPair signUp(UserSignUpDTO request) {
-        return null;
+        return null; // implementare separată dacă e nevoie
     }
 
     @Override
@@ -76,13 +72,8 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null) {
-            UserEntity newUser = new UserEntity();
-            newUser.setEmail(email);
-            newUser.setName("Google User");
-            newUser.setProvider(AuthProvider.GOOGLE);
+            UserEntity newUser = new UserEntity(email, "Google User", AuthProvider.GOOGLE);
             newUser.setPassword("oauth2_user_no_password");
-            newUser.setAccountType(AccountType.valueOf("USER"));
-
             userRepository.save(newUser);
         } else {
             user.setProvider(AuthProvider.GOOGLE);

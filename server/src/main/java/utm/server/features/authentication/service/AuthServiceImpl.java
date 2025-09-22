@@ -12,10 +12,12 @@ import org.springframework.stereotype.Service;
 import utm.server.features.authentication.dto.UpdateUserDTO;
 import utm.server.features.authentication.dto.UserSignInDTO;
 import utm.server.features.authentication.dto.UserSignUpDTO;
+import utm.server.features.authentication.dto.AuthProvider;
 import utm.server.features.jwt.JwtService;
 import utm.server.features.jwt.JwtTokenPair;
 import utm.server.features.users.UserEntity;
 import utm.server.features.users.UserRepository;
+import utm.server.features.users.AccountType;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
@@ -28,19 +30,28 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    
     @Override
     public JwtTokenPair signUp(UserSignUpDTO request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
 
-        UserEntity newUser = new UserEntity(
-                request.getName(),
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getAccountType()
-        );
+        UserEntity newUser = new UserEntity();
+        newUser.setName(request.getName());
+        newUser.setEmail(request.getEmail());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        
+        AuthProvider provider = request.getProvider() != null ? request.getProvider() : AuthProvider.LOCAL;
+        newUser.setProvider(provider);
+
+        if(provider == AuthProvider.LOCAL){
+            if(request.getAccountType() == null){
+                throw new RuntimeException("Account type is required for local sign up");
+            }
+            newUser.setAccountType(request.getAccountType());
+        } else {
+            newUser.setAccountType(AccountType.BUYER); 
+        }
 
         userRepository.save(newUser);
         return jwtService.getJwtTokenPair(newUser);
@@ -113,45 +124,33 @@ public class AuthServiceImpl implements AuthService {
 
         user.setTwoFactorSecret(tempSecret);
         user.setTwoFactorEnabled(true);
-        user.setTempTwoFactorSecret(null); 
+        user.setTempTwoFactorSecret(null);
         userRepository.save(user);
     }
 
-  @Override
-public JwtTokenPair verifyTwoFactorCode(Long userId, String code) {
-    UserEntity user = userRepository.findById(userId).orElseThrow();
-    GoogleAuthenticator gAuth = new GoogleAuthenticator();
+    @Override
+    public JwtTokenPair verifyTwoFactorCode(Long userId, String code) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    if (user.getTwoFactorSecret() == null) {
-        throw new RuntimeException("2FA not enabled");
+        if (user.getTwoFactorSecret() == null) {
+            throw new RuntimeException("2FA not enabled");
+        }
+
+        GoogleAuthenticator gAuth = new GoogleAuthenticator();
+        boolean isCodeValid = gAuth.authorize(user.getTwoFactorSecret(), Integer.parseInt(code));
+
+        if (!isCodeValid) {
+            throw new RuntimeException("Invalid 2FA code");
+        }
+
+        return jwtService.getJwtTokenPair(user);
     }
 
-    boolean isCodeValid = gAuth.authorize(user.getTwoFactorSecret(), Integer.parseInt(code));
-    if (!isCodeValid) {
-        throw new RuntimeException("Invalid 2FA code");
+    @Override
+    public JwtTokenPair verifyTwoFactorSignIn(Long userId, String code) {
+        return verifyTwoFactorCode(userId, code); // reutilizare cod
     }
-
-    return jwtService.getJwtTokenPair(user);
-}
-
-
-@Override
-public JwtTokenPair verifyTwoFactorSignIn(Long userId, String code) {
-    UserEntity user = userRepository.findById(userId).orElseThrow();
-    GoogleAuthenticator gAuth = new GoogleAuthenticator();
-
-    if (user.getTwoFactorSecret() == null) {
-        throw new RuntimeException("2FA not enabled");
-    }
-
-    boolean isCodeValid = gAuth.authorize(user.getTwoFactorSecret(), Integer.parseInt(code));
-    if (!isCodeValid) {
-        throw new RuntimeException("Invalid 2FA code");
-    }
-
-    return jwtService.getJwtTokenPair(user);
-}
-
 
     @Override
     public UserEntity updateUser(Long userId, UpdateUserDTO request) {
@@ -163,12 +162,15 @@ public JwtTokenPair verifyTwoFactorSignIn(Long userId, String code) {
         }
 
         if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
+            if(request.getCurrentPassword() == null || !passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new RuntimeException("Current password is required to set a new password");
+            }
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }
 
         if (request.getNewEmail() != null && !request.getNewEmail().isBlank()) {
-            if (userRepository.existsByEmail(request.getNewEmail()) &&
-                    !request.getNewEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(request.getNewEmail())
+                    && !request.getNewEmail().equals(user.getEmail())) {
                 throw new RuntimeException("Email already in use");
             }
             user.setEmail(request.getNewEmail());
@@ -178,9 +180,21 @@ public JwtTokenPair verifyTwoFactorSignIn(Long userId, String code) {
             user.setName(request.getNewName());
         }
 
-        userRepository.save(user);
-        return user;
+    if (request.getRole() != null && !request.getRole().isBlank()) {
+        try {
+            user.setAccountType(
+                AccountType.valueOf(request.getRole().toUpperCase())
+            );
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role: " + request.getRole());
+        }
     }
+
+
+    userRepository.save(user);
+    return user;
+}
+
 
     @Override
     public Long getUserIdFromToken(String token) {

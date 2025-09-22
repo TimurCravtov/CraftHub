@@ -25,7 +25,6 @@ public class AuthController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO request) {
         try {
@@ -33,7 +32,7 @@ public class AuthController {
             return ResponseEntity.ok(tokenPair);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("SignUp Error: " + e.getMessage());
+                    .body(Map.of("error", "SignUp Error: " + e.getMessage()));
         }
     }
 
@@ -53,10 +52,10 @@ public class AuthController {
                 ));
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("SignIn Error: " + e.getMessage());
+                    .body(Map.of("error", "SignIn Error: " + e.getMessage()));
         }
     }
-    
+
     @PostMapping("/me/enable-2fa")
     public ResponseEntity<?> enableTwoFactorAuthentication(
             @RequestHeader("Authorization") String authHeader
@@ -66,50 +65,46 @@ public class AuthController {
             Long userId = authenticationService.getUserIdFromToken(token);
 
             String qrBase64 = authenticationService.enableTwoFactorAuthentication(userId);
-            return ResponseEntity.ok(qrBase64);
+            return ResponseEntity.ok(Map.of("qrCode", qrBase64));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Enable 2FA Error: " + e.getMessage());
+                    .body(Map.of("error", "Enable 2FA Error: " + e.getMessage()));
         }
     }
 
-   @PostMapping("/me/confirm-2fa")
-public ResponseEntity<?> confirmTwoFactorAuthentication(
-        @RequestHeader("Authorization") String authHeader,
-        @RequestBody Map<String, String> request
-) {
-    try {
-        String token = authHeader.replace("Bearer ", "");
-        Long userId = authenticationService.getUserIdFromToken(token);
-        String code = request.get("code");
+    @PostMapping("/me/confirm-2fa")
+    public ResponseEntity<?> confirmTwoFactorAuthentication(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> request
+    ) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            Long userId = authenticationService.getUserIdFromToken(token);
+            String code = request.get("code");
 
-        authenticationService.confirmTwoFactorAuthentication(userId, code);
+            authenticationService.confirmTwoFactorAuthentication(userId, code);
 
-        return ResponseEntity.ok(Map.of("message", "2FA successfully enabled"));
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.ok(Map.of("message", "2FA successfully enabled"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
-}
 
+    @PostMapping("/verify-2fa")
+    public ResponseEntity<?> verifyTwoFactor(@RequestBody Map<String, String> body) {
+        try {
+            Long userId = Long.parseLong(body.get("userId"));
+            String code = body.get("code");
 
- @PostMapping("/verify-2fa")
-public ResponseEntity<?> verifyTwoFactor(@RequestBody Map<String, String> body) {
-    try {
-        Long userId = Long.parseLong(body.get("userId"));
-        String code = body.get("code");
+            JwtTokenPair tokenPair = authenticationService.verifyTwoFactorSignIn(userId, code);
 
-        JwtTokenPair tokenPair = authenticationService.verifyTwoFactorSignIn(userId, code);
-
-        return ResponseEntity.ok(tokenPair);
-    } catch (RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Invalid 2FA code: " + e.getMessage()));
+            return ResponseEntity.ok(tokenPair);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid 2FA code: " + e.getMessage()));
+        }
     }
-}
-
-
-
 
     @PutMapping("/update-user")
     public ResponseEntity<?> updateUser(
@@ -123,7 +118,7 @@ public ResponseEntity<?> verifyTwoFactor(@RequestBody Map<String, String> body) 
             return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Update Error: " + e.getMessage());
+                    .body(Map.of("error", "Update Error: " + e.getMessage()));
         }
     }
 
@@ -138,7 +133,7 @@ public ResponseEntity<?> verifyTwoFactor(@RequestBody Map<String, String> body) 
             return ResponseEntity.ok(newPair);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Refresh Error: " + e.getMessage());
+                    .body(Map.of("error", "Refresh Error: " + e.getMessage()));
         }
     }
 }

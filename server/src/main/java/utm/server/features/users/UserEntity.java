@@ -1,25 +1,25 @@
 package utm.server.features.users;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import utm.server.features.billing.BillingEntity;
-
 import utm.server.features.authentication.dto.AuthProvider;
-import utm.server.features.products.Product;
 import utm.server.features.shops.ShopEntity;
 
 import java.util.Collection;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor
 @Entity
-@Table
 @Builder
+@Table(name = "users")
 public class UserEntity implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,53 +33,43 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-
-    @Enumerated(EnumType.STRING)
-    private AccountType accountType;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private BillingEntity billingInfo;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ShopEntity> shops;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AuthProvider provider = AuthProvider.LOCAL; 
-
-    // @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
-    // private List<Product> products;
+    private AuthProvider provider = AuthProvider.LOCAL;
+    //added default account type BUYER
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountType accountType = AccountType.BUYER;
 
     @Column
     private String twoFactorSecret;
 
     @Column(nullable = false)
     private boolean twoFactorEnabled = false;
-    
+
     @Column
     private String tempTwoFactorSecret;
 
-    private String profilePictureKey;
-
-    public UserEntity(String name, String email, String password, AccountType accountType) {
+    public UserEntity(String name, String email, String password, AuthProvider provider) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.accountType = accountType;
-        this.provider = AuthProvider.LOCAL; 
+        this.provider = provider != null ? provider : AuthProvider.LOCAL;
     }
 
-    public UserEntity(String name, String email, String accountType, AuthProvider provider) {
+    public UserEntity(String name, String email, AuthProvider provider) {
         this.name = name;
         this.email = email;
-        try {
-            this.accountType = AccountType.valueOf(accountType.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid account type: " + accountType);
-        }
-        this.provider = provider;
-        this.password = ""; 
+        this.password = ""; // pentru OAuth
+        this.provider = provider != null ? provider : AuthProvider.LOCAL;
     }
 
     @Override

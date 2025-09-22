@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import utm.server.features.users.AccountType;
+import utm.server.features.authentication.dto.AuthProvider;
 
 @Data
 @Builder
@@ -17,4 +18,5 @@ public class UserDto {
     private Long id;
     private String profilePictureLink;
     private AccountType accountType;
+    private AuthProvider provider;
 }

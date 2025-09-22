@@ -172,7 +172,14 @@ export default function Header() {
                     onClick={handleAccountClick}
                 >
                   <User className="h-5 w-5" />
-                  {user && <span className="text-sm font-medium">Hi, {user.name}</span>}
+                  {user && (
+                    <span className="text-sm font-medium">
+                      Hi, {user.name}{" "}
+                      <span className="text-xs text-slate-500">
+                        ({user.role || (isSeller ? "seller" : "buyer")})
+                      </span>
+                    </span>
+                  )}
                 </button>
 
                 {menuOpen && user && (

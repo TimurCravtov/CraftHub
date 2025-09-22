@@ -43,45 +43,44 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/auth/login",
-                    "/api/auth/signup",
-                    "/api/auth/signin",
-                    "/api/auth/refresh",
-                    "/oauth2/**",
-                    "/login/oauth2/code/**",
-                    "/error",
-                    "/favicon.ico",
-                    "/"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
-            // Login clasic REST
-            .formLogin(form -> form
-                .loginProcessingUrl("/api/auth/login")
-                .permitAll()
-            )
-            // OAuth2 Google
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        /// to allow testing of order
+                        // .requestMatchers(
+                        // "/api/auth/login",
+                        // "/api/auth/signup",
+                        // "/api/auth/signin",
+                        // "/api/auth/refresh",
+                        // "/oauth2/**",
+                        // "/login/oauth2/code/**",
+                        // "/error",
+                        // "/favicon.ico",
+                        // "/",
+                        // "/api/products/findall"
+                        // ).permitAll()
+                        // .anyRequest().authenticated()
+                        .anyRequest().permitAll())
+                // Login clasic REST
+                .formLogin(form -> form
+                        .loginProcessingUrl("/api/auth/login")
+                        .permitAll())
+                // OAuth2 Google
                 .oauth2Login(oauth2 -> oauth2
-                .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
-                .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
-                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .successHandler(oAuth2SuccessHandler)
-            )
+                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
+                        .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler))
 
-            // Return 401 JSON dacă nu e autentificat
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, e) -> {
-                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    res.setContentType("application/json");
-                    res.getWriter().write("{\"error\":\"Unauthorized\"}");
-                })
-            )
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // Return 401 JSON dacă nu e autentificat
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        }))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -33,6 +33,8 @@ public class CartService {
     @Transactional
     public void addItemToCart(UserEntity user, CartItemRequest request) {
         Cart cart = getCart(user);
+
+        // Make sure we get a managed entity
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
@@ -49,8 +51,10 @@ public class CartService {
             newItem.setCart(cart);
             newItem.setProduct(product);
             newItem.setQuantity(request.getQuantity());
-            cart.getItems().add(newItem);
-            cartItemRepository.save(newItem);
+
+            // Save the item first, then add to collection
+            CartItem savedItem = cartItemRepository.save(newItem);
+            cart.getItems().add(savedItem);
         }
         cartRepository.save(cart);
     }

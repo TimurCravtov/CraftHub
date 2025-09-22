@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Mail, User, KeyRound, Save, Edit, Check, X } from "lucide-react";
+import { Lock, Mail, User, KeyRound, Save } from "lucide-react";
 import Header from "../component/Header.jsx";
-import { useSecurityContext } from '../context/securityContext.jsx';
 
 export default function Settings() {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
+    newEmail: "",
     newName: "",
     role: "buyer", // default buyer
   });
@@ -25,93 +22,20 @@ export default function Settings() {
 
   const navigate = useNavigate();
   const isGoogleUser = user?.provider === "google";
-  const { sanitizeInput } = useSecurityContext();
 
-  // Fetch user data from database
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("http://localhost:8080/api/users/me", {
-          headers: {
-            "Authorization": `Bearer ${user.token}`,
-            "Content-Type": "application/json"
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-        
-        const data = await response.json();
-        setUserData(data);
-        
-        // Pre-populate form with current user data
-        setForm(prev => ({
-          ...prev,
-          newName: data.name || "",
-          role: data.accountType || data.role || "buyer"
-        }));
-        
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setMessage("Failed to load user data");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
-    if (user?.token) {
-      fetchUserData();
-    }
-  }, [user?.token]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    let sanitizedValue = value;
-    
-    // Apply appropriate sanitization based on field type
-    if (name === 'newName') {
-      sanitizedValue = sanitizeInput(value, 'name');
-    } else if (name === 'currentPassword' || name === 'newPassword') {
-      sanitizedValue = sanitizeInput(value, 'password');
-    } else if (name === 'newEmail') {
-      sanitizedValue = sanitizeInput(value, 'email');
-    }
-    
-    setForm({ ...form, [name]: sanitizedValue });
-  };
-
-  const handleEditToggle = () => {
-    setEditing(!editing);
-    if (!editing) {
-      // Reset form when starting to edit
-      setForm({
-        currentPassword: "",
-        newPassword: "",
-        newName: userData?.name || "",
-        role: userData?.accountType || userData?.role || "buyer"
-      });
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditing(false);
-    setForm({
-      currentPassword: "",
-      newPassword: "",
-      newName: userData?.name || "",
-      role: userData?.accountType || userData?.role || "buyer"
-    });
-    setMessage("");
-  };
-
-  // --- Update User ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
 
-    if (!form.newPassword && !form.newName && !form.role) {
+    if (
+      !form.newPassword &&
+      !form.newEmail &&
+      !form.newName &&
+      !form.role
+    ) {
       setMessage("Nothing to update");
       return;
     }
@@ -123,7 +47,9 @@ export default function Settings() {
     try {
       const body = { role: form.role || "buyer" };
       if (!isGoogleUser) body.currentPassword = form.currentPassword;
-      if (form.newPassword && !isGoogleUser) body.newPassword = form.newPassword;
+      if (form.newPassword && !isGoogleUser)
+        body.newPassword = form.newPassword;
+      if (form.newEmail && !isGoogleUser) body.newEmail = form.newEmail;
       if (form.newName) body.newName = form.newName;
 
       const res = await fetch("http://localhost:8080/api/auth/update-user", {
@@ -138,73 +64,27 @@ export default function Settings() {
       if (!res.ok) throw new Error((await res.text()) || "Update failed");
 
       const updatedUser = await res.json();
-      
-      // Update local userData state
-      setUserData(prev => ({
-        ...prev,
-        name: form.newName || prev.name,
-        accountType: form.role || prev.accountType
-      }));
 
-      // Save complete user
+      // salvăm user-ul complet
       localStorage.setItem(
         "user",
         JSON.stringify({ ...user, ...updatedUser })
       );
       setUser({ ...user, ...updatedUser });
       setMessage("✅ Account updated successfully!");
-      setEditing(false);
-      setForm({ currentPassword: "", newPassword: "", newName: "", role: "buyer" });
+      navigate("/");
     } catch (err) {
       setMessage("❌ " + (err.message || "Something went wrong"));
     }
   };
 
-  // Listen for localStorage changes for re-render in Header
+  // ascultăm modificări în localStorage pentru re-render în Header
   useEffect(() => {
     const handler = () =>
       setUser(JSON.parse(localStorage.getItem("user")) || {});
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
   }, []);
-
-  // --- Enable 2FA (get QR code) ---
-  const handleEnable2FA = async () => {
-    try {
-      const res = await fetch("http://localhost:8080/api/auth/me/enable-2fa", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-
-      if (!res.ok) throw new Error("Failed to enable 2FA");
-
-      const data = await res.json();
-      setQrCode(data.qrCode);
-      setShow2FAConfirm(true);
-    } catch (err) {
-      setMessage("❌ " + (err.message || "Failed to enable 2FA"));
-    }
-  };
-
-  // --- Verify 2FA code ---
-  const handleVerify2FA = async () => {
-    try {
-      const res = await fetch("http://localhost:8080/api/auth/me/verify-2fa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
-        body: JSON.stringify({ code: twoFactorCode }),
-      });
-
-      if (!res.ok) throw new Error("Invalid 2FA code");
-
-      setMessage("✅ 2FA enabled successfully!");
-      setShow2FAConfirm(false);
-      setQrCode("");
-      setTwoFactorCode("");
-    } catch (err) {
-      setMessage("❌ " + (err.message || "Invalid 2FA code"));
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -215,162 +95,123 @@ export default function Settings() {
           Account Settings
         </h1>
 
-        {/* Loading State */}
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading user data...</p>
-          </div>
-        ) : (
-          <>
-            {/* User Info Display */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-800">Profile Information</h2>
-                {!editing ? (
-                  <button
-                    onClick={handleEditToggle}
-                    className="flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit
-                  </button>
-                ) : (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleCancelEdit}
-                      className="flex items-center gap-2 px-3 py-1 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                    >
-                      <X className="h-4 w-4" />
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSubmit}
-                      className="flex items-center gap-2 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      <Check className="h-4 w-4" />
-                      Save
-                    </button>
-                  </div>
-                )}
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <User className="h-5 w-5 text-indigo-500" />
-                  <span className="font-medium">Name:</span> 
-                  {editing ? (
-                    <input 
-                      type="text" 
-                      name="newName" 
-                      value={form.newName} 
-                      onChange={handleChange}
-                      className="flex-1 border rounded px-2 py-1 bg-white"
-                      placeholder="Enter new name"
-                    />
-                  ) : (
-                    <span>{userData?.name || "N/A"}</span>
-                  )}
-                </div>
-                
-                <div className="flex items-center gap-2 text-gray-700">
-                  <Mail className="h-5 w-5 text-indigo-500" />
-                  <span className="font-medium">Email:</span> 
-                  <span className="text-gray-600">{userData?.email || "N/A"}</span>
-                  <span className="text-xs bg-gray-200 px-2 py-1 rounded text-gray-600">Read-only</span>
-                </div>
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg border shadow-sm">
+          <p className="flex items-center gap-2 text-gray-700">
+            <User className="h-5 w-5 text-indigo-500" />
+            <span className="font-medium">Name:</span> {user?.name || "N/A"}
+          </p>
+          <p className="flex items-center gap-2 text-gray-700 mt-2">
+            <Mail className="h-5 w-5 text-indigo-500" />
+            <span className="font-medium">Email:</span> {user?.email || "N/A"}
+          </p>
+          <p className="flex items-center gap-2 text-gray-700 mt-2">
+            <span className="font-medium">Role:</span>{" "}
+            {user?.accountType || user?.role || "buyer"}
+          </p>
+        </div>
 
-                <div className="flex items-center gap-2 text-gray-700">
-                  <span className="font-medium">Role:</span>
-                  {editing ? (
-                    <select
-                      name="role"
-                      value={form.role}
-                      onChange={handleChange}
-                      className="border rounded px-2 py-1 bg-white"
-                    >
-                      <option value="buyer">Buyer</option>
-                      <option value="seller">Seller</option>
-                    </select>
-                  ) : (
-                    <span className="text-gray-600">{userData?.accountType || userData?.role || "buyer"}</span>
-                  )}
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Choose Role
+            </label>
+            <select
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2 shadow-sm focus:ring-2 focus:ring-indigo-400"
+            >
+              <option value="buyer">Buyer</option>
+              <option value="seller">Seller</option>
+            </select>
+          </div>
+
+          {!isGoogleUser && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Current Password
+              </label>
+              <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+                <Lock className="h-5 w-5 text-gray-400 mr-2" />
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={form.currentPassword}
+                  onChange={handleChange}
+                  className="flex-1 bg-transparent outline-none"
+                />
               </div>
             </div>
+          )}
 
-            {/* Password Change Section */}
-            {editing && !isGoogleUser && (
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h3 className="text-md font-semibold text-blue-800 mb-3">Change Password</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Current Password</label>
-                    <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
-                      <Lock className="h-5 w-5 text-gray-400 mr-2" />
-                      <input 
-                        type="password" 
-                        name="currentPassword" 
-                        value={form.currentPassword} 
-                        onChange={handleChange} 
-                        className="flex-1 bg-transparent outline-none" 
-                        placeholder="Enter current password"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">New Password</label>
-                    <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
-                      <KeyRound className="h-5 w-5 text-gray-400 mr-2" />
-                      <input 
-                        type="password" 
-                        name="newPassword" 
-                        value={form.newPassword} 
-                        onChange={handleChange} 
-                        className="flex-1 bg-transparent outline-none" 
-                        placeholder="Enter new password (leave empty to keep current)"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Enable 2FA */}
-        {!user.twoFactorEnabled && !show2FAConfirm && (
-          <div className="mt-6 p-4 border rounded-lg bg-gray-50 text-center">
-            <p className="mb-2 font-medium text-gray-700">Enable Two-Factor Authentication</p>
-            <button onClick={handleEnable2FA} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Enable 2FA</button>
-          </div>
-        )}
-
-        {/* 2FA QR Code */}
-        {show2FAConfirm && qrCode && (
-          <div className="mt-6 p-4 border rounded-lg bg-gray-50 text-center">
-            <p className="mb-4 font-medium text-gray-700">Scan this QR code with your authenticator app:</p>
-            <div className="mb-4 flex justify-center">
-              <img src={qrCode} alt="2FA QR Code" className="border rounded" />
-            </div>
-            <div className="space-y-2">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              New Name
+            </label>
+            <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+              <User className="h-5 w-5 text-gray-400 mr-2" />
               <input
                 type="text"
-                value={twoFactorCode}
-                onChange={(e) => setTwoFactorCode(e.target.value)}
-                placeholder="Enter 6-digit code"
-                className="w-full border rounded px-3 py-2 text-center"
-                maxLength="6"
+                name="newName"
+                value={form.newName}
+                onChange={handleChange}
+                placeholder="Leave empty if unchanged"
+                className="flex-1 bg-transparent outline-none"
               />
-              <div className="flex gap-2 justify-center">
-                <button onClick={handleVerify2FA} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Verify</button>
-                <button onClick={() => setShow2FAConfirm(false)} className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Cancel</button>
-              </div>
             </div>
           </div>
-        )}
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              New Password
+            </label>
+            <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+              <KeyRound className="h-5 w-5 text-gray-400 mr-2" />
+              <input
+                type="password"
+                name="newPassword"
+                value={form.newPassword}
+                onChange={handleChange}
+                placeholder={
+                  isGoogleUser
+                    ? "Not available for Google login"
+                    : "Leave empty if unchanged"
+                }
+                className="flex-1 bg-transparent outline-none"
+                disabled={isGoogleUser}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              New Email
+            </label>
+            <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+              <Mail className="h-5 w-5 text-gray-400 mr-2" />
+              <input
+                type="email"
+                name="newEmail"
+                value={form.newEmail}
+                onChange={handleChange}
+                placeholder={
+                  isGoogleUser
+                    ? "Not available for Google login"
+                    : "Leave empty if unchanged"
+                }
+                className="flex-1 bg-transparent outline-none"
+                disabled={isGoogleUser}
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all"
+          >
+            <Save className="h-5 w-5" /> Save Changes
+          </button>
+        </form>
 
         {message && (
           <p

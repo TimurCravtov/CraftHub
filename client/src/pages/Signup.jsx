@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSecurityContext } from '../context/securityContext.jsx';
+import { useSecurity } from '../hooks/useSecurity.js';
 
 export default function Signup() {
     const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "LOCAL" });
@@ -17,7 +17,7 @@ export default function Signup() {
     const [pendingUserId, setPendingUserId] = useState(null);
 
     const navigate = useNavigate();
-    const { sanitizeInput, validateInput, sanitizeFormData } = useSecurityContext();
+    const { sanitizeInput, validateInput, sanitizeFormData } = useSecurity();
 
     const MIN_LENGTH = 8;
     const reHasUpper = /[A-Z]/;
@@ -99,13 +99,10 @@ export default function Signup() {
 
         setIsSubmitting(true);
         try {
-            // Sanitize form data before sending
-            const sanitizedData = sanitizeFormData(signupData);
-            
             const res = await fetch("http://localhost:8080/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...sanitizedData }),
+                body: JSON.stringify({ ...signupData }),
             });
             if (!res.ok) {
                 const text = await res.text().catch(() => "Signup failed");
@@ -116,9 +113,9 @@ export default function Signup() {
             localStorage.setItem(
                 "user",
                 JSON.stringify({
-                    name: sanitizedData.name,
-                    email: sanitizedData.email,
-                    accountType: sanitizedData.accountType,
+                    name: signupData.name,
+                    email: signupData.email,
+                    accountType: signupData.accountType,
                     token: data.accessToken ?? null,
                 })
             );
@@ -138,16 +135,10 @@ export default function Signup() {
         setLoginSubmitting(true);
 
         try {
-            // Sanitize login data
-            const sanitizedLoginData = {
-                email: sanitizeInput(loginData.email, 'email'),
-                password: sanitizeInput(loginData.password, 'password')
-            };
-
             const res = await fetch("http://localhost:8080/api/auth/signin", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(sanitizedLoginData),
+                body: JSON.stringify(loginData),
             });
             if (!res.ok) {
                 const text = await res.text().catch(() => "Login failed");
@@ -165,7 +156,7 @@ export default function Signup() {
                 localStorage.setItem(
                     "user",
                     JSON.stringify({
-                        email: sanitizedLoginData.email,
+                        email: loginData.email,
                         role: data.role,
                         token: data.accessToken ?? null,
                     })
@@ -191,7 +182,7 @@ export default function Signup() {
             const res = await fetch("http://localhost:8080/api/auth/verify-2fa", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: pendingUserId, code: sanitizeInput(twoFactorCode, 'text') }),
+                body: JSON.stringify({ userId: pendingUserId, code: twoFactorCode }),
             });
 
             if (!res.ok) {
@@ -274,7 +265,7 @@ export default function Signup() {
                                 type="text"
                                 placeholder="Name"
                                 value={signupData.name}
-                                onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, 'name') })}
+                                onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, 'text') })}
                             />
                             {errors.name && <div className="text-sm text-red-600">{errors.name}</div>}
 
@@ -298,20 +289,20 @@ export default function Signup() {
                             <div className="flex justify-center gap-4 my-2">
                                 <label>
                                     <input
-                                        type="radio"
-                                        name="accountType"
-                                        value="LOCAL"
-                                        checked={signupData.accountType === "LOCAL"}
-                                        onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
-                                    />
-                                    Buyer
+                                            type="radio"
+                                            name="accountType"
+                                            value="LOCAL"
+                                          checked={signupData.accountType === "LOCAL"}
+                                            onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
+                                        />
+                                        Buyer
                                 </label>
                                 <label>
                                     <input
                                         type="radio"
                                         name="accountType"
                                         value="LOCAL"
-                                        checked={signupData.accountType === "LOCAL"}
+                                        checked={signupData.role === "LOCAL"}
                                         onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
                                     />
                                     Seller
@@ -355,14 +346,14 @@ export default function Signup() {
                                         type="email"
                                         placeholder="Email"
                                         value={loginData.email}
-                                        onChange={(e) => setLoginData({ ...loginData, email: sanitizeInput(e.target.value, 'email') })}
+                                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                                         required
                                     />
                                     <input
                                         type="password"
                                         placeholder="Password"
                                         value={loginData.password}
-                                        onChange={(e) => setLoginData({ ...loginData, password: sanitizeInput(e.target.value, 'password') })}
+                                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                                         required
                                     />
                                 </>
@@ -373,7 +364,7 @@ export default function Signup() {
                                         type="text"
                                         placeholder="6-digit code"
                                         value={twoFactorCode}
-                                        onChange={(e) => setTwoFactorCode(sanitizeInput(e.target.value, 'text'))}
+                                        onChange={(e) => setTwoFactorCode(e.target.value)}
                                         required
                                     />
                                 </>

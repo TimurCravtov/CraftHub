@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { sanitizeEmail, sanitizeUserInput, sanitizePassword, sanitizeName, escapeHtml, safeUrl, validateEmailFormat } from '../utils/sanitize.js'
+import { sanitizeEmail, sanitizeEmailForDisplay, sanitizeUserInput, sanitizePassword, sanitizeName, sanitizeNameForDisplay, escapeHtml, safeUrl, validateEmailFormat } from '../utils/sanitize.js'
 
 export const useSecurity = () => {
   const sanitizeInput = useCallback((input, type = 'text') => {
@@ -7,7 +7,7 @@ export const useSecurity = () => {
     
     switch (type) {
       case 'email':
-        return sanitizeEmail(input)
+        return sanitizeEmailForDisplay(input) // Use display version for UI
       case 'html':
         return escapeHtml(input)
       case 'url':
@@ -15,7 +15,7 @@ export const useSecurity = () => {
       case 'password':
         return sanitizePassword(input)
       case 'name':
-        return sanitizeName(input)
+        return sanitizeNameForDisplay(input) // Use display version for UI
       case 'text':
       default:
         return sanitizeUserInput(input)
@@ -46,17 +46,19 @@ export const useSecurity = () => {
     const sanitized = {}
     for (const [key, value] of Object.entries(formData)) {
       if (key.toLowerCase().includes('email')) {
-        sanitized[key] = sanitizeInput(value, 'email')
+        sanitized[key] = sanitizeEmail(value)
       } else if (key.toLowerCase().includes('password')) {
-        sanitized[key] = sanitizeInput(value, 'password')
+        sanitized[key] = sanitizePassword(value)
+      } else if (key.toLowerCase().includes('name')) {
+        sanitized[key] = sanitizeName(value) // Use server version for submission
       } else if (key.toLowerCase().includes('url')) {
-        sanitized[key] = sanitizeInput(value, 'url')
+        sanitized[key] = safeUrl(value)
       } else {
-        sanitized[key] = sanitizeInput(value, 'text')
+        sanitized[key] = sanitizeUserInput(value)
       }
     }
     return sanitized
-  }, [sanitizeInput])
+  }, [])
 
   return {
     sanitizeInput,

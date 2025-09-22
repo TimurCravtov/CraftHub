@@ -57,6 +57,17 @@ export function validateEmailFormat(email) {
   return emailRegex.test(email)
 }
 
+// Sanitize email input for display (removes characters without showing transformations)
+export function sanitizeEmailForDisplay(input) {
+  if (!input) return ''
+  
+  // Only remove dangerous protocols, don't escape HTML entities
+  return input
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/data:/gi, '') // Remove data: protocols
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocols
+}
+
 // Sanitize password input (less restrictive - only removes dangerous protocols)
 export function sanitizePassword(input) {
   if (!input) return ''
@@ -69,6 +80,17 @@ export function sanitizePassword(input) {
 
 // Sanitize name input (only allows letters, numbers, spaces, -, _, .)
 export function sanitizeName(input) {
+  if (!input) return ''
+  return input
+    .replace(/[^a-zA-Z0-9\s\-_.]/g, '') // Only allow letters, numbers, spaces, -, _, .
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/data:/gi, '') // Remove data: protocols
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocols
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
+}
+
+// Sanitize name input for display (removes characters without showing transformations)
+export function sanitizeNameForDisplay(input) {
   if (!input) return ''
   return input
     .replace(/[^a-zA-Z0-9\s\-_.]/g, '') // Only allow letters, numbers, spaces, -, _, .

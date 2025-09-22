@@ -1,9 +1,6 @@
 package utm.server.features.order;
 
-
-
 import lombok.Data;
-
 
 @Data
 public class OrderDTO {

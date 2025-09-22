@@ -1,5 +1,6 @@
 package utm.server.features.products;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,14 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductEditPermissionService productEditPermissionService;
     private final ProductImageService productImageService;
+
+    private final EntityManager entityManager; // Add this
     private final UserSecurityPrincipalMapper userSecurityPrincipalMapper;
+
+    public List<Product> findAllProducts() {
+        return productRepository.findAll();
+    }
+
 
     public Optional<ProductDto> findById(Long id) {
         return  productRepository.findById(id).map(productMapper::toDto);
@@ -62,24 +70,23 @@ public class ProductService {
 
         UserEntity user = userSecurityPrincipalMapper.getUser(authUser);
 
-        if (!productEditPermissionService.hasRightsToEditProducts(product.shopId(), user)) {
+        if (!productEditPermissionService.hasRightsToEditProducts(product.shopId(), authUser))
             throw new NoRightsException("Wrong");
-        }
 
-        List<ImageUploadResponse> permanentImages = product.productImagesTemp()
-                .stream()
-                .map(img -> imageService.confirmUpload(img.key()))
-                .toList();
+        List<ImageUploadResponse> permanentImages = product.productImagesTemp().stream()
+                .map(img -> imageService.confirmUpload(img.key())).toList();
 
-        Product productToSave = Product.builder()
-                .description(product.description())
-                .title(product.title())
-                .price(product.price())
-                .build();
+        Product productToSave = new Product();
+        productToSave.setDescription(product.description());
+        productToSave.setTitle(product.title());
+        productToSave.setPrice(product.price());
+
+        ShopEntity shop = entityManager.getReference(ShopEntity.class, product.shopId());
+        productToSave.setShopEntity(shop);
 
         Product saved = productRepository.save(productToSave);
         productImageService.saveAll(permanentImages, saved);
-
-        return productMapper.toDto(saved);
+        return saved;
+     
     }
 }

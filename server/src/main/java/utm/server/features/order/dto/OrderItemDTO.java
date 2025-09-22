@@ -1,15 +1,19 @@
-package utm.server.features.cart.dto;
+package utm.server.features.order.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItemResponse {
+public class OrderItemDTO {
+    private Long id;
     private Long productId;
     private String productName;
     private Integer quantity;
-    private Long cartItemId; // Added field to store cart item ID
+    private BigDecimal price;
+    private BigDecimal total;
 }

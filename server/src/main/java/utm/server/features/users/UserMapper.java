@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import utm.server.features.image.ImageService;
 import utm.server.features.users.dto.UserDto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -15,12 +14,11 @@ public class UserMapper {
     private final ImageService imageService;
 
     public UserDto toDTO(UserEntity user) {
-
         return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
-                .accountType(user.getAccountType())
+                .provider(user.getProvider())
                 .profilePictureLink(imageService.getPermanentLink(user.getProfilePictureKey()))
                 .build();
     }

@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Mail, User, KeyRound, Save } from "lucide-react";
+import { Lock, Mail, User, KeyRound, Save, Edit, Check, X } from "lucide-react";
 import Header from "../component/Header.jsx";
+import { useSecurityContext } from '../context/securityContext.jsx';
 
 export default function Settings() {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
-    newEmail: "",
     newName: "",
   });
   const [message, setMessage] = useState("");
@@ -19,15 +22,88 @@ export default function Settings() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const isGoogleUser = user?.provider === "google";
+  const { sanitizeInput } = useSecurityContext();
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  // Fetch user data from database
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:8080/api/users/me", {
+          headers: {
+            "Authorization": `Bearer ${user.token}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        
+        const data = await response.json();
+        setUserData(data);
+        
+        // Pre-populate form with current user data
+        setForm(prev => ({
+          ...prev,
+          newName: data.name || ""
+        }));
+        
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setMessage("Failed to load user data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user?.token) {
+      fetchUserData();
+    }
+  }, [user?.token]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let sanitizedValue = value;
+    
+    // Apply appropriate sanitization based on field type
+    if (name === 'newName') {
+      sanitizedValue = sanitizeInput(value, 'name');
+    } else if (name === 'currentPassword' || name === 'newPassword') {
+      sanitizedValue = sanitizeInput(value, 'password');
+    }
+    
+    setForm({ ...form, [name]: sanitizedValue });
+  };
+
+  const handleEditToggle = () => {
+    setEditing(!editing);
+    if (!editing) {
+      // Reset form when starting to edit
+      setForm({
+        currentPassword: "",
+        newPassword: "",
+        newName: userData?.name || ""
+      });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditing(false);
+    setForm({
+      currentPassword: "",
+      newPassword: "",
+      newName: userData?.name || ""
+    });
+    setMessage("");
+  };
 
   // --- Update User ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
 
-    if (!form.newPassword && !form.newEmail && !form.newName) {
+    if (!form.newPassword && !form.newName) {
       setMessage("Nothing to update");
       return;
     }
@@ -40,7 +116,6 @@ export default function Settings() {
       const body = {};
       if (!isGoogleUser) body.currentPassword = form.currentPassword;
       if (form.newPassword && !isGoogleUser) body.newPassword = form.newPassword;
-      if (form.newEmail && !isGoogleUser) body.newEmail = form.newEmail;
       if (form.newName) body.newName = form.newName;
 
       const res = await fetch("http://localhost:8080/api/auth/update-user", {
@@ -53,8 +128,16 @@ export default function Settings() {
 
       const updatedUser = await res.json();
       localStorage.setItem("user", JSON.stringify({ ...user, ...updatedUser }));
+      
+      // Update local userData state
+      setUserData(prev => ({
+        ...prev,
+        name: form.newName || prev.name
+      }));
+      
       setMessage("✅ Account updated successfully!");
-      navigate("/");
+      setEditing(false);
+      setForm({ currentPassword: "", newPassword: "", newName: "" });
     } catch (err) {
       setMessage("❌ " + (err.message || "Something went wrong"));
     }
@@ -114,61 +197,114 @@ export default function Settings() {
           Account Settings
         </h1>
 
-        {/* User Info */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg border shadow-sm">
-          <p className="flex items-center gap-2 text-gray-700">
-            <User className="h-5 w-5 text-indigo-500" />
-            <span className="font-medium">Name:</span> {user?.name || "N/A"}
-          </p>
-          <p className="flex items-center gap-2 text-gray-700 mt-2">
-            <Mail className="h-5 w-5 text-indigo-500" />
-            <span className="font-medium">Email:</span> {user?.email || "N/A"}
-          </p>
-        </div>
-
-        {/* Update Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {!isGoogleUser && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Current Password</label>
-              <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-                <Lock className="h-5 w-5 text-gray-400 mr-2" />
-                <input type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} className="flex-1 bg-transparent outline-none" />
+        {/* Loading State */}
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Loading user data...</p>
+          </div>
+        ) : (
+          <>
+            {/* User Info Display */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg border shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-800">Profile Information</h2>
+                {!editing ? (
+                  <button
+                    onClick={handleEditToggle}
+                    className="flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleCancelEdit}
+                      className="flex items-center gap-2 px-3 py-1 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      className="flex items-center gap-2 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      <Check className="h-4 w-4" />
+                      Save
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-gray-700">
+                  <User className="h-5 w-5 text-indigo-500" />
+                  <span className="font-medium">Name:</span> 
+                  {editing ? (
+                    <input 
+                      type="text" 
+                      name="newName" 
+                      value={form.newName} 
+                      onChange={handleChange}
+                      className="flex-1 border rounded px-2 py-1 bg-white"
+                      placeholder="Enter new name"
+                    />
+                  ) : (
+                    <span>{userData?.name || "N/A"}</span>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2 text-gray-700">
+                  <Mail className="h-5 w-5 text-indigo-500" />
+                  <span className="font-medium">Email:</span> 
+                  <span className="text-gray-600">{userData?.email || "N/A"}</span>
+                  <span className="text-xs bg-gray-200 px-2 py-1 rounded text-gray-600">Read-only</span>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">New Name</label>
-            <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-              <User className="h-5 w-5 text-gray-400 mr-2" />
-              <input type="text" name="newName" value={form.newName} onChange={handleChange} placeholder="Leave empty if unchanged" className="flex-1 bg-transparent outline-none" />
-            </div>
-          </div>
+            {/* Password Change Section */}
+            {editing && !isGoogleUser && (
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="text-md font-semibold text-blue-800 mb-3">Change Password</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Current Password</label>
+                    <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
+                      <Lock className="h-5 w-5 text-gray-400 mr-2" />
+                      <input 
+                        type="password" 
+                        name="currentPassword" 
+                        value={form.currentPassword} 
+                        onChange={handleChange} 
+                        className="flex-1 bg-transparent outline-none" 
+                        placeholder="Enter current password"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">New Password</label>
+                    <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
+                      <KeyRound className="h-5 w-5 text-gray-400 mr-2" />
+                      <input 
+                        type="password" 
+                        name="newPassword" 
+                        value={form.newPassword} 
+                        onChange={handleChange} 
+                        className="flex-1 bg-transparent outline-none" 
+                        placeholder="Enter new password (leave empty to keep current)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">New Password</label>
-            <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-              <KeyRound className="h-5 w-5 text-gray-400 mr-2" />
-              <input type="password" name="newPassword" value={form.newPassword} onChange={handleChange} placeholder={isGoogleUser ? "Not available for Google login" : "Leave empty if unchanged"} className="flex-1 bg-transparent outline-none" disabled={isGoogleUser} />
-            </div>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">New Email</label>
-            <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-              <Mail className="h-5 w-5 text-gray-400 mr-2" />
-              <input type="email" name="newEmail" value={form.newEmail} onChange={handleChange} placeholder={isGoogleUser ? "Not available for Google login" : "Leave empty if unchanged"} className="flex-1 bg-transparent outline-none" disabled={isGoogleUser} />
-            </div>
-          </div>
-
-          <button type="submit" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all">
-            <Save className="h-5 w-5" /> Save Changes
-          </button>
-        </form>
 
         {/* Enable 2FA */}
         {!user.twoFactorEnabled && !show2FAConfirm && (

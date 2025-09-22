@@ -42,8 +42,40 @@ export function safeUrl(url) {
 // Validate and sanitize email addresses
 export function sanitizeEmail(email) {
   if (!email) return ''
+  
+  // Allow typing by only escaping dangerous characters, not validating format
+  return escapeText(email)
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/data:/gi, '') // Remove data: protocols
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocols
+}
+
+// Validate email format (for final validation, not during typing)
+export function validateEmailFormat(email) {
+  if (!email) return false
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email) ? escapeText(email) : ''
+  return emailRegex.test(email)
+}
+
+// Sanitize password input (less restrictive - only removes dangerous protocols)
+export function sanitizePassword(input) {
+  if (!input) return ''
+  return input
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/data:/gi, '') // Remove data: protocols
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocols
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
+}
+
+// Sanitize name input (only allows letters, numbers, spaces, -, _, .)
+export function sanitizeName(input) {
+  if (!input) return ''
+  return input
+    .replace(/[^a-zA-Z0-9\s\-_.]/g, '') // Only allow letters, numbers, spaces, -, _, .
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/data:/gi, '') // Remove data: protocols
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocols
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
 }
 
 // Sanitize user input for display (removes potentially dangerous characters)

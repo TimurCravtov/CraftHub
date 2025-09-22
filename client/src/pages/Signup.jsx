@@ -266,7 +266,7 @@ const handleVerify2FA = async (e) => {
                                 type="text"
                                 placeholder="Name"
                                 value={signupData.name}
-                                onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, 'text') })}
+                                onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, 'name') })}
                             />
                             {errors.name && <div className="text-sm text-red-600">{errors.name}</div>}
 

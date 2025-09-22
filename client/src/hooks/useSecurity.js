@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { sanitizeEmail, sanitizeUserInput, escapeHtml, safeUrl } from '../utils/sanitize.js'
+import { sanitizeEmail, sanitizeUserInput, sanitizePassword, sanitizeName, escapeHtml, safeUrl, validateEmailFormat } from '../utils/sanitize.js'
 
 export const useSecurity = () => {
   const sanitizeInput = useCallback((input, type = 'text') => {
@@ -13,6 +13,9 @@ export const useSecurity = () => {
       case 'url':
         return safeUrl(input)
       case 'password':
+        return sanitizePassword(input)
+      case 'name':
+        return sanitizeName(input)
       case 'text':
       default:
         return sanitizeUserInput(input)
@@ -24,8 +27,7 @@ export const useSecurity = () => {
     
     switch (type) {
       case 'email':
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return emailRegex.test(input)
+        return validateEmailFormat(input)
       case 'password':
         return input.length >= 8
       case 'url':

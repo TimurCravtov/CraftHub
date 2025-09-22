@@ -20,6 +20,7 @@ import { ToastProvider } from './toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Account from './pages/Account.jsx'
 import { TranslationProvider, useTranslation } from './context/translationContext.jsx'
+import { SecurityProvider } from './context/securityContext.jsx'
 
 // 🔥 nou: redirect page pentru Google OAuth2
 import Oauth2Redirect from './pages/Oauth2Redirect.jsx'
@@ -118,14 +119,16 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-      <TranslationProvider>
-        <LikesProvider>
-          <CartProvider>
-            <ToastProvider>
-              <RouterProvider router={router} />
-            </ToastProvider>
-          </CartProvider>
-        </LikesProvider>
-      </TranslationProvider>
+      <SecurityProvider>
+        <TranslationProvider>
+          <LikesProvider>
+            <CartProvider>
+              <ToastProvider>
+                <RouterProvider router={router} />
+              </ToastProvider>
+            </CartProvider>
+          </LikesProvider>
+        </TranslationProvider>
+      </SecurityProvider>
     </StrictMode>
 )

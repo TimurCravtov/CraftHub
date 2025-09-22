@@ -23,6 +23,8 @@ import { SecurityProvider } from './context/securityContext.jsx'
 
 // 🔥 nou: redirect page pentru Google OAuth2
 import Oauth2Redirect from './pages/Oauth2Redirect.jsx'
+import Login from "./pages/Login.jsx";
+import {AuthApiProvider} from "./context/apiAuthContext.js";
 
 function RedirectToLocale() {
   const { locale } = useTranslation()
@@ -115,15 +117,17 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
     <StrictMode>
       <SecurityProvider>
-        <TranslationProvider>
-          <LikesProvider>
-            <CartProvider>
-              <ToastProvider>
-                <RouterProvider router={router} />
-              </ToastProvider>
-            </CartProvider>
-          </LikesProvider>
-        </TranslationProvider>
+        <AuthApiProvider>
+          <TranslationProvider>
+            <LikesProvider>
+              <CartProvider>
+                <ToastProvider>
+                  <RouterProvider router={router} />
+                </ToastProvider>
+              </CartProvider>
+            </LikesProvider>
+          </TranslationProvider>
+        </AuthApiProvider>
       </SecurityProvider>
     </StrictMode>
 )

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSecurity } from '../hooks/useSecurity.js';
 
 export default function Signup() {
     const [signupData, setSignupData] = useState({ name: "", email: "", password: "" });
@@ -16,6 +17,7 @@ const [twoFactorCode, setTwoFactorCode] = useState("");
 const [pendingUserId, setPendingUserId] = useState(null);
 
     const navigate = useNavigate();
+    const { sanitizeInput, validateInput, sanitizeFormData } = useSecurity();
 
     const MIN_LENGTH = 8;
     const reHasUpper = /[A-Z]/;
@@ -264,7 +266,7 @@ const handleVerify2FA = async (e) => {
                                 type="text"
                                 placeholder="Name"
                                 value={signupData.name}
-                                onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
+                                onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, 'text') })}
                             />
                             {errors.name && <div className="text-sm text-red-600">{errors.name}</div>}
 
@@ -272,7 +274,7 @@ const handleVerify2FA = async (e) => {
                                 type="email"
                                 placeholder="Email"
                                 value={signupData.email}
-                                onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                                onChange={(e) => setSignupData({ ...signupData, email: sanitizeInput(e.target.value, 'email') })}
                             />
                             {errors.email && <div className="text-sm text-red-600">{errors.email}</div>}
 
@@ -280,7 +282,7 @@ const handleVerify2FA = async (e) => {
                                 type="password"
                                 placeholder="Password"
                                 value={signupData.password}
-                                onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                                onChange={(e) => setSignupData({ ...signupData, password: sanitizeInput(e.target.value, 'password') })}
                                 onBlur={() => setPasswordTouched(true)}
                             />
 

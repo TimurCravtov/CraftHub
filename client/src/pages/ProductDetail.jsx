@@ -7,6 +7,7 @@ import { useCart } from '../cartContext.jsx'
 import { useToast } from '../toastContext.jsx'
 import { safeUrl, escapeText } from '../utils/sanitize.js'
 import { productsApi } from '../utils/productsApi.js'
+import { useSecurity } from '../hooks/useSecurity.js'
 
 
 export default function ProductDetail() {
@@ -15,6 +16,7 @@ export default function ProductDetail() {
     const { isLiked, toggleLike } = useLikes()
     const { addToCart, items } = useCart()
     const { showToast } = useToast()
+    const { sanitizeInput } = useSecurity()
     
     const [product, setProduct] = useState(null)
     const [shop, setShop] = useState(null)
@@ -159,7 +161,7 @@ export default function ProductDetail() {
                         <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden">
                             <img
                                 src={safeUrl(mainImage)}
-                                alt={escapeText(product.title)}
+                                alt={sanitizeInput(product.title, 'text')}
                                 className="w-full h-full object-cover"
                             />
                         </div>
@@ -179,7 +181,7 @@ export default function ProductDetail() {
                                     >
                                         <img
                                             src={safeUrl(image)}
-                                            alt={`${product.title} ${index + 1}`}
+                                            alt={`${sanitizeInput(product.title, 'text')} ${index + 1}`}
                                             className="w-full h-full object-cover"
                                         />
                                     </button>

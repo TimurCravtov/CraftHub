@@ -12,15 +12,18 @@ export default function Settings() {
     currentPassword: "",
     newPassword: "",
     newName: "",
+    role: "buyer", // default buyer
   });
   const [message, setMessage] = useState("");
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || {}
+  );
 
   const [qrCode, setQrCode] = useState("");
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [show2FAConfirm, setShow2FAConfirm] = useState(false);
 
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
   const isGoogleUser = user?.provider === "google";
   const { sanitizeInput } = useSecurityContext();
 
@@ -46,7 +49,8 @@ export default function Settings() {
         // Pre-populate form with current user data
         setForm(prev => ({
           ...prev,
-          newName: data.name || ""
+          newName: data.name || "",
+          role: data.accountType || data.role || "buyer"
         }));
         
       } catch (error) {
@@ -71,6 +75,8 @@ export default function Settings() {
       sanitizedValue = sanitizeInput(value, 'name');
     } else if (name === 'currentPassword' || name === 'newPassword') {
       sanitizedValue = sanitizeInput(value, 'password');
+    } else if (name === 'newEmail') {
+      sanitizedValue = sanitizeInput(value, 'email');
     }
     
     setForm({ ...form, [name]: sanitizedValue });
@@ -83,7 +89,8 @@ export default function Settings() {
       setForm({
         currentPassword: "",
         newPassword: "",
-        newName: userData?.name || ""
+        newName: userData?.name || "",
+        role: userData?.accountType || userData?.role || "buyer"
       });
     }
   };
@@ -93,7 +100,8 @@ export default function Settings() {
     setForm({
       currentPassword: "",
       newPassword: "",
-      newName: userData?.name || ""
+      newName: userData?.name || "",
+      role: userData?.accountType || userData?.role || "buyer"
     });
     setMessage("");
   };
@@ -103,7 +111,7 @@ export default function Settings() {
     e.preventDefault();
     setMessage("");
 
-    if (!form.newPassword && !form.newName) {
+    if (!form.newPassword && !form.newName && !form.role) {
       setMessage("Nothing to update");
       return;
     }
@@ -113,35 +121,52 @@ export default function Settings() {
     }
 
     try {
-      const body = {};
+      const body = { role: form.role || "buyer" };
       if (!isGoogleUser) body.currentPassword = form.currentPassword;
       if (form.newPassword && !isGoogleUser) body.newPassword = form.newPassword;
       if (form.newName) body.newName = form.newName;
 
       const res = await fetch("http://localhost:8080/api/auth/update-user", {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) throw new Error(await res.text() || "Update failed");
+      if (!res.ok) throw new Error((await res.text()) || "Update failed");
 
       const updatedUser = await res.json();
-      localStorage.setItem("user", JSON.stringify({ ...user, ...updatedUser }));
       
       // Update local userData state
       setUserData(prev => ({
         ...prev,
-        name: form.newName || prev.name
+        name: form.newName || prev.name,
+        accountType: form.role || prev.accountType
       }));
-      
+
+      // Save complete user
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...user, ...updatedUser })
+      );
+      setUser({ ...user, ...updatedUser });
       setMessage("✅ Account updated successfully!");
       setEditing(false);
-      setForm({ currentPassword: "", newPassword: "", newName: "" });
+      setForm({ currentPassword: "", newPassword: "", newName: "", role: "buyer" });
     } catch (err) {
       setMessage("❌ " + (err.message || "Something went wrong"));
     }
   };
+
+  // Listen for localStorage changes for re-render in Header
+  useEffect(() => {
+    const handler = () =>
+      setUser(JSON.parse(localStorage.getItem("user")) || {});
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
 
   // --- Enable 2FA (get QR code) ---
   const handleEnable2FA = async () => {
@@ -153,38 +178,31 @@ export default function Settings() {
 
       if (!res.ok) throw new Error("Failed to enable 2FA");
 
-      const qrBase64 = await res.text();
-      setQrCode(qrBase64);
+      const data = await res.json();
+      setQrCode(data.qrCode);
       setShow2FAConfirm(true);
-      setMessage("Scan the QR code in Google Authenticator and enter the first code below.");
     } catch (err) {
-      setMessage("❌ " + err.message);
+      setMessage("❌ " + (err.message || "Failed to enable 2FA"));
     }
   };
 
-  // --- Confirm 2FA ---
-  const handleConfirm2FA = async () => {
+  // --- Verify 2FA code ---
+  const handleVerify2FA = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/auth/me/confirm-2fa", {
+      const res = await fetch("http://localhost:8080/api/auth/me/verify-2fa", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
         body: JSON.stringify({ code: twoFactorCode }),
       });
 
-      if (!res.ok) throw new Error(await res.text() || "Failed to confirm 2FA");
+      if (!res.ok) throw new Error("Invalid 2FA code");
 
-      setMessage("✅ 2FA successfully activated!");
+      setMessage("✅ 2FA enabled successfully!");
+      setShow2FAConfirm(false);
       setQrCode("");
       setTwoFactorCode("");
-      setShow2FAConfirm(false);
-
-      // Update local user state
-      localStorage.setItem("user", JSON.stringify({ ...user, twoFactorEnabled: true }));
     } catch (err) {
-      setMessage("❌ " + err.message);
+      setMessage("❌ " + (err.message || "Invalid 2FA code"));
     }
   };
 
@@ -261,6 +279,23 @@ export default function Settings() {
                   <span className="text-gray-600">{userData?.email || "N/A"}</span>
                   <span className="text-xs bg-gray-200 px-2 py-1 rounded text-gray-600">Read-only</span>
                 </div>
+
+                <div className="flex items-center gap-2 text-gray-700">
+                  <span className="font-medium">Role:</span>
+                  {editing ? (
+                    <select
+                      name="role"
+                      value={form.role}
+                      onChange={handleChange}
+                      className="border rounded px-2 py-1 bg-white"
+                    >
+                      <option value="buyer">Buyer</option>
+                      <option value="seller">Seller</option>
+                    </select>
+                  ) : (
+                    <span className="text-gray-600">{userData?.accountType || userData?.role || "buyer"}</span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -305,7 +340,6 @@ export default function Settings() {
           </>
         )}
 
-
         {/* Enable 2FA */}
         {!user.twoFactorEnabled && !show2FAConfirm && (
           <div className="mt-6 p-4 border rounded-lg bg-gray-50 text-center">
@@ -314,28 +348,38 @@ export default function Settings() {
           </div>
         )}
 
-        {/* QR Code + Confirm */}
-        {show2FAConfirm && (
+        {/* 2FA QR Code */}
+        {show2FAConfirm && qrCode && (
           <div className="mt-6 p-4 border rounded-lg bg-gray-50 text-center">
-            <p className="mb-2 font-medium text-gray-700">Scan this QR code in Google Authenticator</p>
-            <img src={`data:image/png;base64,${qrCode}`} alt="QR Code" className="mx-auto mb-4" />
-
-            <input
-              type="text"
-              placeholder="Enter 6-digit code"
-              value={twoFactorCode}
-              onChange={(e) => setTwoFactorCode(e.target.value)}
-              className="border rounded-lg px-3 py-2 w-full text-center mb-2"
-            />
-            <button onClick={handleConfirm2FA} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 w-full">
-              Confirm 2FA
-            </button>
+            <p className="mb-4 font-medium text-gray-700">Scan this QR code with your authenticator app:</p>
+            <div className="mb-4 flex justify-center">
+              <img src={qrCode} alt="2FA QR Code" className="border rounded" />
+            </div>
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={twoFactorCode}
+                onChange={(e) => setTwoFactorCode(e.target.value)}
+                placeholder="Enter 6-digit code"
+                className="w-full border rounded px-3 py-2 text-center"
+                maxLength="6"
+              />
+              <div className="flex gap-2 justify-center">
+                <button onClick={handleVerify2FA} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Verify</button>
+                <button onClick={() => setShow2FAConfirm(false)} className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Cancel</button>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Messages */}
         {message && (
-          <p className={`mt-6 text-center text-sm font-medium ${message.startsWith("✅") ? "text-green-600" : "text-red-600"}`}>
+          <p
+            className={`mt-6 text-center text-sm font-medium ${
+              message.startsWith("✅")
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
             {message}
           </p>
         )}

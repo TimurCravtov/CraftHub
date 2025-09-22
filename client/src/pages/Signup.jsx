@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSecurity } from '../hooks/useSecurity.js';
 
 export default function Signup() {
-    const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "LOCAL" });
+    const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "buyer" });
     const [errors, setErrors] = useState({ name: "", email: "", password: "" });
     const [passwordTouched, setPasswordTouched] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -265,7 +265,7 @@ export default function Signup() {
                                 type="text"
                                 placeholder="Name"
                                 value={signupData.name}
-                                onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, 'text') })}
+                                onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, 'name') })}
                             />
                             {errors.name && <div className="text-sm text-red-600">{errors.name}</div>}
 
@@ -287,25 +287,25 @@ export default function Signup() {
 
                             {/* Select Buyer/Seller */}
                             <div className="flex justify-center gap-4 my-2">
-                                <label>
-                                    <input
-                                            type="radio"
-                                            name="accountType"
-                                            value="LOCAL"
-                                          checked={signupData.accountType === "LOCAL"}
-                                            onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
-                                        />
-                                        Buyer
-                                </label>
-                                <label>
+                                <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
                                         name="accountType"
-                                        value="LOCAL"
-                                        checked={signupData.role === "LOCAL"}
+                                        value="buyer"
+                                        checked={signupData.accountType === "buyer"}
                                         onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
                                     />
-                                    Seller
+                                    <span>Buyer</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="accountType"
+                                        value="seller"
+                                        checked={signupData.accountType === "seller"}
+                                        onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
+                                    />
+                                    <span>Seller</span>
                                 </label>
                             </div>
 

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { safeUrl } from '../utils/sanitize.js'
 import { productsApi } from '../utils/productsApi.js'
+import {useAuthApi} from "../context/apiAuthContext.jsx";
 
 export default function ItemPage() {
     const [products, setProducts] = useState([])

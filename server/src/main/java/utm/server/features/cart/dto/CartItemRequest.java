@@ -1,23 +1,14 @@
 package utm.server.features.cart.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartItemRequest {
     private Long productId;
-    private int quantity;
-
-    // Getters and setters
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
+    private Integer quantity;
+    private Long cartItemId; // Added field for cart item ID
 }

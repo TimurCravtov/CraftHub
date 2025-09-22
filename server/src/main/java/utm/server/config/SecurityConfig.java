@@ -40,42 +40,42 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/auth/login",
-                    "/api/auth/signup",
-                    "/api/auth/signin",
-                    "/api/auth/refresh",
-                    "/oauth2/**",
-                    "/login/oauth2/code/**",
-                    "/api/auth/verify-2fa",
-                    "/error",
-                    "/favicon.ico",
-                    "/"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginProcessingUrl("/api/auth/login")
-                .permitAll()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
-                .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/{registrationId}"))
-                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .successHandler(oAuth2SuccessHandler)
-            )
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, e) -> {
-                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    res.setContentType("application/json");
-                    res.getWriter().write("{\"error\":\"Unauthorized\"}");
-                })
-            )
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                        "/api/auth/login",
+                        "/api/auth/signup",
+                        "/api/auth/signin",
+                        "/api/auth/refresh",
+                        "/oauth2/**",
+                        "/login/oauth2/code/**",
+                        "/error",
+                        "/favicon.ico",
+                        "/",
+                        "/api/products/findall"
+                        ).permitAll() // DONT FORGET TO ADD SECURITY
+                        .anyRequest().permitAll())
+                // Login clasic REST
+                .formLogin(form -> form
+                        .loginProcessingUrl("/api/auth/login")
+                        .permitAll())
+                // OAuth2 Google
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
+                        .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler))
+
+                // Return 401 JSON dacă nu e autentificat
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        }))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

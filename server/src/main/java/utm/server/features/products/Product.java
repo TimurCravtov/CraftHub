@@ -41,4 +41,3 @@ public class Product {
         return shopEntity != null ? shopEntity.getId() : null;
     }
 }
-

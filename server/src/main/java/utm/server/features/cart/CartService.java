@@ -19,68 +19,130 @@ public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-
-    public Cart getOrCreateCart(UserEntity user) {
-        Cart cart = cartRepository.findByUserId(user.getId());
-        if (cart == null) {
-            cart = new Cart(user);
-            cartRepository.save(cart);
-        }
-        return cart;
+    @Transactional
+    public Cart getCart(UserEntity user) {
+        // Fix method name to match repository method
+        return cartRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepository.save(newCart);
+                });
     }
 
     @Transactional
-    public Cart addItemToCart(UserEntity user, CartItemRequest request) {
-        Cart cart = getOrCreateCart(user);
-        Optional<Product> productOpt = productRepository.findById(request.getProductId());
-        if (productOpt.isEmpty())
-            throw new RuntimeException("Product not found");
+    public void addItemToCart(UserEntity user, CartItemRequest request) {
+        Cart cart = getCart(user);
 
-        Product product = productOpt.get();
-        CartItem existingItem = cart.getItems().stream()
-                .filter(i -> i.getProduct().getId().equals(product.getId()))
-                .findFirst().orElse(null);
+        // Make sure we get a managed entity
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-        if (existingItem != null) {
-            existingItem.setQuantity(existingItem.getQuantity() + request.getQuantity());
+        Optional<CartItem> existingItem = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(product.getId()))
+                .findFirst();
+
+        if (existingItem.isPresent()) {
+            CartItem item = existingItem.get();
+            item.setQuantity(item.getQuantity() + request.getQuantity());
+            cartItemRepository.save(item);
         } else {
             CartItem newItem = new CartItem();
+            newItem.setCart(cart);
             newItem.setProduct(product);
             newItem.setQuantity(request.getQuantity());
-            cart.addItem(newItem);
+
+            // Save the item first, then add to collection
+            CartItem savedItem = cartItemRepository.save(newItem);
+            cart.getItems().add(savedItem);
         }
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
     }
 
     @Transactional
-    public Cart updateItemQuantity(UserEntity user, CartItemRequest request) {
-        Cart cart = getOrCreateCart(user);
+    public void updateItemQuantity(UserEntity user, CartItemRequest request) {
+        Cart cart = getCart(user);
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
         CartItem item = cart.getItems().stream()
-                .filter(i -> i.getProduct().getId().equals(request.getProductId()))
-                .findFirst().orElseThrow(() -> new RuntimeException("Item not found in cart"));
-        item.setQuantity(request.getQuantity());
-        return cartRepository.save(cart);
+                .filter(i -> i.getProduct().getId().equals(product.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Item not in cart"));
+
+        if (request.getQuantity() <= 0) {
+            cart.getItems().remove(item);
+            cartItemRepository.delete(item);
+        } else {
+            item.setQuantity(request.getQuantity());
+            cartItemRepository.save(item);
+        }
+        cartRepository.save(cart);
     }
 
     @Transactional
-    public Cart removeItemFromCart(UserEntity user, Long productId) {
-        Cart cart = getOrCreateCart(user);
+    public void removeItemFromCart(UserEntity user, Long productId) {
+        Cart cart = getCart(user);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
         CartItem item = cart.getItems().stream()
-                .filter(i -> i.getProduct().getId().equals(productId))
-                .findFirst().orElseThrow(() -> new RuntimeException("Item not found in cart"));
-        cart.removeItem(item);
+                .filter(i -> i.getProduct().getId().equals(product.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Item not in cart"));
+
+        cart.getItems().remove(item);
         cartItemRepository.delete(item);
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
+    }
+
+    // NEW METHOD: Update item quantity by cart item ID
+    @Transactional
+    public void updateItemQuantityByCartItemId(UserEntity user, CartItemRequest request) {
+        Cart cart = getCart(user);
+
+        // Find the cart item by ID
+        CartItem item = cartItemRepository.findById(request.getCartItemId())
+                .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
+
+        // Verify the cart item belongs to the user's cart
+        if (!item.getCart().getId().equals(cart.getId())) {
+            throw new SecurityException("Cannot update cart item that doesn't belong to the user's cart");
+        }
+
+        if (request.getQuantity() <= 0) {
+            // Remove the item if quantity is 0 or negative
+            removeItemFromCartByCartItemId(user, request.getCartItemId());
+        } else {
+            item.setQuantity(request.getQuantity());
+            cartItemRepository.save(item);
+        }
+    }
+
+    // NEW METHOD: Remove item from cart by cart item ID
+    @Transactional
+    public void removeItemFromCartByCartItemId(UserEntity user, Long cartItemId) {
+        Cart cart = getCart(user);
+
+        // Find the cart item by ID
+        CartItem item = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
+
+        // Verify the cart item belongs to the user's cart
+        if (!item.getCart().getId().equals(cart.getId())) {
+            throw new SecurityException("Cannot remove cart item that doesn't belong to the user's cart");
+        }
+
+        cart.getItems().remove(item);
+        cartItemRepository.delete(item);
+        cartRepository.save(cart);
     }
 
     @Transactional
     public void clearCart(UserEntity user) {
-        Cart cart = getOrCreateCart(user);
-        cart.clearItems();
+        Cart cart = getCart(user);
+        cartItemRepository.deleteAll(cart.getItems());
+        cart.getItems().clear();
         cartRepository.save(cart);
-    }
-
-    public Cart getCart(UserEntity user) {
-        return getOrCreateCart(user);
     }
 }

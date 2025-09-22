@@ -20,7 +20,6 @@ public class CartController {
     private final CartService cartService;
     private final UserRepository userRepository;
 
-
     // Helper method to create cart response
     private ResponseEntity<CartResponse> buildCartResponse(UserEntity user) {
         if (user == null) {
@@ -35,18 +34,17 @@ public class CartController {
             cir.setProductId(item.getProduct().getId());
             cir.setProductName(item.getProduct().getTitle());
             cir.setQuantity(item.getQuantity());
+            cir.setCartItemId(item.getId()); // Include cart item ID in the response
             return cir;
         }).collect(Collectors.toList()));
         return ResponseEntity.ok(response);
     }
 
-    /// works
     @GetMapping
     public ResponseEntity<CartResponse> getCart(@AuthenticationPrincipal UserEntity user) {
         return buildCartResponse(user);
     }
 
-    /// works
     @PostMapping("/add")
     public ResponseEntity<CartResponse> addItem(@RequestBody CartItemRequest request,
             @AuthenticationPrincipal UserEntity user) {
@@ -65,18 +63,20 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        cartService.updateItemQuantity(user, request);
+        // Use the new method that uses cart item ID
+        cartService.updateItemQuantityByCartItemId(user, request);
         return buildCartResponse(user);
     }
 
-    @DeleteMapping("/remove/{productId}")
-    public ResponseEntity<CartResponse> removeItem(@PathVariable Long productId,
+    @DeleteMapping("/remove/{cartItemId}")
+    public ResponseEntity<CartResponse> removeItem(@PathVariable Long cartItemId,
             @AuthenticationPrincipal UserEntity user) {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        cartService.removeItemFromCart(user, productId);
+        // Use the new method that uses cart item ID
+        cartService.removeItemFromCartByCartItemId(user, cartItemId);
         return buildCartResponse(user);
     }
 

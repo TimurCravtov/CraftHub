@@ -52,7 +52,7 @@ public class OrderController {
         }
 
         try {
-            OrderResponseDTO order = orderService.createOrderFromCart(user, request);
+            OrderResponseDTO order = orderService.createOrderFromCart(request, user);
             return ResponseEntity.status(HttpStatus.CREATED).body(order);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().build();
@@ -60,7 +60,6 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/status")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrderResponseDTO> updateOrderStatus(@PathVariable Long orderId,
             @RequestParam Status status,
             @AuthenticationPrincipal UserEntity user) {

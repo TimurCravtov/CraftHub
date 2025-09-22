@@ -50,11 +50,6 @@ public class OrderEntity {
     private String shippingZip;
     private String shippingCountry;
 
-    // Payment information (reference only - actual payment details should be in a
-    // separate system)
-    private String paymentMethod;
-    private String paymentReference;
-
     // Helper method to add an item to the order
     public void addItem(OrderItem item) {
         items.add(item);

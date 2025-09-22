@@ -13,6 +13,4 @@ public class OrderCreateRequest {
     private String shippingState;
     private String shippingZip;
     private String shippingCountry;
-    private String paymentMethod;
-    private String paymentReference;
 }

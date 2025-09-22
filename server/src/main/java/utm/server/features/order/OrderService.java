@@ -50,7 +50,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponseDTO createOrderFromCart(UserEntity user, OrderCreateRequest request) {
+    public OrderResponseDTO createOrderFromCart(OrderCreateRequest request, UserEntity user) {
         // Get user's cart
         Cart cart = cartService.getCart(user);
 
@@ -71,10 +71,6 @@ public class OrderService {
         order.setShippingState(request.getShippingState());
         order.setShippingZip(request.getShippingZip());
         order.setShippingCountry(request.getShippingCountry());
-
-        // Set payment details
-        order.setPaymentMethod(request.getPaymentMethod());
-        order.setPaymentReference(request.getPaymentReference());
 
         // Save order first to get an ID
         order = orderRepository.save(order);
@@ -126,7 +122,6 @@ public class OrderService {
     private OrderResponseDTO convertToDTO(OrderEntity order) {
         OrderResponseDTO dto = new OrderResponseDTO();
         dto.setId(order.getId());
-        dto.setUserEmail(order.getUser().getEmail());
         dto.setOrderDate(order.getOrderDate());
         dto.setStatus(order.getStatus());
         dto.setTotalAmount(order.getTotalAmount());
@@ -137,9 +132,6 @@ public class OrderService {
         dto.setShippingState(order.getShippingState());
         dto.setShippingZip(order.getShippingZip());
         dto.setShippingCountry(order.getShippingCountry());
-
-        // Set payment method (but not reference for security)
-        dto.setPaymentMethod(order.getPaymentMethod());
 
         // Convert order items
         List<OrderItemDTO> itemDTOs = order.getItems().stream().map(item -> {

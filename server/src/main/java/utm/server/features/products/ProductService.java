@@ -33,9 +33,6 @@ public class ProductService {
     private final EntityManager entityManager; // Add this
     private final UserSecurityPrincipalMapper userSecurityPrincipalMapper;
 
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
-    }
 
 
     public Optional<ProductDto> findById(Long id) {
@@ -70,7 +67,7 @@ public class ProductService {
 
         UserEntity user = userSecurityPrincipalMapper.getUser(authUser);
 
-        if (!productEditPermissionService.hasRightsToEditProducts(product.shopId(), authUser))
+        if (!productEditPermissionService.hasRightsToEditProducts(product.shopId(), user))
             throw new NoRightsException("Wrong");
 
         List<ImageUploadResponse> permanentImages = product.productImagesTemp().stream()
@@ -86,7 +83,7 @@ public class ProductService {
 
         Product saved = productRepository.save(productToSave);
         productImageService.saveAll(permanentImages, saved);
-        return saved;
+        return productMapper.toDto(saved);
      
     }
 }

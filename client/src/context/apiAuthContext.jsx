@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
 import axios from 'axios';
+import createAuthRefreshInterceptor from 'axios-auth-refresh';
 
 const AuthApiContext = createContext(null);
 
@@ -7,11 +8,47 @@ export function AuthApiProvider({ children }) {
     const [accessToken, setAccessToken] = useState(null);
     const [user, setUser] = useState(null);
 
+
+    /**
+     * This should be edited to handle cookeis
+     * @param failedRequest
+     * @returns {Promise<unknown>}
+     */
+    const refreshAccessToken = (failedRequest) => {
+        return new Promise((resolve, reject) => {
+            const refreshToken = localStorage.getItem('refreshToken'); // Get latest refreshToken
+            if (!refreshToken) {
+                logout(); // No refresh token, logout user
+                reject(new Error('No refresh token available'));
+                return;
+            }
+
+            // Request new accessToken
+            api.post('/api/v1/tokens/refresh', { refreshToken }, {noAuth: true})
+                .then((response) => {
+                    const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+                    // Save new tokens and retry failed request
+                    saveTokens(accessToken, newRefreshToken);
+                    failedRequest.response.config.headers['Authorization'] = `Bearer ${accessToken}`;
+                    resolve();
+                })
+                .catch((error) => {
+                    console.error('Token refresh failed:', error);
+                    logout(); // Log out user if refresh fails
+                    reject(error);
+                });
+        });
+    };
+
+    createAuthRefreshInterceptor(api, refreshAccessToken);
+
     const api = useMemo(() => {
         const instance = axios.create({
             baseURL: 'http://localhost:8080/',
             withCredentials: true,
         });
+
 
         instance.interceptors.request.use((config) => {
             if (!config.noAuth && accessToken) {
@@ -23,7 +60,6 @@ export function AuthApiProvider({ children }) {
 
         return instance;
     }, [accessToken]);
-
     const login = useCallback((token, userData) => {
         setAccessToken(token);
         setUser(userData || null);

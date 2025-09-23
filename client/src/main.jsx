@@ -24,7 +24,6 @@ import { SecurityProvider } from './context/securityContext.jsx'
 
 // 🔥 nou: redirect page pentru Google OAuth2
 import Oauth2Redirect from './pages/Oauth2Redirect.jsx'
-import Login from "./pages/Login.jsx";
 import {AuthApiProvider} from "./context/apiAuthContext.jsx";
 
 function RedirectToLocale() {

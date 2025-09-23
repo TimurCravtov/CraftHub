@@ -15,7 +15,7 @@ export default function ManageShops() {
             'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth'))?.token}`
           }
         })
-        
+
         if (!response.ok) throw new Error('Failed to fetch shops')
         
         const data = await response.json()

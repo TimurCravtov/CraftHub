@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Builder
-@Table(name = "users")
+@Table
 public class UserEntity implements UserDetails {
 
     @Id
@@ -57,6 +57,9 @@ public class UserEntity implements UserDetails {
 
     @Column
     private String tempTwoFactorSecret;
+
+    @Column
+    private String profilePictureKey;
 
     public UserEntity(String name, String email, String password, AuthProvider provider) {
         this.name = name;

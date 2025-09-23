@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSecurity } from '../hooks/useSecurity.js';
+import {OAuthButton} from "../utils/OAuthButton.jsx";
 
 export default function Signup() {
     const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "buyer" });
@@ -251,14 +252,13 @@ export default function Signup() {
                     <div className="form-container sign-up-container">
                         <form onSubmit={handleSignUp} noValidate>
                             <h1>Create Account</h1>
+
                             <div className="social-container">
-                                <button type="button" className="social" onClick={handleGoogleAuth}>
-                                    <GoogleIcon />
-                                </button>
-                                <button type="button" className="social" onClick={handleFacebookAuth}>
-                                    <FacebookIcon />
-                                </button>
+
+                                <OAuthButton provider={"google"} />
+
                             </div>
+
                             <span>or use your email for registration</span>
 
                             <input

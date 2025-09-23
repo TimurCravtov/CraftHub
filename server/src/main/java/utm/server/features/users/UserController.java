@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import utm.server.features.users.dto.MeUserDto;
 import utm.server.features.users.dto.UserDto;
+import utm.server.features.users.security.UserSecurityPrincipal;
+import utm.server.features.users.security.UserSecurityPrincipalMapper;
 
 
 @RestController
@@ -17,6 +19,8 @@ import utm.server.features.users.dto.UserDto;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
+    private final UserSecurityPrincipalMapper userSecurityPrincipalMapper;
 
     @PostMapping("/")
     public ResponseEntity<?> addUser(@RequestBody UserEntity user){
@@ -32,8 +36,8 @@ public class UserController {
 
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserEntity user) {
-        return ResponseEntity.ok(new MeUserDto(user));
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserSecurityPrincipal user) {
+        return ResponseEntity.ok(userMapper.toDTO(userSecurityPrincipalMapper.getUser(user)));
     }
 
     @GetMapping("/findall")

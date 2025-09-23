@@ -41,7 +41,6 @@ export function AuthApiProvider({ children }) {
         });
     };
 
-    createAuthRefreshInterceptor(api, refreshAccessToken);
 
     const api = useMemo(() => {
         const instance = axios.create({
@@ -60,6 +59,9 @@ export function AuthApiProvider({ children }) {
 
         return instance;
     }, [accessToken]);
+
+    createAuthRefreshInterceptor(api, refreshAccessToken);
+
     const login = useCallback((token, userData) => {
         setAccessToken(token);
         setUser(userData || null);
@@ -70,26 +72,35 @@ export function AuthApiProvider({ children }) {
         setUser(null);
     }, []);
 
-    const getMe = useCallback(async () => {
-        try {
-            const res = await api.get('/users/me');
-            setUser(res.data);
-            return res.data;
-        } catch (err) {
-            console.error('getMe failed', err);
-            throw err;
-        }
-    }, [api]);
+    const getMe = useCallback(
+        async (token) => { // optional token parameter
+            try {
+                const headers = {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}), // add Authorization if token exists
+                };
+
+                const res = await api.get('api/users/me', { headers });
+                setUser(res.data);
+                return res.data;
+            } catch (err) {
+                console.error('getMe failed', err);
+                throw err;
+            }
+        },
+        [api]
+    );
+
 
     const value = useMemo(() => ({
         api,
         accessToken,
         user,
         login,
+        setUser,
         logout,
         isAuthenticated: !!accessToken,
         getMe,
-    }), [api, accessToken, user, login, logout, getMe]);
+    }), [api, accessToken, user, login, logout, getMe, setUser]);
 
     return (
         <AuthApiContext.Provider value={value}>
@@ -113,6 +124,7 @@ export function useAuthUser() {
         ? {
             accessToken: ctx.accessToken,
             user: ctx.user,
+            setUser: ctx.setUser,
             login: ctx.login,
             logout: ctx.logout,
             isAuthenticated: ctx.isAuthenticated,

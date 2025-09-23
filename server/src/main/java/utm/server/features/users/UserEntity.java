@@ -44,7 +44,9 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuthProvider provider = AuthProvider.LOCAL;
-    //added default account type BUYER
+
+    private String providerId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccountType accountType = AccountType.BUYER;

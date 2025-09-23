@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import utm.server.features.authentication.service.CustomOAuth2UserService;
 import utm.server.features.jwt.JwtAuthenticationFilter;
 import utm.server.features.jwt.JwtService;
 import utm.server.features.users.UserRepository;
@@ -32,10 +31,6 @@ public class SecurityConfig {
     private String clientBaseUrl;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
-    private final OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -56,16 +51,6 @@ public class SecurityConfig {
                         "/api/products/findall"
                         ).permitAll() // DONT FORGET TO ADD SECURITY
                         .anyRequest().permitAll())
-                // Login clasic REST
-                .formLogin(form -> form
-                        .loginProcessingUrl("/api/auth/login")
-                        .permitAll())
-                // OAuth2 Google
-                .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
-                        .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler))
 
                 // Return 401 JSON dacă nu e autentificat
                 .exceptionHandling(ex -> ex
@@ -74,6 +59,7 @@ public class SecurityConfig {
                             res.setContentType("application/json");
                             res.getWriter().write("{\"error\":\"Unauthorized\"}");
                         }))
+
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

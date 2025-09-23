@@ -45,8 +45,8 @@ const router = createBrowserRouter([
     element: <Account />,
   },
   {
-    path: '/oauth2/redirect',
-    element: <Oauth2Redirect />, // 🔥 ruta pentru callback Google
+    path: '/oauth/redirect/:provider',
+    element: <Oauth2Redirect />,
   },
   {
     path: '/shops',

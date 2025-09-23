@@ -2,16 +2,17 @@ import { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { User, Search, Heart, ShoppingCart, X, LogOut, Settings } from 'lucide-react'
 import { LanguagePicker } from './LanguagePicker.jsx'
+import {useAuthApi} from "../context/apiAuthContext.jsx";
 
 export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [user, setUser] = useState(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const searchInputRef = useRef(null)
   const searchPopupRef = useRef(null)
+  const {user, setUser} = useAuthApi()
 
   function getSellerFromJwt() {
     try {
@@ -41,8 +42,6 @@ export default function Header() {
   })()
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) setUser(JSON.parse(storedUser))
   }, [])
 
   const isSearchablePage = location.pathname === '/shops' || location.pathname === '/items'

@@ -43,7 +43,7 @@ export default function Shops() {
   const filtered = q
     ? shops.filter(
         (s) =>
-          s.name.toLowerCase().includes(q) ||
+          (s.shopName || s.name).toLowerCase().includes(q) ||
           s.artisan.toLowerCase().includes(q) ||
           s.description.toLowerCase().includes(q)
       )
@@ -129,7 +129,7 @@ export default function Shops() {
               className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
             >
               <div className="relative h-48">
-                <img src={shop.image} alt={shop.name} className="w-full h-full object-cover" />
+                <img src={shop.image} alt={shop.shopName || shop.name} className="w-full h-full object-cover" />
 
                 <div className="absolute top-2 right-2">
                   <button className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm text-pink-500 hover:text-pink-700 hover:bg-white/90 transition-all duration-300 shadow opacity-70 hover:scale-110">
@@ -140,14 +140,14 @@ export default function Shops() {
                 <div className="absolute bottom-3 left-3">
                   <img
                     src={shop.logo}
-                    alt={`${shop.name} logo`}
+                    alt={`${shop.shopName || shop.name} logo`}
                     className="w-10 h-10 rounded-full bg-white/90 p-1 shadow border"
                   />
                 </div>
               </div>
 
               <div className="p-3">
-                <h3 className="text-sm font-semibold text-gray-900 truncate">{shop.name}</h3>
+                <h3 className="text-sm font-semibold text-gray-900 truncate">{shop.shopName || shop.name}</h3>
                 <p className="text-xs text-gray-500 truncate">by {shop.artisan}</p>
               </div>
             </div>

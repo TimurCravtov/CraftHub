@@ -23,8 +23,8 @@ export default function ShopPage() {
         const shopData = await shopResponse.json()
 
         // Set the shop name and description
-        setShopName(shopData.name)
-        setShopDescription(shopData.description)
+        setShopName(shopData.shopName || shopData.name)
+        setShopDescription(shopData.shopDescription || shopData.description)
 
         // Fetch artisan details using the user_id from the shop data
         const userResponse = await fetch(`http://localhost:8080/api/users/${shopData.user_id}`)

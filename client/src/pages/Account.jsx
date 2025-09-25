@@ -40,6 +40,10 @@ export default function Account() {
   })()
   const [form, setForm] = useState({
     shopId: null,  // Will be populated when editing existing shop
+    shopName: '',
+    shopDescription: '',
+    ownerDescription: '',
+    shopLogo: null,
     items: [],
     currentItem: {
       name: '',
@@ -53,6 +57,70 @@ export default function Account() {
     aboutShop: false,
     gallery: false,
   })
+
+  // Load shop data when editing existing shop
+  useEffect(() => {
+    const loadShopData = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shopId = urlParams.get('shopId');
+      
+      if (shopId) {
+        try {
+          // Get token for authentication
+          let token = null;
+          const authData = localStorage.getItem("auth");
+          const userData = localStorage.getItem("user");
+          
+          if (authData) {
+            const parsed = JSON.parse(authData);
+            token = parsed.token || parsed.accessToken;
+          } else if (userData) {
+            const parsed = JSON.parse(userData);
+            token = parsed.token || parsed.accessToken;
+          }
+
+          if (!token) {
+            console.error('No token found for loading shop data');
+            return;
+          }
+
+          const response = await fetch(`http://localhost:8080/api/shops/${shopId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            const shopData = await response.json();
+            setForm(prev => ({
+              ...prev,
+              shopId: shopData.id || shopData.shopId,
+              shopName: shopData.shopName || shopData.name || '',
+              shopDescription: shopData.shopDescription || shopData.description || '',
+              ownerDescription: shopData.ownerDescription || '',
+              shopLogo: shopData.logo || null
+            }));
+          } else {
+            console.error('Failed to load shop data');
+          }
+        } catch (error) {
+          console.error('Error loading shop data:', error);
+        }
+      } else if (existingShop) {
+        // Load from localStorage if no shopId but we have existing data
+        setForm(prev => ({
+          ...prev,
+          shopId: existingShop.id || null,
+          shopName: existingShop.shopName || '',
+          shopDescription: existingShop.shopDescription || '',
+          ownerDescription: existingShop.ownerDescription || '',
+          shopLogo: existingShop.logo || null
+        }));
+      }
+    };
+
+    loadShopData();
+  }, []);
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -85,22 +153,78 @@ export default function Account() {
     }
   })()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     try {
+      // Get token for authentication
+      let token = null;
+      const authData = localStorage.getItem("auth");
+      const userData = localStorage.getItem("user");
+      
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        token = parsed.token || parsed.accessToken;
+      } else if (userData) {
+        const parsed = JSON.parse(userData);
+        token = parsed.token || parsed.accessToken;
+      }
+
+      if (!token) {
+        alert('Please log in to create a shop');
+        return;
+      }
+
       const payload = {
         shopName: form.shopName,
         ownerName: ownerDisplayName,
         shopDescription: form.shopDescription,
         ownerDescription: form.ownerDescription,
-        // images omitted in storage demo
+        logo: form.shopLogo || null,
+        // images omitted for now
         hasShop: true,
       }
-      localStorage.setItem(currentUserKey, JSON.stringify(payload))
-      alert('Shop saved locally. (Client-only)')
-      window.location.reload()
-    } catch {
-      alert('Failed to save locally')
+
+      // Determine if this is a create or update operation
+      const isUpdate = form.shopId !== null;
+      const endpoint = isUpdate 
+        ? `http://localhost:8080/api/shops/${form.shopId}`
+        : 'http://localhost:8080/api/shops';
+      
+      const method = isUpdate ? 'PUT' : 'POST';
+
+      const response = await fetch(endpoint, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to ${isUpdate ? 'update' : 'create'} shop: ${errorText}`);
+      }
+
+      const result = await response.json();
+      
+      // Update local state with the returned shop data
+      setForm(prev => ({
+        ...prev,
+        shopId: result.id || result.shopId
+      }));
+
+      // Also save to localStorage as backup
+      localStorage.setItem(currentUserKey, JSON.stringify({
+        ...payload,
+        id: result.id || result.shopId
+      }));
+
+      alert(`Shop ${isUpdate ? 'updated' : 'created'} successfully!`);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error saving shop:', error);
+      alert(`Failed to save shop: ${error.message}`);
     }
   }
 

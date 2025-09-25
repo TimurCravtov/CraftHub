@@ -112,12 +112,15 @@ export default function Signup() {
             const data = await res.json();
 
             localStorage.setItem(
-                "user",
+                "auth",
                 JSON.stringify({
-                    name: signupData.name,
-                    email: signupData.email,
-                    accountType: signupData.accountType,
+                    accessToken: data.accessToken ?? null,
                     token: data.accessToken ?? null,
+                    user: {
+                        name: signupData.name,
+                        email: signupData.email,
+                        accountType: signupData.accountType,
+                    }
                 })
             );
 

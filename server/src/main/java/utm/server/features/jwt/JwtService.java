@@ -9,6 +9,7 @@ import utm.server.features.users.UserEntity;
 import java.security.Key;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -80,16 +81,38 @@ public class JwtService {
 
         return new JwtTokenPair(newAccessToken, refreshToken);
     }
+
     public String generateToken(String email) {
-    Date now = new Date();
-    Date expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION);
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION);
 
-    return Jwts.builder()
-            .setSubject(email)  // aici pui email direct
-            .setIssuedAt(now)
-            .setExpiration(expiryDate)
-            .signWith(key, SignatureAlgorithm.HS256)
-            .compact();
-}
+        return Jwts.builder()
+                .setSubject(email) // aici pui email direct
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
 
+    public boolean isTokenValid(String token) {
+        try {
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    // Add this method to your JwtService class
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = validateToken(token);
+        return claimsResolver.apply(claims);
+    }
 }

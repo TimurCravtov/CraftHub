@@ -40,17 +40,17 @@ public class AuthService {
         newUser.setName(request.getName());
         newUser.setEmail(request.getEmail());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        
+
         AuthProvider provider = request.getProvider() != null ? request.getProvider() : AuthProvider.LOCAL;
         newUser.setProvider(provider);
 
-        if(provider == AuthProvider.LOCAL){
-            if(request.getAccountType() == null){
+        if (provider == AuthProvider.LOCAL) {
+            if (request.getAccountType() == null) {
                 throw new RuntimeException("Account type is required for local sign up");
             }
             newUser.setAccountType(request.getAccountType());
         } else {
-            newUser.setAccountType(AccountType.BUYER); 
+            newUser.setAccountType(AccountType.BUYER);
         }
 
         userRepository.save(newUser);
@@ -60,9 +60,8 @@ public class AuthService {
     public UserEntity createOrGetUser(OAuthUser oauthUser) {
 
         UserEntity user = userRepository
-                .findByProviderAndProviderId
-                        (AuthProvider.valueOf
-                                (oauthUser.getProvider().toUpperCase()), oauthUser.getProviderId())
+                .findByProviderAndProviderId(AuthProvider.valueOf(oauthUser.getProvider().toUpperCase()),
+                        oauthUser.getProviderId())
                 .orElse(null);
 
         if (user == null) {
@@ -179,7 +178,8 @@ public class AuthService {
         }
 
         if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
-            if(request.getCurrentPassword() == null || !passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            if (request.getCurrentPassword() == null
+                    || !passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
                 throw new RuntimeException("Current password is required to set a new password");
             }
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -197,22 +197,43 @@ public class AuthService {
             user.setName(request.getNewName());
         }
 
-    if (request.getRole() != null && !request.getRole().isBlank()) {
-        try {
-            user.setAccountType(
-                AccountType.valueOf(request.getRole().toUpperCase())
-            );
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid role: " + request.getRole());
+        if (request.getRole() != null && !request.getRole().isBlank()) {
+            try {
+                user.setAccountType(
+                        AccountType.valueOf(request.getRole().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid role: " + request.getRole());
+            }
         }
+
+        userRepository.save(user);
+        return user;
     }
-
-
-    userRepository.save(user);
-    return user;
-}
 
     public Long getUserIdFromToken(String token) {
         return jwtService.extractUserId(token);
+    }
+
+    // Make sure your refreshToken method accepts a String parameter
+    public JwtTokenPair refreshToken(String refreshToken) {
+        try {
+            // Validate the refresh token and extract user ID
+            Long userId = jwtService.extractUserId(refreshToken);
+
+            // Check if the refresh token is valid (not expired)
+            if (!jwtService.isTokenValid(refreshToken)) {
+                throw new RuntimeException("Invalid or expired refresh token");
+            }
+
+            // Get the user from database
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Generate new token pair
+            return jwtService.getJwtTokenPair(user);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to refresh token: " + e.getMessage());
+        }
     }
 }

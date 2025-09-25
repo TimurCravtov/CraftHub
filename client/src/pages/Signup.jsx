@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSecurity } from '../hooks/useSecurity.js';
 import {OAuthButton} from "../utils/OAuthButton.jsx";
+import {useAuthApi} from "../context/apiAuthContext.jsx";
 
 export default function Signup() {
     const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "buyer" });
@@ -19,6 +20,8 @@ export default function Signup() {
 
     const navigate = useNavigate();
     const { sanitizeInput, validateInput, sanitizeFormData } = useSecurity();
+
+    const {api, setUser} = useAuthApi()
 
     const MIN_LENGTH = 8;
     const reHasUpper = /[A-Z]/;
@@ -123,6 +126,8 @@ export default function Signup() {
                     }
                 })
             );
+
+            setUser(data)
 
             navigate("/");
         } catch (err) {

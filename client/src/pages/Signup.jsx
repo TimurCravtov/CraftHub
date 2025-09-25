@@ -5,7 +5,7 @@ import {OAuthButton} from "../utils/OAuthButton.jsx";
 import {useAuthApi} from "../context/apiAuthContext.jsx";
 
 export default function Signup() {
-    const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "buyer" });
+    const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "BUYER" });
     const [errors, setErrors] = useState({ name: "", email: "", password: "" });
     const [passwordTouched, setPasswordTouched] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,14 +115,14 @@ export default function Signup() {
             const data = await res.json();
 
             localStorage.setItem(
-                "auth",
+                "user",
                 JSON.stringify({
                     accessToken: data.accessToken ?? null,
                     token: data.accessToken ?? null,
                     user: {
-                        name: signupData.name,
-                        email: signupData.email,
-                        accountType: signupData.accountType,
+                    name: signupData.name,
+                    email: signupData.email,
+                    accountType: signupData.accountType,
                     }
                 })
             );
@@ -299,8 +299,8 @@ export default function Signup() {
                                     <input
                                         type="radio"
                                         name="accountType"
-                                        value="buyer"
-                                        checked={signupData.accountType === "buyer"}
+                                        value="BUYER"
+                                        checked={signupData.accountType === "BUYER"}
                                         onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
                                     />
                                     <span>Buyer</span>
@@ -309,8 +309,8 @@ export default function Signup() {
                                     <input
                                         type="radio"
                                         name="accountType"
-                                        value="seller"
-                                        checked={signupData.accountType === "seller"}
+                                        value="SELLER"
+                                        checked={signupData.accountType === "SELLER"}
                                         onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
                                     />
                                     <span>Seller</span>

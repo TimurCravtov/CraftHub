@@ -127,7 +127,7 @@ export default function Signup() {
             navigate("/");
         } catch (err) {
             console.error("Signup error:", err);
-            alert(typeof err === "string" ? err : err.message || "Error while signing up");
+            alert(typeof err === "string" ? err : err.message || "Error while signing up. Please try again.");
         } finally {
             setIsSubmitting(false);
         }

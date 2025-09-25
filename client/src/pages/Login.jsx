@@ -15,10 +15,36 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await authService.login(credentials)
+      const response = await fetch('http://localhost:8080/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(errorText || 'Login failed')
+      }
+
+      const data = await response.json()
+      
+      // Store auth data in localStorage
+      localStorage.setItem('auth', JSON.stringify({
+        accessToken: data.accessToken || data.token,
+        token: data.accessToken || data.token,
+        user: data.user || {
+          name: data.name,
+          email: data.email,
+          accountType: data.accountType || data.role
+        }
+      }))
+
       navigate('/account')
     } catch (error) {
       console.error('Login failed:', error)
+      alert(error.message || 'Login failed. Please check your credentials.')
     }
   }
 

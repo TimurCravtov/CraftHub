@@ -50,7 +50,6 @@ public class SecurityConfig {
                         ).permitAll() // DONT FORGET TO ADD SECURITY
                         .anyRequest().permitAll())
 
-                // Return 401 JSON dacă nu e autentificat
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) -> {
                             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

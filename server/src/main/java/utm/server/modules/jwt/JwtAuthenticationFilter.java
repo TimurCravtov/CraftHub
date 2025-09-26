@@ -1,5 +1,6 @@
 package utm.server.modules.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import utm.server.except.ErrorMessage;
 import utm.server.modules.users.security.UserSecurityPrincipal;
 
 import java.io.IOException;
@@ -63,8 +65,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         } catch (Exception e) {
+
+            ErrorMessage error = new ErrorMessage(403, "Invalid or expired token");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid or expired token");
+            new ObjectMapper().writeValue(response.getWriter(), error);
             return;
         }
 

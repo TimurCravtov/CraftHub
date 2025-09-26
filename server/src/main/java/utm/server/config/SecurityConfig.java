@@ -16,9 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import utm.server.features.jwt.JwtAuthenticationFilter;
-import utm.server.features.jwt.JwtService;
-import utm.server.features.users.UserRepository;
+import utm.server.modules.jwt.JwtAuthenticationFilter;
 
 import java.util.List;
 

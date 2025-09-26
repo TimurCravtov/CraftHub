@@ -14,7 +14,7 @@ export default function Account() {
       const token = auth?.accessToken || auth?.token
       if (!token || token.split('.').length !== 3) return false
       const payload = JSON.parse(atob(token.split('.')[1]))
-      return payload?.accountType === 'seller' || payload?.role === 'SELLER' || payload?.role === 'seller'
+      return payload?.accountType === 'SELLER' || payload?.role === 'SELLER' || payload?.role === 'SELLER'
     } catch {
       return false
     }

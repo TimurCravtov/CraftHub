@@ -2,6 +2,7 @@ package utm.server.modules.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import utm.server.modules.users.UserEntity;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Service
+@Slf4j
 public class JwtService {
 
     private final Key key;
@@ -28,8 +30,8 @@ public class JwtService {
         String refreshToken = generateToken(user, false);
 
         // Debug log
-        System.out.println(">>> JWT Service: Generated access token = " + accessToken);
-        System.out.println(">>> JWT Service: Generated refresh token = " + refreshToken);
+        log.debug("JWT Service: Generated access token = " + accessToken);
+        log.debug("JWT Service: Generated refresh token = " + refreshToken);
 
         return new JwtTokenPair(accessToken, refreshToken);
     }
@@ -56,10 +58,10 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            System.out.println(">>> JWT Service: Token expired");
+            log.debug(">>> JWT Service: Token expired");
             throw new IllegalArgumentException("Token has expired");
         } catch (JwtException e) {
-            System.out.println(">>> JWT Service: Invalid token: " + e);
+            log.debug("JWT Service: Invalid token: {}", String.valueOf(e));
             throw new IllegalArgumentException("Invalid JWT token: " + e.toString());
         }
     }
@@ -77,7 +79,7 @@ public class JwtService {
         }
 
         String newAccessToken = generateToken(user, true);
-        System.out.println(">>> JWT Service: Refreshed access token = " + newAccessToken);
+        log.debug("JWT Service: Refreshed access token = {}", newAccessToken);
 
         return new JwtTokenPair(newAccessToken, refreshToken);
     }

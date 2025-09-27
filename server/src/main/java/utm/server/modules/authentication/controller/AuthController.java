@@ -15,9 +15,10 @@ import utm.server.modules.jwt.JwtService;
 import utm.server.modules.jwt.JwtTokenPair;
 import utm.server.modules.users.UserEntity;
 import utm.server.modules.users.UserRepository;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import static utm.server.modules.authentication.service.CookieService.setRefreshTokenCookie;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -64,22 +65,7 @@ public class AuthController {
         }
     }
 
-    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setHttpOnly(true); // Prevents XSS attacks
-        refreshCookie.setSecure(true); // Only send over HTTPS in production
-        refreshCookie.setPath("/"); // Available for entire application
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
 
-        response.addCookie(refreshCookie);
-
-        // Manually set SameSite attribute via Set-Cookie header
-        String cookieValue = String.format(
-                "refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=Strict",
-                refreshToken,
-                7 * 24 * 60 * 60);
-        response.setHeader("Set-Cookie", cookieValue);
-    }
 
     @PostMapping("/me/enable-2fa")
     public ResponseEntity<?> enableTwoFactorAuthentication(

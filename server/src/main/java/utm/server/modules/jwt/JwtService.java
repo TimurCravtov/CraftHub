@@ -22,8 +22,8 @@ public class JwtService {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    private static final long ACCESS_TOKEN_EXPIRATION = TimeUnit.HOURS.toMillis(1); // 1 oră
-    private static final long REFRESH_TOKEN_EXPIRATION = TimeUnit.DAYS.toMillis(180); // 6 luni
+    private static final long ACCESS_TOKEN_EXPIRATION = TimeUnit.HOURS.toMillis(1);
+    private static final long REFRESH_TOKEN_EXPIRATION = TimeUnit.DAYS.toMillis(180);
 
     public JwtTokenPair getJwtTokenPair(UserEntity user) {
         String accessToken = generateToken(user, true);

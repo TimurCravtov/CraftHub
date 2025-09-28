@@ -1,2 +1,3 @@
 application-dev.properties
 storagekey.json
+keystore.p12

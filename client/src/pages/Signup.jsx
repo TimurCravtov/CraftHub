@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSecurity } from '../hooks/useSecurity.js';
 import {OAuthButton} from "../utils/OAuthButton.jsx";
-import {useAuthApi} from "../context/apiAuthContext.jsx";
 
 export default function Signup() {
-    const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "BUYER" });
+    const [signupData, setSignupData] = useState({ name: "", email: "", password: "", accountType: "buyer" });
     const [errors, setErrors] = useState({ name: "", email: "", password: "" });
     const [passwordTouched, setPasswordTouched] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,19 +15,35 @@ export default function Signup() {
 
     const [twoFactorRequired, setTwoFactorRequired] = useState(false);
     const [twoFactorCode, setTwoFactorCode] = useState("");
+    const [passwordValidationErrors, setPasswordValidationErrors] = useState([]);
+    const [isValidatingPassword, setIsValidatingPassword] = useState(false);
+    
     const [pendingUserId, setPendingUserId] = useState(null);
 
     const navigate = useNavigate();
     const { sanitizeInput, validateInput, sanitizeFormData } = useSecurity();
 
-    const {api, setUser} = useAuthApi()
-
-    const MIN_LENGTH = 8;
-    const reHasUpper = /[A-Z]/;
-    const reHasLower = /[a-z]/;
-    const reHasDigit = /[0-9]/;
-    const reHasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
     const reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Client-side password validation
+    const validatePasswordClient = (password) => {
+        const requirements = {
+            length: password.length >= MIN_LENGTH,
+            upper: /[A-Z]/.test(password),
+            lower: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+        return requirements;
+    };
+
+    const [passwordRequirements, setPasswordRequirements] = useState({
+        length: false,
+        upper: false,
+        lower: false,
+        number: false,
+        special: false
+    });
 
     // Setup overlay buttons
     useEffect(() => {
@@ -44,12 +59,51 @@ export default function Signup() {
         signUpButton.addEventListener("click", handleSignUpClick);
         signInButton.addEventListener("click", handleSignInClick);
 
-        // Cleanup on unmount
         return () => {
             signUpButton.removeEventListener("click", handleSignUpClick);
             signInButton.removeEventListener("click", handleSignInClick);
         };
     }, []);
+
+    // Debounced password validation API call
+    const validatePasswordWithBackend = async (password) => {
+        if (!password || password.length < 3) {
+            setPasswordValidationErrors([]);
+            return;
+        }
+
+        setIsValidatingPassword(true);
+        try {
+            const res = await fetch("http://localhost:8080/api/auth/validate-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    password: password,
+                    email: signupData.email,
+                    name: signupData.name
+                }),
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                setPasswordValidationErrors(data.errors || []);
+            }
+        } catch (err) {
+            console.error("Password validation error:", err);
+            // Don't show error to user for validation failure
+        } finally {
+            setIsValidatingPassword(false);
+        }
+    };
+
+    // Debounce password validation
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            validatePasswordWithBackend(signupData.password);
+        }, 500); // Wait 500ms after user stops typing
+
+        return () => clearTimeout(timeoutId);
+    }, [signupData.password, signupData.email, signupData.name]);
 
     useEffect(() => {
         const newErrors = { name: "", email: "", password: "" };
@@ -67,19 +121,8 @@ export default function Signup() {
         const pwd = signupData.password || "";
         if (!pwd) {
             newErrors.password = "Password is required";
-        } else {
-            if (pwd.length < MIN_LENGTH) {
-                newErrors.password = `Password must be at least ${MIN_LENGTH} characters long`;
-            } else if (!reHasUpper.test(pwd)) {
-                newErrors.password = "Password must contain at least one uppercase letter";
-            } else if (!reHasLower.test(pwd)) {
-                newErrors.password = "Password must contain at least one lowercase letter";
-            } else if (!reHasDigit.test(pwd)) {
-                newErrors.password = "Password must contain at least one number";
-            } else if (!reHasSpecial.test(pwd)) {
-                newErrors.password = "Password must contain at least one special character";
-            }
         }
+        // Remove client-side password validation - rely on backend
 
         setErrors(newErrors);
     }, [signupData]);
@@ -88,10 +131,10 @@ export default function Signup() {
         return (
             !errors.name &&
             !errors.email &&
-            !errors.password &&
             signupData.name.trim() &&
             signupData.email.trim() &&
             signupData.password
+            // Remove client-side password requirement checks - backend will validate
         );
     };
 
@@ -117,22 +160,17 @@ export default function Signup() {
             localStorage.setItem(
                 "user",
                 JSON.stringify({
-                    accessToken: data.accessToken ?? null,
-                    token: data.accessToken ?? null,
-                    user: {
                     name: signupData.name,
                     email: signupData.email,
                     accountType: signupData.accountType,
-                    }
+                    token: data.accessToken ?? null,
                 })
             );
-
-            setUser(data)
 
             navigate("/");
         } catch (err) {
             console.error("Signup error:", err);
-            alert(typeof err === "string" ? err : err.message || "Error while signing up. Please try again.");
+            alert(typeof err === "string" ? err : err.message || "Error while signing up");
         } finally {
             setIsSubmitting(false);
         }
@@ -228,21 +266,6 @@ export default function Signup() {
         console.log("Facebook authentication clicked");
     };
 
-    const GoogleIcon = () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-        </svg>
-    );
-
-    const FacebookIcon = () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2" />
-        </svg>
-    );
-
     return (
         <div className="min-h-screen bg-white">
             <div className="absolute top-4 left-4">
@@ -262,9 +285,7 @@ export default function Signup() {
                             <h1>Create Account</h1>
 
                             <div className="social-container">
-
                                 <OAuthButton provider={"google"} />
-
                             </div>
 
                             <span>or use your email for registration</span>
@@ -293,50 +314,64 @@ export default function Signup() {
                                 onBlur={() => setPasswordTouched(true)}
                             />
 
+                            {/* Password Requirements - Grid Layout with Backend Validation */}
+                            <div className="password-requirements">
+                                <div className={passwordRequirements.length ? "text-green-600" : "text-gray-600"}>
+                                    {passwordRequirements.length ? "✓" : "•"} 12 chars
+                                </div>
+                                <div className={passwordRequirements.upper ? "text-green-600" : "text-gray-600"}>
+                                    {passwordRequirements.upper ? "✓" : "•"} Upper
+                                </div>
+                                <div className={passwordRequirements.lower ? "text-green-600" : "text-gray-600"}>
+                                    {passwordRequirements.lower ? "✓" : "•"} Lower
+                                </div>
+                                <div className={passwordRequirements.number ? "text-green-600" : "text-gray-600"}>
+                                    {passwordRequirements.number ? "✓" : "•"} Number
+                                </div>
+                                <div className={passwordRequirements.special ? "text-green-600" : "text-gray-600"}>
+                                    {passwordRequirements.special ? "✓" : "•"} Special
+                                </div>
+                            </div>
+
+                            {/* Backend Password Validation Errors */}
+                            {isValidatingPassword && (
+                                <div className="text-sm text-blue-600 mb-2">Validating password...</div>
+                            )}
+                            {passwordValidationErrors.length > 0 && (
+                                <div className="password-validation-errors">
+                                    {passwordValidationErrors.map((error, index) => (
+                                        <div key={index} className="text-sm text-red-600">{error}</div>
+                                    ))}
+                                </div>
+                            )}
+
                             {/* Select Buyer/Seller */}
-                            <div className="flex justify-center gap-4 my-2">
-                                <label className="flex items-center gap-2 cursor-pointer">
+                            <div className="account-type-container">
+                                <label className={`account-type-option ${signupData.accountType === 'buyer' ? 'selected' : ''}`}>
                                     <input
                                         type="radio"
                                         name="accountType"
-                                        value="BUYER"
-                                        checked={signupData.accountType === "BUYER"}
+                                        value="buyer"
+                                        checked={signupData.accountType === "buyer"}
                                         onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
                                     />
                                     <span>Buyer</span>
                                 </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
+                                <label className={`account-type-option ${signupData.accountType === 'seller' ? 'selected' : ''}`}>
                                     <input
                                         type="radio"
                                         name="accountType"
-                                        value="SELLER"
-                                        checked={signupData.accountType === "SELLER"}
+                                        value="seller"
+                                        checked={signupData.accountType === "seller"}
                                         onChange={(e) => setSignupData({ ...signupData, accountType: e.target.value })}
                                     />
                                     <span>Seller</span>
                                 </label>
                             </div>
 
-                            <div className="password-requirements">
-                                <div className={signupData.password.length >= MIN_LENGTH ? "text-green-600" : "text-gray-600"}>
-                                    {signupData.password.length >= MIN_LENGTH ? "✓" : "•"} {MIN_LENGTH} chars
-                                </div>
-                                <div className={reHasUpper.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                                    {reHasUpper.test(signupData.password) ? "✓" : "•"} Upper
-                                </div>
-                                <div className={reHasLower.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                                    {reHasLower.test(signupData.password) ? "✓" : "•"} Lower
-                                </div>
-                                <div className={reHasDigit.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                                    {reHasDigit.test(signupData.password) ? "✓" : "•"} Number
-                                </div>
-                                <div className={reHasSpecial.test(signupData.password) ? "text-green-600" : "text-gray-600"}>
-                                    {reHasSpecial.test(signupData.password) ? "✓" : "•"} Special
-                                </div>
-                                {passwordTouched && errors.password && (
-                                    <div className="text-sm text-red-600 mt-2">{errors.password}</div>
-                                )}
-                            </div>
+                            {passwordTouched && errors.password && (
+                                <div className="text-sm text-red-600 mt-2">{errors.password}</div>
+                            )}
 
                             <button type="submit" disabled={!isFormValid() || isSubmitting}>
                                 {isSubmitting ? "Creating..." : "Sign Up"}
@@ -348,20 +383,26 @@ export default function Signup() {
                     <div className="form-container sign-in-container">
                         <form onSubmit={twoFactorRequired ? handleVerify2FA : handleSignIn}>
                             <h1>Sign in</h1>
+                            {!twoFactorRequired && (
+                                <div className="social-container">
+                                    <OAuthButton provider={"google"} />
+                                </div>
+                            )}
                             {!twoFactorRequired ? (
                                 <>
+                                    <span>or use your account</span>
                                     <input
                                         type="email"
                                         placeholder="Email"
                                         value={loginData.email}
-                                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                                        onChange={(e) => setLoginData({ ...loginData, email: sanitizeInput(e.target.value, 'email') })}
                                         required
                                     />
                                     <input
                                         type="password"
                                         placeholder="Password"
                                         value={loginData.password}
-                                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                                        onChange={(e) => setLoginData({ ...loginData, password: sanitizeInput(e.target.value, 'password') })}
                                         required
                                     />
                                 </>
@@ -414,26 +455,87 @@ export default function Signup() {
         h1 { font-weight: bold; margin: 0; }
         p { font-size: 14px; font-weight: 100; line-height: 20px; letter-spacing: 0.5px; margin: 20px 0 30px; }
         span { font-size: 12px; }
-        button { border-radius: 20px; border: 1px solid #FF4B2B; background-color: #FF4B2B; color: #FFFFFF; font-size: 12px; font-weight: bold; padding: 12px 45px; letter-spacing: 1px; text-transform: uppercase; transition: transform 80ms ease-in; }
+        button { border-radius: 20px; border: 1px solid #2563EB; background-color: #2563EB; color: #FFFFFF; font-size: 12px; font-weight: bold; padding: 12px 45px; letter-spacing: 1px; text-transform: uppercase; transition: transform 80ms ease-in; }
         button:active { transform: scale(0.95); }
         button:focus { outline: none; }
         button.ghost { background-color: transparent; border-color: #FFFFFF; }
+        button:disabled { background-color: #94A3B8; border-color: #94A3B8; cursor: not-allowed; }
         .social-container { margin: 15px 0; display: flex; gap: 10px; justify-content: center; }
-        .social { border: 1px solid #ddd; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; height: 36px; width: 36px; background-color: #fff; cursor: pointer; transition: all 0.3s ease; }
-        .social:hover { background-color: #f5f5f5; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .password-requirements { margin: 8px 0 12px 0; text-align: left; font-size: 11px; line-height: 1.3; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
-        form { background-color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 50px; height: 100%; text-align: center; }
-        input { background-color: #eee; border: none; padding: 12px 15px; margin: 8px 0; width: 100%; }
-        .container { background-color: #fff; border-radius: 10px; box-shadow: 0 14px 28px rgba(0,0,0,0.25),0 10px 10px rgba(0,0,0,0.22); position: relative; overflow: hidden; width: 768px; max-width: 100%; min-height: 480px; }
+        .password-requirements { 
+            margin: 8px 0 12px 0; 
+            text-align: left; 
+            font-size: 11px; 
+            line-height: 1.3; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 2px; 
+        }
+        .account-type-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 10px 0 15px 0;
+        }
+        .account-type-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid #ddd;
+            background-color: #fff;
+        }
+        .account-type-option.selected {
+            background-color: #EBF4FF;
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+        .account-type-option input[type="radio"] {
+            margin: 0;
+            width: auto;
+            padding: 0;
+        }
+        .account-type-option span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        form { background-color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 40px; height: 100%; text-align: center; }
+        input { background-color: #eee; border: none; padding: 12px 15px; margin: 6px 0; width: 100%; }
+        .container { 
+            background-color: #fff; 
+            border-radius: 10px; 
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22); 
+            position: relative; 
+            overflow: hidden; 
+            width: 900px; 
+            max-width: 100%; 
+            min-height: 580px; 
+        }
         .form-container { position: absolute; top: 0; height: 100%; transition: all 0.6s ease-in-out; }
         .sign-in-container { left: 0; width: 50%; z-index: 2; }
         .container.right-panel-active .sign-in-container { transform: translateX(100%); }
         .sign-up-container { left: 0; width: 50%; opacity: 0; z-index: 1; }
         .container.right-panel-active .sign-up-container { transform: translateX(100%); opacity: 1; z-index: 5; animation: show 0.6s; }
-        @keyframes show { 0% { opacity: 0; transform: scale(0.9);} 100% { opacity: 1; transform: scale(1);} }
+        @keyframes show { 0%, 49.99% { opacity: 0; z-index: 1; } 50%, 100% { opacity: 1; z-index: 5; } }
         .overlay-container { position: absolute; top: 0; left: 50%; width: 50%; height: 100%; overflow: hidden; transition: transform 0.6s ease-in-out; z-index: 100; }
-        .container.right-panel-active .overlay-container{ transform: translateX(-100%); }
-        .overlay { background: #FF416C; background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C); background: linear-gradient(to right, #FF4B2B, #FF416C); background-repeat: no-repeat; background-size: cover; background-position: 0 0; color: #FFFFFF; position: relative; left: -100%; height: 100%; width: 200%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
+        .container.right-panel-active .overlay-container { transform: translateX(-100%); }
+        .overlay { 
+            background: #1E40AF; 
+            background: -webkit-linear-gradient(to right, #2563EB, #1D4ED8); 
+            background: linear-gradient(to right, #2563EB, #1D4ED8); 
+            background-repeat: no-repeat; 
+            background-size: cover; 
+            background-position: 0 0; 
+            color: #FFFFFF; 
+            position: relative; 
+            left: -100%; 
+            height: 100%; 
+            width: 200%; 
+            transform: translateX(0); 
+            transition: transform 0.6s ease-in-out; 
+        }
         .container.right-panel-active .overlay { transform: translateX(50%); }
         .overlay-panel { position: absolute; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 40px; text-align: center; top: 0; height: 100%; width: 50%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
         .overlay-left { transform: translateX(-20%); left: 0; }

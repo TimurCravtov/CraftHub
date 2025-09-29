@@ -44,7 +44,7 @@ export function AuthApiProvider({ children }) {
 
     const api = useMemo(() => {
         const instance = axios.create({
-            baseURL: 'http://localhost:8080/',
+            baseURL: 'https://localhost:8443/',
             withCredentials: true,
         });
 

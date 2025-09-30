@@ -28,18 +28,19 @@ export default function Liked() {
         {likes.length === 0 ? (
           <div className="text-center text-slate-600 py-16">No liked items yet.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-            {likes.map((p) => (
-              <ProductCard
-                key={p.id}
-                id={p.id}
-                title={p.title}
-                sellerName={p.sellerName}
-                price={p.price}
-                imageUrl={safeUrl(p.imageUrl)}
-                shopId={p.shopId}
-              />
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            {likes.map((p) => {
+              const product = {
+                id: p.id,
+                title: p.title,
+                description: p.description || '',
+                price: p.price,
+                imageLinks: [p.imageUrl ? safeUrl(p.imageUrl) : 'https://source.unsplash.com/featured/800x600?handmade'],
+                shop: p.shopId ? { id: p.shopId, name: p.sellerName || '' } : undefined,
+              }
+
+              return <ProductCard key={product.id} product={product} />
+            })}
           </div>
         )}
       </div>

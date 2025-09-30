@@ -114,7 +114,8 @@ public class CloudflareImageService implements ImageService {
 
     @Override
     public String getPermanentLink(String imageId) {
-        return String.format("%s/%s/%s", endpoint, bucket, imageId);
+//        return String.format("%s/%s/%s", endpoint, bucket, imageId);
+        return getSignedLink(imageId, Duration.ofDays(7));
     }
 
     @Override

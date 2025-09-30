@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 import { authService } from '../services/authService'
 import { useSecurityContext } from '../context/securityContext.jsx'
+import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
@@ -11,6 +12,7 @@ export default function Login() {
   })
   const navigate = useNavigate()
   const { sanitizeInput, validateInput } = useSecurityContext()
+  const { login } = useAuthApi()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -30,16 +32,9 @@ export default function Login() {
 
       const data = await response.json()
       
-      // Store auth data in localStorage
-      localStorage.setItem('auth', JSON.stringify({
-        accessToken: data.accessToken || data.token,
-        token: data.accessToken || data.token,
-        user: data.user || {
-          name: data.name,
-          email: data.email,
-          accountType: data.accountType || data.role
-        }
-      }))
+      // Use provider login to persist and update context
+      const userObj = data.user || { name: data.name, email: data.email, accountType: data.accountType || data.role }
+      login(data.accessToken || data.token, userObj)
 
       navigate('/account')
     } catch (error) {

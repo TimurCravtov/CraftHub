@@ -4,39 +4,18 @@ import ProductCard from '../component/ProductCard.jsx'
 import { useRef, useEffect, useMemo, useState } from 'react'
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { safeUrl } from '../utils/sanitize.js'
-import { useTranslation } from '../context/translationContext.jsx' // Import the useTranslation hook
+import { useTranslation } from '../context/translationContext.jsx'
+import {useAuthApi} from "../context/apiAuthContext.jsx"; // Import the useTranslation hook
 
-const shops = [
-  { id: 1, name: "Luna's Ceramics", image: "/assets/modern-plant-store-interior.jpg", logo: "/assets/react.svg", rating: 4.9, reviews: 87, description: 'Handcrafted pottery & ceramic art pieces', artisan: 'Luna Martinez', category: 'Ceramics' },
-  { id: 2, name: 'Silversmith Studio', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.8, reviews: 124, description: 'Custom jewelry & metalwork creations', artisan: 'Alex Chen', category: 'Jewelry' },
-  { id: 3, name: 'Woven Dreams', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.7, reviews: 156, description: 'Hand-woven textiles & fiber art', artisan: 'Maya Patel', category: 'Textiles' },
-  { id: 4, name: 'Woodcraft Atelier', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.9, reviews: 92, description: 'Artisan furniture & wooden sculptures', artisan: 'David Kim', category: 'Woodwork' },
-  { id: 5, name: 'Glass & Light', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.6, reviews: 78, description: 'Blown glass art & lighting fixtures', artisan: 'Sofia Rodriguez', category: 'Glass' },
-  { id: 6, name: 'Leather & Stitch', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.8, reviews: 134, description: 'Handcrafted leather goods & accessories', artisan: 'James Wilson', category: 'Leather' },
-  { id: 7, name: 'Paper Trails', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.5, reviews: 58, description: 'Handcrafted paper goods & stationery', artisan: 'Elena Popa', category: 'Paper' },
-  { id: 8, name: 'Stone & Soul', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.7, reviews: 73, description: 'Stone carvings & decor', artisan: 'Radu Ionescu', category: 'Stone' },
-  { id: 9, name: 'Printed Dreams', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.4, reviews: 41, description: 'Art prints & posters', artisan: 'Ana Dumitrescu', category: 'Prints' },
-  { id: 10, name: 'Wicker Wonders', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.6, reviews: 66, description: 'Baskets & woven homeware', artisan: 'Bogdan Marin', category: 'Baskets' },
-  { id: 11, name: 'Candle Co.', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.8, reviews: 102, description: 'Hand-poured candles', artisan: 'Ioana Petrescu', category: 'Candles' },
-  { id: 12, name: 'Botanical Art', image: '/assets/modern-plant-store-interior.jpg', logo: '/assets/react.svg', rating: 4.7, reviews: 89, description: 'Botanical illustrations', artisan: 'Mihai Georgescu', category: 'Art' },
-]
 
 export default function Home() {
   const { t } = useTranslation() // Use the translation hook
   const featuredRef = useRef(null)
   const [activeCategory, setActiveCategory] = useState('All')
   const navigate = useNavigate()
+  const {api} = useAuthApi()
 
-  const recent = [
-    { id: 1, title: 'Minimalist Table', sellerName: 'Andrei\'s Shop', price: 20, imageUrl: 'https://images.unsplash.com/photo-1505691723518-36a5ac3be353', category: 'Furniture' },
-    { id: 2, title: 'Handmade Vase', sellerName: 'Maria Handmade', price: 35, imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4', category: 'Ceramics' },
-    { id: 3, title: 'Wooden Chair', sellerName: 'Crafts by Ion', price: 50, imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc', category: 'Furniture' },
-    { id: 4, title: 'Ceramic Cup', sellerName: 'Luna\'s Ceramics', price: 12, imageUrl: 'https://images.unsplash.com/photo-1503602642458-232111445657', category: 'Ceramics' },
-    { id: 5, title: 'Macrame Wall', sellerName: 'Woven Dreams', price: 28, imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4', category: 'Textiles' },
-    { id: 6, title: 'Leather Wallet', sellerName: 'Leather & Stitch', price: 22, imageUrl: 'https://images.unsplash.com/photo-1511381939415-c1a43ea3a07b', category: 'Leather' },
-    { id: 7, title: 'Glass Pendant', sellerName: 'Glass & Light', price: 42, imageUrl: 'https://images.unsplash.com/photo-1492724441997-5dc865305da7', category: 'Glass' },
-    { id: 8, title: 'Silver Ring', sellerName: 'Silversmith Studio', price: 39, imageUrl: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3', category: 'Jewelry' }
-  ]
+  const [products, setProducts] = useState([])
 
   const categories = useMemo(() => [
     'All',
@@ -54,8 +33,15 @@ export default function Home() {
     'Baskets',
     'Candles'
   ], [])
-  const filteredRecent = useMemo(() => activeCategory === 'All' ? recent : recent.filter(r => r.category === activeCategory), [activeCategory, recent])
-  const filteredShops = useMemo(() => activeCategory === 'All' ? shops : shops.filter(s => s.category === activeCategory), [activeCategory])
+  // derive recently added items from real products state
+  const filteredRecent = useMemo(() => {
+    if (!products || products.length === 0) return []
+    if (activeCategory === 'All') return products.slice(0, 8)
+    return products.filter(p => (p.category || '').toString() === activeCategory)
+  }, [activeCategory, products])
+  const [shops, setShops] = useState([])
+
+  const filteredShops = useMemo(() => activeCategory === 'All' ? shops : shops.filter(s => (s.category || '').toString() === activeCategory), [activeCategory, shops])
   const [shopsPage, setShopsPage] = useState(0)
   const shopsPerPage = 6
   const pagedShops = useMemo(() => {
@@ -69,16 +55,19 @@ export default function Home() {
     setShopsPage(0)
   }, [activeCategory])
 
-  const featured = [
-    { id: 'f1', title: t('featured'), subtitle: 'Timeless ceramics', image: '/assets/modern-plant-store-interior.jpg', category: 'Ceramics' },
-    { id: 'f2', title: t('featured'), subtitle: 'Minimal furniture', image: '/assets/modern-plant-store-interior.jpg', category: 'Furniture' },
-    { id: 'f3', title: t('featured'), subtitle: 'Under 25 lei', image: '/assets/modern-plant-store-interior.jpg', category: 'Candles' },
-    { id: 'f4', title: t('featured'), subtitle: 'Botanical prints', image: '/assets/modern-plant-store-interior.jpg', category: 'Art' },
-    { id: 'f5', title: t('featured'), subtitle: 'Handmade jewelry', image: '/assets/modern-plant-store-interior.jpg', category: 'Jewelry' },
-    { id: 'f6', title: t('featured'), subtitle: 'Cozy weaves', image: '/assets/modern-plant-store-interior.jpg', category: 'Textiles' }
-  ]
+  // featured carousel derived from newest products
+  const featured = useMemo(() => {
+    if (!products || products.length === 0) return []
+    return products.slice(0, 6).map((p) => ({
+      id: p.id ? `f-${p.id}` : `f-${Math.random().toString(36).slice(2, 7)}`,
+      title: p.title || t('featured'),
+      subtitle: (p.description && p.description.slice(0, 80)) || '',
+      image: (p.imageLinks && p.imageLinks[0]) || '/assets/modern-plant-store-interior.jpg',
+      category: p.category || 'All',
+    }))
+  }, [products, t])
 
-  const filteredFeatured = useMemo(() => activeCategory === 'All' ? featured : featured.filter(f => f.category === activeCategory), [activeCategory])
+  const filteredFeatured = useMemo(() => activeCategory === 'All' ? featured : featured.filter(f => f.category === activeCategory), [activeCategory, featured])
 
   function scrollFeatured(direction) {
     const container = featuredRef.current
@@ -89,6 +78,31 @@ export default function Home() {
 
   // Auto-scroll featured horizontally in an endless loop (pause on hover)
   useEffect(() => {
+
+
+    async function loadProducts() {
+      try {
+        const res = await api.get("api/products/findall")
+        console.log(res.data) // <- now it's correct
+        setProducts(res.data) // if you want to store them in state
+      } catch (err) {
+        console.error("Failed to fetch products:", err)
+      }
+    }
+
+    async function loadShops() {
+      try {
+        const res = await api.get("api/shops/")
+        console.log(res.data) // <- now it's correct
+        setShops(res.data) // if you want to store them in state
+      } catch (err) {
+        console.error("Failed to fetch shops:", err)
+      }
+    }
+
+    loadProducts()
+    loadShops()
+
     const container = featuredRef.current
     if (!container) return
     let animationFrameId
@@ -182,17 +196,19 @@ export default function Home() {
               <h2 className="text-xl font-semibold">{t('recentlyAdded')}</h2> {/* Use t for section title */}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-              {filteredRecent.map((p) => (
-                  <ProductCard
-                      key={p.id}
-                      id={p.id}
-                      title={p.title}
-                      sellerName={p.sellerName}
-                      price={p.price}
-                      imageUrl={p.imageUrl}
-                      shopId={p.shopId}
-                  />
-              ))}
+
+        {products.map((p) => {
+          const product = {
+            id: p.id,
+            title: p.title,
+            description: p.description || '',
+            price: p.price,
+            imageLinks: p.imageLinks || ['https://source.unsplash.com/featured/800x600?handmade'],
+            shop: p.shopId ? { id: p.shopId, name: p.sellerName || '' } : undefined,
+          }
+
+          return <ProductCard key={product.id} product={product} />
+        })}
             </div>
           </div>
 
@@ -203,56 +219,69 @@ export default function Home() {
             </div>
             <div className="relative mt-4">
               <div className="relative">
-                <div className="mx-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {pagedShops.map((s) => (
-                      <div key={s.id} className="relative w-full bg-white rounded-2xl overflow-hidden border">
-                        <div className="relative h-48">
-                          <img src={safeUrl(s.image)} alt={s.name} className="w-full h-full object-cover" />
+                <div className="mx-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {pagedShops.map((s) => (
+                      <a key={s.id} href={`/shops/${s.id}`} className="group block w-full bg-white rounded-2xl overflow-hidden border hover:shadow-lg transition-shadow">
+                        <div className="relative h-48 bg-slate-100">
+                          <img src={safeUrl(s.image)} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                         </div>
                         <div className="p-4">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-semibold text-gray-900 truncate">{s.name}</h3>
-                            <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(s.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                              ))}
-                              <span className="text-xs text-gray-600">{s.rating}</span>
+                          <div className="flex items-center gap-3">
+                            <img src={safeUrl(s.logo || '/assets/react.svg')} alt={`${s.name} logo`} className="h-10 w-10 rounded-full object-cover border" />
+                            <div className="flex-1">
+                              <h3 className="text-sm font-semibold text-gray-900 truncate">{s.name}</h3>
+                              <p className="text-xs text-gray-500 truncate">{s.description || s.artisan}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="flex -space-x-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star key={i} className={`h-4 w-4 ${i < Math.floor(s.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+                                ))}
+                              </div>
+                              <span className="text-xs text-gray-600">{s.rating?.toFixed?.(1) ?? s.rating}</span>
                             </div>
                           </div>
-                          <p className="text-xs text-gray-500 truncate">by {s.artisan}</p>
                         </div>
-                      </div>
-                  ))}
-                </div>
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-between">
-                  <button
-                      aria-label="Prev shops"
-                      onClick={() => setShopsPage((p) => Math.max(0, p - 1))}
-                      className="pointer-events-auto -ml-4 p-3 rounded-full bg-white border shadow hover:bg-slate-50 disabled:opacity-40"
-                      disabled={shopsPage === 0}
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                      aria-label="Next shops"
-                      onClick={() => setShopsPage((p) => Math.min(totalShopPages - 1, p + 1))}
-                      className="pointer-events-auto -mr-4 p-3 rounded-full bg-white border shadow hover:bg-slate-50 disabled:opacity-40"
-                      disabled={shopsPage >= totalShopPages - 1}
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
+                      </a>
+                    ))}
+                  </div>
+
+                  {/* Controls (outside grid) */}
+                  <div className="mt-6 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <button
+                        aria-label="Prev shops"
+                        onClick={() => setShopsPage((p) => Math.max(0, p - 1))}
+                        className="p-2 rounded-full bg-white border shadow hover:bg-slate-50 disabled:opacity-40"
+                        disabled={shopsPage === 0}
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        aria-label="Next shops"
+                        onClick={() => setShopsPage((p) => Math.min(totalShopPages - 1, p + 1))}
+                        className="p-2 rounded-full bg-white border shadow hover:bg-slate-50 disabled:opacity-40"
+                        disabled={shopsPage >= totalShopPages - 1}
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2">
+                      {Array.from({ length: totalShopPages }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setShopsPage(i)}
+                          className={`h-2.5 w-2.5 rounded-full transition-colors ${i === shopsPage ? 'bg-blue-600' : 'bg-slate-300 hover:bg-slate-400'}`}
+                          aria-label={`Go to page ${i + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="mt-6 flex items-center justify-center gap-2">
-                {Array.from({ length: totalShopPages }).map((_, i) => (
-                    <button
-                        key={i}
-                        onClick={() => setShopsPage(i)}
-                        className={`h-2.5 w-2.5 rounded-full transition-colors ${i === shopsPage ? 'bg-blue-600' : 'bg-slate-300 hover:bg-slate-400'}`}
-                        aria-label={`Go to page ${i + 1}`}
-                    />
-                ))}
-              </div>
+              
             </div>
           </div>
 

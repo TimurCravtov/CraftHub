@@ -6,7 +6,11 @@ import { useCart } from '../cartContext.jsx'
 import { useToast } from '../toastContext.jsx'
 import { escapeText, safeUrl } from '../utils/sanitize.js'
 
-export default function ProductCard({ id, title, sellerName, price, imageUrl, shopId }) {
+export default function ProductCard({ product }) {
+    const { id, title, price, imageLinks, shop } = product || {}
+    const imageUrl = (imageLinks && imageLinks.length > 0) ? imageLinks[0] : null
+    const sellerName = shop?.name || ''
+
     const { isLiked, toggleLike } = useLikes()
     const liked = isLiked(id)
     const { addToCart, items } = useCart()
@@ -16,8 +20,12 @@ export default function ProductCard({ id, title, sellerName, price, imageUrl, sh
     const navigate = useNavigate()
 
     const handleCardClick = () => {
+        const shopId = shop?.id
         if (shopId) {
             navigate(`/product/${shopId}/${id}`)
+        } else {
+            // fallback to product page using product id only
+            navigate(`/product/unknown/${id}`)
         }
     }
 
@@ -36,7 +44,7 @@ export default function ProductCard({ id, title, sellerName, price, imageUrl, sh
 
                 {/* Floating Heart */}
                 <div className="absolute top-2 right-2">
-                    <button onClick={(e) => { e.stopPropagation(); toggleLike({ id, title, sellerName, price, imageUrl }) }} className={`flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm transition-all duration-300 shadow opacity-70 hover:scale-110 ${liked ? 'text-pink-600' : 'text-pink-500 hover:text-pink-700 hover:bg-white/90'}`}>
+                    <button onClick={(e) => { e.stopPropagation(); toggleLike(product) }} className={`flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm transition-all duration-300 shadow opacity-70 hover:scale-110 ${liked ? 'text-pink-600' : 'text-pink-500 hover:text-pink-700 hover:bg-white/90'}`}>
                         <Heart className={`w-4 h-4 ${liked ? 'fill-pink-600' : ''}`} />
                     </button>
                 </div>
@@ -53,7 +61,7 @@ export default function ProductCard({ id, title, sellerName, price, imageUrl, sh
                     <button
                         onClick={() => {
                             const wasInCart = inCart
-                            addToCart({ id, title, sellerName, price, imageUrl }, 1, { allowIncrement: false })
+                            addToCart(product, 1, { allowIncrement: false })
                             setJustAdded(true)
                             showToast(wasInCart ? 'Item already in cart' : 'Added to cart', 'success', 5000, {
                                 actionLabel: wasInCart ? undefined : 'Undo',

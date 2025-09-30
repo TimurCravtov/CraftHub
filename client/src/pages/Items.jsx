@@ -156,17 +156,20 @@ export default function Items() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                    {visibleProducts.map((product) => (
-                        <ProductCard
-                            key={product.id}
-                            id={product.id}
-                            title={product.title}
-                            sellerName={product.sellerName}
-                            price={product.price}
-                            imageUrl={safeUrl(product.imageUrl)}
-                            shopId={product.shopId}
-                        />
-                    ))}
+                    {visibleProducts.map((p) => {
+                        const product = {
+                            id: p.id,
+                            title: p.title,
+                            description: p.description || '',
+                            price: p.price,
+                            imageLinks: [p.imageUrl ? safeUrl(p.imageUrl) : 'https://source.unsplash.com/featured/800x600?handmade'],
+                            shop: p.shopId ? { id: p.shopId, name: p.sellerName || '' } : undefined,
+                        }
+
+                        return (
+                            <ProductCard key={product.id} product={product} />
+                        )
+                    })}
                 </div>
             </div>
         </div>

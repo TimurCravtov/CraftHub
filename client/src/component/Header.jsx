@@ -13,7 +13,6 @@ export default function Header() {
   const searchInputRef = useRef(null)
   const searchPopupRef = useRef(null)
   const {user, setUser, login, logout, getMe} = useAuthApi()
-
   function getSellerFromJwt() {
     try {
       const authRaw = localStorage.getItem('auth')
@@ -40,36 +39,6 @@ export default function Header() {
       return false
     }
   })()
-
-  useEffect(() => {
-    // Initialize user from localStorage on component mount
-    const initializeUser = async () => {
-      try {
-        const authData = localStorage.getItem('auth');
-        if (authData) {
-          const auth = JSON.parse(authData);
-          const token = auth?.accessToken || auth?.token;
-          
-          if (token) {
-            // Set the token in the auth context
-            login(token, auth.user);
-            
-            // Try to get fresh user data from the server
-            try {
-              await getMe(token);
-            } catch (error) {
-              console.error('Failed to fetch user data:', error);
-              // Keep the user data from localStorage as fallback
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error initializing user:', error);
-      }
-    };
-
-    initializeUser();
-  }, [])
 
   const isSearchablePage = location.pathname === '/shops' || location.pathname === '/items'
 

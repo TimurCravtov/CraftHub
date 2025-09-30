@@ -10,7 +10,7 @@ const OAuthCallback = () => {
   const { provider } = useParams();
 
   const navigate = useNavigate();
-  const { api , getMe } = useAuthApi();
+  const { api , getMe, login } = useAuthApi();
 
 
   useEffect(() => {
@@ -20,18 +20,17 @@ const OAuthCallback = () => {
     if (code) {
       api.post(`api/oauth/${provider}`, { code }, {noAuth: true})
           .then(async res => {
-            const {accessToken, refreshToken} = res.data;
-            localStorage.setItem("accessToken", accessToken);
-            // localStorage.setItem("refreshToken", refreshToken);
-            const me = await getMe(accessToken);
-            console.log(me);
+            const {accessToken, refreshToken, user: userFromRes} = res.data;
+            // persist and update context via login()
+            const userObj = userFromRes || (await getMe(accessToken).catch(() => null));
+            login(accessToken, userObj);
             navigate("/");
           })
           .catch(err => {
             console.error("OAuth failed", err);
           });
     }
-  }, [navigate]);
+  }, [api, provider, navigate, getMe, login]);
 
   return (
       <div className="h-screen flex flex-col justify-center items-center gap-3 bg-dark4back text-notBrightWhite text-lg font-medium">

@@ -26,16 +26,15 @@ export function AuthApiProvider({ children }) {
             // Request new accessToken
             api.post('/api/v1/tokens/refresh', { refreshToken }, {noAuth: true})
                 .then((response) => {
-                    const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-                    // Save new tokens and retry failed request
-                    saveTokens(accessToken, newRefreshToken);
+                    const { accessToken } = response.data;
+                    setAccessToken(accessToken)
+                    setUser(getMe(accessToken));
                     failedRequest.response.config.headers['Authorization'] = `Bearer ${accessToken}`;
                     resolve();
                 })
                 .catch((error) => {
                     console.error('Token refresh failed:', error);
-                    logout(); // Log out user if refresh fails
+                    logout();
                     reject(error);
                 });
         });
@@ -65,11 +64,21 @@ export function AuthApiProvider({ children }) {
     const login = useCallback((token, userData) => {
         setAccessToken(token);
         setUser(userData || null);
+        try {
+            localStorage.setItem('auth', JSON.stringify({ accessToken: token, token: token, user: userData }));
+        } catch (err) {
+            console.warn('Unable to persist auth to localStorage', err);
+        }
     }, []);
 
     const logout = useCallback(() => {
         setAccessToken(null);
         setUser(null);
+        try {
+            localStorage.removeItem('auth');
+        } catch (err) {
+            console.warn('Unable to remove auth from localStorage', err);
+        }
     }, []);
 
     const getMe = useCallback(
@@ -89,6 +98,27 @@ export function AuthApiProvider({ children }) {
         },
         [api]
     );
+
+    // initialize from localStorage so the auth state persists across route changes
+    React.useEffect(() => {
+        try {
+            const raw = localStorage.getItem('auth');
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            const token = parsed?.accessToken || parsed?.token || null;
+            const localUser = parsed?.user || null;
+            if (token) {
+                setAccessToken(token);
+                setUser(localUser);
+                // try to refresh user from server, but don't block
+                getMe(token).catch(() => {
+                    // ignore: we'll keep local user as fallback
+                });
+            }
+        } catch (err) {
+            console.error('Failed to initialize auth from localStorage', err);
+        }
+    }, [getMe]);
 
 
     const value = useMemo(() => ({

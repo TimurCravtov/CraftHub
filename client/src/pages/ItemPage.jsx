@@ -18,7 +18,7 @@ export default function ItemPage() {
     const shopId = routeShopId || params.get('shopId')
     const shopName = params.get('shopName')
     const titleParam = params.get('title')
-
+    const {api} = useAuthApi()
     // Prepare fetching by seller or title when backend is ready
     useEffect(() => {
         let mounted = true
@@ -26,9 +26,10 @@ export default function ItemPage() {
             try {
                 let data = []
                 if (shopId) {
-                    const res = await fetch(`http://localhost:8080/api/products/by-shop/${shopId}`)
-                if (!res.ok) throw new Error('Failed to fetch products by shop ID')
-                data = await res.json()
+
+                    const res = api.get(`api/products/by-shop/${shopId}`)
+                    if (!res.ok) throw new Error('Failed to fetch products by shop ID')
+                data = await res.data
                 } else if (titleParam) {
                     data = await productsApi.searchByTitle(titleParam)
                 } else {
@@ -159,16 +160,17 @@ export default function ItemPage() {
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                    {visibleProducts.map((product) => (
-                        <ProductCard
-                            key={product.id}
-                            id={product.id}
-                            title={product.title}
-                            price={product.price}
-                            imageUrl={safeUrl(product.imageUrl)}
-                            shopId={product.shopId}
-                        />
-                    ))}
+                    {visibleProducts.map((p) => {
+                        const product = {
+                            id: p.id,
+                            title: p.title,
+                            description: p.description || '',
+                            price: p.price,
+                            imageLinks: [p.imageUrl ? safeUrl(p.imageUrl) : 'https://source.unsplash.com/featured/800x600?craft'],
+                            shop: p.shopId ? { id: p.shopId, name: shopName || '' } : undefined,
+                        }
+                        return <ProductCard key={product.id} product={product} />
+                    })}
                 </div>
             </div>
         </div>

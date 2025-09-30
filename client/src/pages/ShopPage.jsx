@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 import { Star, Heart, Search, ShoppingCart, User, Facebook, Instagram } from 'lucide-react'
+import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 export default function ShopPage() {
   const [activeTab, setActiveTab] = useState('description')
@@ -11,40 +12,50 @@ export default function ShopPage() {
   const [shopDescription, setShopDescription] = useState('')
   const [artisanName, setArtisanName] = useState('')
   const [relatedProducts, setRelatedProducts] = useState([])
+  const { api } = useAuthApi()
 
   useEffect(() => {
     const fetchShopDetails = async () => {
       try {
-        // Fetch shop details by shop ID
-        const shopResponse = await fetch(`http://localhost:8080/api/shops/${id}`)
-        if (!shopResponse.ok) {
-          throw new Error("Failed to fetch shop details")
-        }
-        const shopData = await shopResponse.json()
+        // Fetch shop details by shop ID using unified api client
+        const shopResp = await api.get(`/api/shops/${id}`)
+        const shopData = shopResp?.data || {}
 
-        // Set the shop name and description
-        setShopName(shopData.shopName || shopData.name)
-        setShopDescription(shopData.shopDescription || shopData.description)
+        // Normalize and set shop fields
+        setShopName(shopData.name || shopData.shopName || '')
+        setShopDescription(shopData.description || shopData.shopDescription || '')
 
-        // Fetch artisan details using the user_id from the shop data
-        const userResponse = await fetch(`http://localhost:8080/api/users/${shopData.user_id}`)
-        if (!userResponse.ok) {
-          throw new Error("Failed to fetch artisan details")
+        // If shop has user_id or owner id, fetch user details
+        const userId = shopData.user_id || shopData.ownerId || shopData.userId
+        if (userId) {
+          try {
+            const userResp = await api.get(`/api/users/${userId}`)
+            const userData = userResp?.data || {}
+            setArtisanName(userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim())
+          } catch (uErr) {
+            // not fatal
+            console.warn('Failed to fetch user for shop', uErr)
+          }
         }
-        const userData = await userResponse.json()
 
-        // Set the artisan's name
-        setArtisanName(userData.name)
-        
-        // Fetch related products
-        const productsResponse = await fetch(`http://localhost:8080/api/products/by-shop/${id}`)
-        if (!productsResponse.ok) {
-          throw new Error("Failed to fetch related products")
+        // Fetch related products for the shop
+        try {
+          const prodResp = await api.get(`/api/products/by-shop/${id}`)
+          const prodData = prodResp?.data || []
+          // normalize product shape to ensure image/price exist
+          const normalized = (Array.isArray(prodData) ? prodData : []).map(p => ({
+            id: p.id,
+            title: p.title || p.name || 'Untitled',
+            description: p.description || p.shortDescription || '',
+            price: p.price ?? p.cost ?? 0,
+            image: (p.imageLinks && p.imageLinks[0]) || p.image || p.imageUrl || 'https://source.unsplash.com/featured/800x600?craft',
+          }))
+          setRelatedProducts(normalized)
+        } catch (pErr) {
+          console.warn('Failed to fetch products for shop', pErr)
         }
-        const productsData = await productsResponse.json()
-        setRelatedProducts(productsData)
       } catch (error) {
-        console.error("Error fetching data:", error)
+        console.error('Error fetching shop details:', error)
       }
     }
 

@@ -14,12 +14,15 @@ public class UserMapper {
     private final ImageService imageService;
 
     public UserDto toDTO(UserEntity user) {
+
+        String profilePictureLink = user.getProfilePictureKey() == null ? null : imageService.getPermanentLink(user.getProfilePictureKey());
+
         return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .provider(user.getProvider())
-                .profilePictureLink(imageService.getPermanentLink(user.getProfilePictureKey()))
+                .profilePictureLink(profilePictureLink)
                 .build();
     }
 

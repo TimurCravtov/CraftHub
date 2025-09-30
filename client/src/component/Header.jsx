@@ -68,6 +68,11 @@ export default function Header() {
   }
 
   useEffect(() => {
+
+    if (localStorage.getItem('user')) {
+      setUser(localStorage.getItem("user"))
+    }
+
     if (location.pathname === '/shops' && location.hash === '#search') {
       setIsSearchOpen(true)
       navigate('/shops', { replace: true })

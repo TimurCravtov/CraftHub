@@ -15,8 +15,8 @@ import java.util.List;
 public class ShopDto {
     private Long id;
     private String name;
-    private String shopBannerImageKey;
-    private String shopImageKey;
+    private String shopBannerImageUrl;
+    private String shopImageUrl;
     private String description;
     private List<ProductDto> products;
     private Long userId;

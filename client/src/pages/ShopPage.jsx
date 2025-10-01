@@ -18,7 +18,7 @@ export default function ShopPage() {
     const fetchShopDetails = async () => {
       try {
         // Fetch shop details by shop ID using unified api client
-        const shopResp = await api.get(`/api/shops/${id}`)
+        const shopResp = await api.get(`/api/shops/${id}`, {noAuth: true})
         const shopData = shopResp?.data || {}
 
         // Normalize and set shop fields
@@ -40,7 +40,7 @@ export default function ShopPage() {
 
         // Fetch related products for the shop
         try {
-          const prodResp = await api.get(`/api/products/by-shop/${id}`)
+          const prodResp = await api.get(`/api/products/by-shop/${id}`, {noAuth: true})
           const prodData = prodResp?.data || []
           // normalize product shape to ensure image/price exist
           const normalized = (Array.isArray(prodData) ? prodData : []).map(p => ({

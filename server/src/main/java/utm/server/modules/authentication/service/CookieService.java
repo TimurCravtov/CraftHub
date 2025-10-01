@@ -15,7 +15,7 @@ public class CookieService {
 
         // Manually set SameSite attribute via Set-Cookie header
         String cookieValue = String.format(
-                "refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=Strict",
+                "refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
                 refreshToken,
                 7 * 24 * 60 * 60);
         response.setHeader("Set-Cookie", cookieValue);

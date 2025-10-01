@@ -1,52 +1,57 @@
-import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
-import axios from 'axios';
-import createAuthRefreshInterceptor from 'axios-auth-refresh';
+import React, {
+    createContext,
+    useContext,
+    useMemo,
+    useState,
+    useCallback,
+    useEffect,
+} from "react";
+import axios from "axios";
+import createAuthRefreshInterceptor from "axios-auth-refresh";
 
 const AuthApiContext = createContext(null);
 
 export function AuthApiProvider({ children }) {
-    const [accessToken, setAccessToken] = useState(null);
+    const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [user, setUser] = useState(null);
 
-
     /**
-     * This should be edited to handle cookeis
-     * @param failedRequest
-     * @returns {Promise<unknown>}
+     * Refresh access token using secure HttpOnly cookie
+     * (refresh token lives in cookie, not in JS)
      */
-    const refreshAccessToken = (failedRequest) => {
-        return new Promise((resolve, reject) => {
-            const refreshToken = localStorage.getItem('refreshToken'); // Get latest refreshToken
-            if (!refreshToken) {
-                logout(); // No refresh token, logout user
-                reject(new Error('No refresh token available'));
-                return;
+    const refreshAccessToken = useCallback(
+        async (failedRequest = "null") => {
+            try {
+                const res = await api.post(
+                    "/api/auth/refresh",
+                    {},
+                    { withCredentials: true, noAuth: true }
+                );
+
+                const { accessToken } = res.data;
+                setAccessToken(accessToken);
+
+                // attach new token to the failed request
+                failedRequest.response.config.headers[
+                    "Authorization"
+                    ] = `Bearer ${accessToken}`;
+
+                // refresh user profile silently
+                // getMe(accessToken).catch(() => {});
+            } catch (err) {
+                console.error("Token refresh failed:", err);
+                logout();
+                throw err;
             }
-
-            // Request new accessToken
-            api.post('/api/v1/tokens/refresh', { refreshToken }, {noAuth: true})
-                .then((response) => {
-                    const { accessToken } = response.data;
-                    setAccessToken(accessToken)
-                    setUser(getMe(accessToken));
-                    failedRequest.response.config.headers['Authorization'] = `Bearer ${accessToken}`;
-                    resolve();
-                })
-                .catch((error) => {
-                    console.error('Token refresh failed:', error);
-                    logout();
-                    reject(error);
-                });
-        });
-    };
-
+        },
+        []
+    );
 
     const api = useMemo(() => {
         const instance = axios.create({
-            baseURL: 'https://localhost:8443/',
-            withCredentials: true,
+            baseURL: "https://localhost:8443/",
+            withCredentials: true, // send cookies automatically
         });
-
 
         instance.interceptors.request.use((config) => {
             if (!config.noAuth && accessToken) {
@@ -59,78 +64,86 @@ export function AuthApiProvider({ children }) {
         return instance;
     }, [accessToken]);
 
+    // set up refresh interceptor
     createAuthRefreshInterceptor(api, refreshAccessToken);
 
-    const login = useCallback((token, userData) => {
-        setAccessToken(token);
-        setUser(userData || null);
+    /**
+     * Login: server should set refresh token in secure cookie,
+     * we only keep the access token in memory.
+     */
+    const login = useCallback(async (credentials) => {
         try {
-            localStorage.setItem('auth', JSON.stringify({ accessToken: token, token: token, user: userData }));
-        } catch (err) {
-            console.warn('Unable to persist auth to localStorage', err);
-        }
-    }, []);
+            const res = await api.post("/api/v1/auth/login", credentials, {
+                noAuth: true,
+            });
 
-    const logout = useCallback(() => {
+            const { accessToken, user } = res.data;
+            setAccessToken(accessToken);
+            setUser(user);
+            return user;
+        } catch (err) {
+            console.error("Login failed", err);
+            throw err;
+        }
+    }, [api]);
+
+    /**
+     * Logout: clear memory + tell backend to clear cookie
+     */
+    const logout = useCallback(async () => {
+        try {
+            await api.post("/api/auth/logout", {}, { noAuth: true });
+        } catch (err) {
+            console.warn("Logout request failed", err);
+        }
         setAccessToken(null);
         setUser(null);
-        try {
-            localStorage.removeItem('auth');
-        } catch (err) {
-            console.warn('Unable to remove auth from localStorage', err);
-        }
-    }, []);
+    }, [api]);
 
+    /**
+     * Get current user profile
+     */
     const getMe = useCallback(
-        async (token) => { // optional token parameter
+        async (token) => {
             try {
                 const headers = {
-                    ...(token ? { Authorization: `Bearer ${token}` } : {}), // add Authorization if token exists
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 };
 
-                const res = await api.get('api/users/me', { headers });
+                const res = await api.get("/api/users/me", { headers });
                 setUser(res.data);
                 return res.data;
             } catch (err) {
-                console.error('getMe failed', err);
+                console.error("getMe failed", err);
                 throw err;
             }
         },
         [api]
     );
 
-    // initialize from localStorage so the auth state persists across route changes
-    React.useEffect(() => {
-        try {
-            const raw = localStorage.getItem('auth');
-            if (!raw) return;
-            const parsed = JSON.parse(raw);
-            const token = parsed?.accessToken || parsed?.token || null;
-            const localUser = parsed?.user || null;
-            if (token) {
-                setAccessToken(token);
-                setUser(localUser);
-                // try to refresh user from server, but don't block
-                getMe(token).catch(() => {
-                    // ignore: we'll keep local user as fallback
-                });
-            }
-        } catch (err) {
-            console.error('Failed to initialize auth from localStorage', err);
-        }
-    }, [getMe]);
+    /**
+     * On mount: try to fetch new access token
+     * using refresh token from HttpOnly cookie
+     */
+    useEffect(() => {
+        refreshAccessToken().catch(() => {
+            // not logged in or refresh failed
+        });
+    }, [refreshAccessToken]);
 
-
-    const value = useMemo(() => ({
-        api,
-        accessToken,
-        user,
-        login,
-        setUser,
-        logout,
-        isAuthenticated: !!accessToken,
-        getMe,
-    }), [api, accessToken, user, login, logout, getMe, setUser]);
+    const value = useMemo(
+        () => ({
+            api,
+            accessToken,
+            user,
+            login,
+            setUser,
+            logout,
+            isAuthenticated: !!accessToken,
+            getMe,
+        }),
+        [api, accessToken, user, login, logout, getMe]
+    );
 
     return (
         <AuthApiContext.Provider value={value}>
@@ -163,7 +176,7 @@ export function useAuthUser() {
         : {
             accessToken: null,
             user: null,
-            login: () => {},
+            login: async () => {},
             logout: () => {},
             isAuthenticated: false,
             getMe: async () => null,

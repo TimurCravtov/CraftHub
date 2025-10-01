@@ -33,55 +33,25 @@ export default function Settings() {
 
   // Fetch user data on component mount
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserData = async (token) => {
+      setLoading(true);
       try {
-        let token = null;
-        const authData = localStorage.getItem("auth");
-        const userData = localStorage.getItem("user");
-
-        if (authData) {
-          const parsed = JSON.parse(authData);
-          token = parsed.token || parsed.accessToken;
-        } else if (userData) {
-          const parsed = JSON.parse(userData);
-          token = parsed.token || parsed.accessToken;
-        }
-
-        if (!token) {
-          navigate("/signup");
-          return;
-        }
-
-        const response = await fetch("https://localhost:8443/api/users/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const res = await api.get("/api/users/me", {
         });
 
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-          setForm({
-            currentPassword: "",
-            newPassword: "",
-            newEmail: userData.email || "",
-            newName: userData.name || "",
-            role: userData.accountType || userData.role || "buyer",
-          });
-        } else {
-          console.error("Failed to fetch user data");
-          const localUser = JSON.parse(localStorage.getItem("user")) || {};
-          setUser(localUser);
-          setForm({
-            currentPassword: "",
-            newPassword: "",
-            newEmail: localUser.email || "",
-            newName: localUser.name || "",
-            role: localUser.accountType || localUser.role || "buyer",
-          });
-        }
+        const userData = res.data;
+
+        setUser(userData);
+        setForm({
+          currentPassword: "",
+          newPassword: "",
+          newEmail: userData.email || "",
+          newName: userData.name || "",
+          role: userData.accountType || userData.role || "buyer",
+        });
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Failed to fetch user data:", error);
+
         const localUser = JSON.parse(localStorage.getItem("user")) || {};
         setUser(localUser);
         setForm({
@@ -96,7 +66,7 @@ export default function Settings() {
       }
     };
 
-    fetchUserData();
+    fetchUserData(localStorage.getItem("accessToken"));
   }, [navigate]);
 
   const handleChange = (e) => {

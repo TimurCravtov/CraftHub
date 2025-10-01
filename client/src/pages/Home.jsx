@@ -82,7 +82,7 @@ export default function Home() {
 
     async function loadProducts() {
       try {
-        const res = await api.get("api/products/findall")
+        const res = await api.get("api/products/findall", {noAuth: true})
         console.log(res.data) // <- now it's correct
         setProducts(res.data) // if you want to store them in state
       } catch (err) {
@@ -92,7 +92,7 @@ export default function Home() {
 
     async function loadShops() {
       try {
-        const res = await api.get("api/shops/")
+        const res = await api.get("api/shops/", {noAuth: true})
         console.log(res.data) // <- now it's correct
         setShops(res.data) // if you want to store them in state
       } catch (err) {

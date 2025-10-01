@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import utm.server.modules.order.dto.OrderCreateRequest;
 import utm.server.modules.order.dto.OrderResponseDTO;
 import utm.server.modules.users.UserEntity;
+import utm.server.modules.users.security.UserSecurityPrincipal;
+import utm.server.modules.users.security.UserSecurityPrincipalMapper;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final UserSecurityPrincipalMapper userSecurityPrincipalMapper;
 
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> getUserOrders(@AuthenticationPrincipal UserEntity user) {
@@ -45,13 +48,15 @@ public class OrderController {
 
     @PostMapping("/create")
     public ResponseEntity<OrderResponseDTO> createOrderFromCart(@RequestBody OrderCreateRequest request,
-            @AuthenticationPrincipal UserEntity user) {
+            @AuthenticationPrincipal UserSecurityPrincipal user) {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         try {
-            OrderResponseDTO order = orderService.createOrderFromCart(request, user);
+
+            UserEntity realUser = userSecurityPrincipalMapper.getUser(user);
+            OrderResponseDTO order = orderService.createOrderFromCart(request, realUser);
             return ResponseEntity.status(HttpStatus.CREATED).body(order);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().build();

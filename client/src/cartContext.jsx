@@ -45,6 +45,7 @@ export function CartProvider({ children }) {
     })
   }
 
+
   function removeFromCart(id) {
     setItems(prev => prev.filter(p => p.id !== id))
   }

@@ -1,9 +1,18 @@
 import Header from '../component/Header.jsx'
 import { useCart } from '../cartContext.jsx'
+import {useAuthApi} from "../context/apiAuthContext.jsx";
+import {useNavigate} from "react-router-dom";
 
 export default function Checkout() {
   const { items, subtotal } = useCart()
   const formatted = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
+  const navigate = useNavigate()
+  const {api} = useAuthApi();
+  const handleOrderButton = () => {
+        // items.clear()
+      // api.post("/api/orders/create")
+      navigate("/")
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -87,7 +96,7 @@ export default function Checkout() {
               <p className="leading-relaxed"></p>
               <label className="flex items-center gap-2"><input type="radio" name="pay" /> Cash</label>
             </div>
-            <button className="w-full rounded-lg bg-gray-900 text-white py-2 hover:bg-gray-800">Place order</button>
+            <button onClick={handleOrderButton} className="w-full rounded-lg bg-gray-900 text-white py-2 hover:bg-gray-800">Place order</button>
           </div>
         </div>
       </div>

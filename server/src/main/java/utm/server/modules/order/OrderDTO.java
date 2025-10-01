@@ -8,5 +8,4 @@ public class OrderDTO {
     private double total;
     private Status status;
     private Long userId;
-
 }

@@ -65,8 +65,6 @@ public class AuthController {
         }
     }
 
-
-
     @PostMapping("/me/enable-2fa")
     public ResponseEntity<?> enableTwoFactorAuthentication(
             @RequestHeader("Authorization") String authHeader) {
@@ -94,6 +92,22 @@ public class AuthController {
             authService.confirmTwoFactorAuthentication(userId, code);
 
             return ResponseEntity.ok(Map.of("message", "2FA successfully enabled"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/me/disable-2fa")
+    public ResponseEntity<?> disableTwoFactorAuthentication(
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            Long userId = authService.getUserIdFromToken(token);
+
+            authService.disableTwoFactorAuthentication(userId);
+
+            return ResponseEntity.ok(Map.of("message", "2FA successfully disabled"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));

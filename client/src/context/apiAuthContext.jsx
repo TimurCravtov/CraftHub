@@ -138,12 +138,39 @@ export function AuthApiProvider({ children }) {
             const { accessToken, user } = res.data;
             setAccessToken(accessToken);
             setUser(user);
+            
+            // Persist to localStorage
+            localStorage.setItem("auth", JSON.stringify({
+                accessToken,
+                token: accessToken,
+                name: user.name,
+                email: user.email,
+                accountType: user.accountType
+            }));
+            
             return user;
         } catch (err) {
             console.error("Login failed", err);
             throw err;
         }
     }, [api]);
+
+    /**
+     * OAuth Login: directly set token and user (tokens already obtained from backend)
+     */
+    const loginWithToken = useCallback((token, userData) => {
+        setAccessToken(token);
+        setUser(userData);
+        
+        // Persist to localStorage
+        localStorage.setItem("auth", JSON.stringify({
+            accessToken: token,
+            token: token,
+            name: userData?.name,
+            email: userData?.email,
+            accountType: userData?.accountType
+        }));
+    }, []);
 
     /**
      * Logout: clear memory + tell backend to clear cookie
@@ -188,13 +215,14 @@ export function AuthApiProvider({ children }) {
             accessToken,
             user,
             login,
+            loginWithToken,
             setUser,
             setAccessToken,
             logout,
             isAuthenticated: !!accessToken,
             getMe,
         }),
-        [api, accessToken, user, login, logout, getMe]
+        [api, accessToken, user, login, loginWithToken, logout, getMe]
     );
 
     return (

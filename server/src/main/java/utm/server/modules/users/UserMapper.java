@@ -15,7 +15,8 @@ public class UserMapper {
 
     public UserDto toDTO(UserEntity user) {
 
-        String profilePictureLink = user.getProfilePictureKey() == null ? null : imageService.getPermanentLink(user.getProfilePictureKey());
+        String profilePictureLink = user.getProfilePictureKey() == null ? null
+                : imageService.getPermanentLink(user.getProfilePictureKey());
 
         return UserDto.builder()
                 .id(user.getId())
@@ -23,6 +24,8 @@ public class UserMapper {
                 .email(user.getEmail())
                 .provider(user.getProvider())
                 .profilePictureLink(profilePictureLink)
+                .accountType(user.getAccountType())
+                .twoFactorEnabled(user.isTwoFactorEnabled())
                 .build();
     }
 

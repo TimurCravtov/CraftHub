@@ -32,8 +32,7 @@ public class OAuthService {
             RestOperations restTemplate,
             ObjectMapper objectMapper,
             AuthService authService,
-            JwtService jwtService
-    ) {
+            JwtService jwtService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.authService = authService;
@@ -49,8 +48,7 @@ public class OAuthService {
         ResponseEntity<String> tokenResp = restTemplate.postForEntity(
                 config.getTokenUrl(),
                 config.buildTokenRequest(code),
-                String.class
-        );
+                String.class);
 
         String accessToken = extractAccessToken(tokenResp.getBody());
 
@@ -64,13 +62,42 @@ public class OAuthService {
                 config.getUserInfoUrl(),
                 HttpMethod.GET,
                 entity,
-                String.class
-        );
+                String.class);
 
         OAuthUser oAuthUser = config.extractUserData(objectMapper.readTree(userResp.getBody()));
         UserEntity user = authService.createOrGetUser(oAuthUser);
 
+        // Check if 2FA is enabled for this user
+        if (user.isTwoFactorEnabled()) {
+            // Create a custom exception that carries user info
+            TwoFactorRequiredException twoFactorException = new TwoFactorRequiredException(
+                    "2FA verification required",
+                    user.getEmail(),
+                    provider.name());
+            throw twoFactorException;
+        }
+
         return jwtService.getJwtTokenPair(user);
+    }
+
+    // Custom exception to carry user info for 2FA
+    public static class TwoFactorRequiredException extends RuntimeException {
+        private final String email;
+        private final String provider;
+
+        public TwoFactorRequiredException(String message, String email, String provider) {
+            super(message);
+            this.email = email;
+            this.provider = provider;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public String getProvider() {
+            return provider;
+        }
     }
 
     private String extractAccessToken(String body) {

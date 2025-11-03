@@ -41,8 +41,7 @@ public class AuthService {
         PasswordValidationResult validationResult = passwordValidator.validate(
                 request.getPassword(),
                 request.getEmail(),
-                request.getName()
-        );
+                request.getName());
 
         if (!validationResult.isValid()) {
             throw new WeakPasswordException(request.getPassword(), validationResult.getErrors());
@@ -179,6 +178,49 @@ public class AuthService {
 
     public JwtTokenPair verifyTwoFactorSignIn(Long userId, String code) {
         return verifyTwoFactorCode(userId, code); // reutilizare cod
+    }
+
+    public void disableTwoFactorAuthentication(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.isTwoFactorEnabled()) {
+            throw new RuntimeException("2FA is not enabled");
+        }
+
+        user.setTwoFactorEnabled(false);
+        user.setTwoFactorSecret(null);
+        user.setTempTwoFactorSecret(null);
+        userRepository.save(user);
+    }
+
+    public JwtTokenPair verifyTwoFactorForOAuth(String email, String provider, String code) {
+        // Find user by email and provider
+        UserEntity user = userRepository
+                .findByProviderAndProviderId(
+                        AuthProvider.valueOf(provider.toUpperCase()),
+                        null // We need to query by email for OAuth users
+                )
+                .orElse(null);
+
+        // Fallback: search by email if provider ID lookup fails
+        if (user == null) {
+            user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        }
+
+        if (!user.isTwoFactorEnabled() || user.getTwoFactorSecret() == null) {
+            throw new RuntimeException("2FA not enabled for this user");
+        }
+
+        GoogleAuthenticator gAuth = new GoogleAuthenticator();
+        boolean isCodeValid = gAuth.authorize(user.getTwoFactorSecret(), Integer.parseInt(code));
+
+        if (!isCodeValid) {
+            throw new RuntimeException("Invalid 2FA code");
+        }
+
+        return jwtService.getJwtTokenPair(user);
     }
 
     public UserEntity updateUser(Long userId, UpdateUserDTO request) {

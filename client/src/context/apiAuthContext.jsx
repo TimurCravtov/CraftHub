@@ -49,23 +49,47 @@ export function AuthApiProvider({ children }) {
 
     const api = useMemo(() => {
         const instance = axios.create({
-            baseURL: "https://localhost:8443/",
+            baseURL: "https://localhost:8443",  // Removed trailing slash
             withCredentials: true, // send cookies automatically
+            timeout: 10000, // 10 second timeout
         });
 
         instance.interceptors.request.use((config) => {
+            console.log('Making request to:', config.baseURL + config.url);
             if (!config.noAuth && accessToken) {
                 config.headers = config.headers || {};
                 config.headers.Authorization = `Bearer ${accessToken}`;
             }
             return config;
+        }, (error) => {
+            console.error('Request interceptor error:', error);
+            return Promise.reject(error);
+        });
+
+        instance.interceptors.response.use(
+            (response) => {
+                console.log('Response received:', response.status);
+                return response;
+            },
+            (error) => {
+                console.error('Response error:', error);
+                console.error('Error config:', error.config);
+                console.error('Error response:', error.response);
+                return Promise.reject(error);
+            }
+        );
+
+        // Set up refresh interceptor inside useMemo - but skip it for noAuth requests
+        createAuthRefreshInterceptor(instance, refreshAccessToken, {
+            statusCodes: [401],
+            skipAuthRefresh: (failedRequest) => {
+                // Skip refresh for requests marked as noAuth
+                return failedRequest?.config?.noAuth === true;
+            }
         });
 
         return instance;
-    }, [accessToken]);
-
-    // set up refresh interceptor
-    createAuthRefreshInterceptor(api, refreshAccessToken);
+    }, [accessToken, refreshAccessToken]);
 
     /**
      * Login: server should set refresh token in secure cookie,
@@ -138,6 +162,7 @@ export function AuthApiProvider({ children }) {
             user,
             login,
             setUser,
+            setAccessToken,
             logout,
             isAuthenticated: !!accessToken,
             getMe,

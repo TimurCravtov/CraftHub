@@ -12,39 +12,44 @@ export default function Login() {
   })
   const navigate = useNavigate()
   const { sanitizeInput, validateInput } = useSecurityContext()
-  const { login } = useAuthApi()
+  const { api, setUser, setAccessToken } = useAuthApi()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch('http://localhost:8080/api/auth/signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(errorText || 'Login failed')
-      }
-
-      const data = await response.json()
+      console.log('Attempting login with:', { email: credentials.email })
+      console.log('API base URL:', api.defaults.baseURL)
       
-      // Use provider login to persist and update context
+      const response = await api.post('/api/auth/signin', credentials, { noAuth: true })
+      console.log('Login response:', response)
+      const data = response.data
+      
+      // Store token and update context
+      const token = data.accessToken || data.token
       const userObj = data.user || { name: data.name, email: data.email, accountType: data.accountType || data.role }
-      login(data.accessToken || data.token, userObj)
+      
+      // Store in localStorage for backward compatibility
+      localStorage.setItem('auth', JSON.stringify({ 
+        accessToken: token,
+        token: token,
+        ...userObj 
+      }))
+      
+      // Update context state
+      setAccessToken(token)
+      setUser(userObj)
 
       navigate('/account')
     } catch (error) {
-      console.error('Login failed:', error)
-      alert(error.message || 'Login failed. Please check your credentials.')
+      console.error('Login error details:', error)
+      console.error('Error response:', error.response)
+      console.error('Error message:', error.message)
+      alert(error.response?.data?.message || error.message || 'Login failed. Please check your credentials.')
     }
   }
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorization/google'
+    window.location.href = 'https://localhost:8443/oauth2/authorization/google'
   }
 
   return (

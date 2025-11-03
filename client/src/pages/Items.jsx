@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { safeUrl } from '../utils/sanitize.js'
 import { productsApi } from '../utils/productsApi.js'
+import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 export default function Items() {
     const [products, setProducts] = useState([])
@@ -12,22 +13,22 @@ export default function Items() {
     const [sortBy, setSortBy] = useState('Default')
     const location = useLocation()
     const fromShops = useMemo(() => new URLSearchParams(location.search).get('from') === 'shops', [location.search])
+    const { api } = useAuthApi()
 
     useEffect(() => {
         let mounted = true
         ;(async () => {
             try {
-                const productsResponse = await fetch("http://localhost:8080/api/products/findall")
-                if (!productsResponse.ok) throw new Error("Failed to fetch products")
-                const data = await productsResponse.json()
+                const productsResponse = await api.get("/api/products/findall")
+                const data = productsResponse.data
 
                 const validProducts = data.filter(product => product.shop_id !== null)
                 const productsWithShops = await Promise.all(
                     
                 validProducts.map(async (product) => {
                 const id = BigInt(product.shop_id)
-                const shopResponse = await fetch(`http://localhost:8080/api/shops/${id}`)
-                const shopData = await shopResponse.json()
+                const shopResponse = await api.get(`/api/shops/${id}`)
+                const shopData = shopResponse.data
                 product.sellerName = shopData.name  
                 product.shopId = product.shop_id
                 return product

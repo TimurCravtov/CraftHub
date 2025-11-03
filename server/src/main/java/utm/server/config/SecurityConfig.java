@@ -37,17 +37,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                        "/api/auth/login",
-                        "/api/auth/signup",
-                        "/api/auth/signin",
-                        "/api/auth/refresh",
-                        "/oauth2/**",
-                        "/login/oauth2/code/**",
-                        "/error",
-                        "/favicon.ico",
-                        "/",
-                        "/api/products/findall"
-                        ).permitAll() // DONT FORGET TO ADD SECURITY
+                                "/api/auth/login",
+                                "/api/auth/signup",
+                                "/api/auth/signin",
+                                "/api/auth/refresh",
+                                "/oauth2/**",
+                                "/login/oauth2/code/**",
+                                "/error",
+                                "/favicon.ico",
+                                "/",
+                                "/api/products/findall")
+                        .permitAll() // DONT FORGET TO ADD SECURITY
                         .anyRequest().permitAll())
 
                 .exceptionHandling(ex -> ex
@@ -71,11 +71,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(clientBaseUrl));
+        config.setAllowedOriginPatterns(List.of("https://localhost:*", "http://localhost:*", clientBaseUrl));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

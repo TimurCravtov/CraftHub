@@ -12,36 +12,67 @@ import createAuthRefreshInterceptor from "axios-auth-refresh";
 const AuthApiContext = createContext(null);
 
 export function AuthApiProvider({ children }) {
-    const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
-    const [user, setUser] = useState(null);
+    // Initialize from localStorage
+    const [accessToken, setAccessToken] = useState(() => {
+        try {
+            const auth = JSON.parse(localStorage.getItem("auth") || "{}");
+            return auth.accessToken || auth.token || null;
+        } catch {
+            return null;
+        }
+    });
+    const [user, setUser] = useState(() => {
+        try {
+            const auth = JSON.parse(localStorage.getItem("auth") || "{}");
+            if (auth.name || auth.email) {
+                return { name: auth.name, email: auth.email, accountType: auth.accountType };
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    });
+
+    // Create a ref to store the API instance so we can use it in refreshAccessToken
+    const apiRef = React.useRef(null);
 
     /**
      * Refresh access token using secure HttpOnly cookie
      * (refresh token lives in cookie, not in JS)
      */
     const refreshAccessToken = useCallback(
-        async (failedRequest = "null") => {
+        async (failedRequest) => {
             try {
-                const res = await api.post(
-                    "/api/auth/refresh",
+                console.log("Attempting to refresh token...");
+                const res = await axios.post(
+                    "https://localhost:8443/api/auth/refresh",
                     {},
-                    { withCredentials: true, noAuth: true }
+                    { withCredentials: true }
                 );
 
-                const { accessToken } = res.data;
-                setAccessToken(accessToken);
+                const { accessToken: newToken } = res.data;
+                console.log("Token refreshed successfully");
+                setAccessToken(newToken);
+                
+                // Update localStorage
+                const auth = JSON.parse(localStorage.getItem("auth") || "{}");
+                auth.accessToken = newToken;
+                auth.token = newToken;
+                localStorage.setItem("auth", JSON.stringify(auth));
 
-                // attach new token to the failed request
-                failedRequest.response.config.headers[
-                    "Authorization"
-                    ] = `Bearer ${accessToken}`;
-
-                // refresh user profile silently
-                // getMe(accessToken).catch(() => {});
+                // attach new token to the failed request if provided
+                if (failedRequest && failedRequest.response) {
+                    failedRequest.response.config.headers["Authorization"] = `Bearer ${newToken}`;
+                }
+                
+                return Promise.resolve();
             } catch (err) {
                 console.error("Token refresh failed:", err);
-                logout();
-                throw err;
+                // Clear everything on refresh failure
+                setAccessToken(null);
+                setUser(null);
+                localStorage.removeItem("auth");
+                return Promise.reject(err);
             }
         },
         []
@@ -88,6 +119,9 @@ export function AuthApiProvider({ children }) {
             }
         });
 
+        // Store in ref for use in refreshAccessToken
+        apiRef.current = instance;
+
         return instance;
     }, [accessToken, refreshAccessToken]);
 
@@ -122,6 +156,7 @@ export function AuthApiProvider({ children }) {
         }
         setAccessToken(null);
         setUser(null);
+        localStorage.removeItem("auth");
     }, [api]);
 
     /**
@@ -145,15 +180,7 @@ export function AuthApiProvider({ children }) {
         [api]
     );
 
-    /**
-     * On mount: try to fetch new access token
-     * using refresh token from HttpOnly cookie
-     */
-    useEffect(() => {
-        refreshAccessToken().catch(() => {
-            // not logged in or refresh failed
-        });
-    }, [refreshAccessToken]);
+    // Don't try to refresh on mount - let the interceptor handle it when needed
 
     const value = useMemo(
         () => ({

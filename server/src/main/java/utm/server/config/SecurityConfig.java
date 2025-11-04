@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import utm.server.modules.jwt.JwtAuthenticationFilter;
+import utm.server.modules.security.RateLimitFilter;
 
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class SecurityConfig {
     private String clientBaseUrl;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final RateLimitFilter rateLimitFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -58,7 +61,9 @@ public class SecurityConfig {
                         }))
 
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }

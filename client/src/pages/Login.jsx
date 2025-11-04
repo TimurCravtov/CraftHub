@@ -10,42 +10,152 @@ export default function Login() {
     email: '',
     password: ''
   })
+  const [twoFactorRequired, setTwoFactorRequired] = useState(false)
+  const [twoFactorData, setTwoFactorData] = useState(null)
+  const [twoFactorCode, setTwoFactorCode] = useState('')
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [error, setError] = useState('')
+  
   const navigate = useNavigate()
   const { sanitizeInput, validateInput } = useSecurityContext()
-  const { api, setUser, setAccessToken } = useAuthApi()
+  const { api, loginWithToken, getMe } = useAuthApi()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
     try {
-      console.log('Attempting login with:', { email: credentials.email })
-      console.log('API base URL:', api.defaults.baseURL)
+      console.log('🔵 Attempting login with:', { email: credentials.email })
+      console.log('🔵 API base URL:', api.defaults.baseURL)
       
       const response = await api.post('/api/auth/signin', credentials, { noAuth: true })
-      console.log('Login response:', response)
+      console.log('✅ Login response:', response)
+      
+      // Check if 2FA is required
+      if (response.status === 202 && response.data.twoFactorRequired) {
+        setTwoFactorRequired(true)
+        setTwoFactorData({
+          userId: response.data.userId,
+          email: response.data.email
+        })
+        return
+      }
+      
       const data = response.data
-      
-      // Store token and update context
       const token = data.accessToken || data.token
-      const userObj = data.user || { name: data.name, email: data.email, accountType: data.accountType || data.role }
+      console.log('🔵 Token received:', token ? 'Yes' : 'No')
       
-      // Store in localStorage for backward compatibility
-      localStorage.setItem('auth', JSON.stringify({ 
-        accessToken: token,
-        token: token,
-        ...userObj 
-      }))
-      
-      // Update context state
-      setAccessToken(token)
-      setUser(userObj)
+      // Fetch user data with the new token
+      try {
+        console.log('🔵 Calling getMe with token...')
+        const userObj = await getMe(token)
+        console.log('✅ User data fetched:', userObj)
+        // Now set both token and user data
+        loginWithToken(token, userObj)
+        console.log('✅ loginWithToken called with user data')
+      } catch (err) {
+        console.error('❌ Failed to fetch user data:', err)
+        // Even if fetching user fails, still login with token
+        loginWithToken(token, null)
+        console.log('⚠️ loginWithToken called without user data')
+      }
 
       navigate('/account')
     } catch (error) {
       console.error('Login error details:', error)
       console.error('Error response:', error.response)
       console.error('Error message:', error.message)
-      alert(error.response?.data?.message || error.message || 'Login failed. Please check your credentials.')
+      setError(error.response?.data?.message || error.message || 'Login failed. Please check your credentials.')
     }
+  }
+
+  const handleTwoFactorSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setIsVerifying(true)
+
+    try {
+      const res = await api.post('/api/auth/verify-2fa', {
+        userId: twoFactorData.userId.toString(),
+        code: twoFactorCode
+      }, { noAuth: true })
+
+      const { accessToken } = res.data
+      
+      // Fetch user data with the new token
+      try {
+        const userObj = await getMe(accessToken)
+        console.log('✅ User data fetched after 2FA:', userObj)
+        loginWithToken(accessToken, userObj)
+      } catch (err) {
+        console.error('❌ Failed to fetch user data after 2FA:', err)
+        loginWithToken(accessToken, null)
+      }
+      
+      navigate('/account')
+    } catch (err) {
+      console.error('2FA verification failed', err)
+      setError(err.response?.data?.error || 'Invalid 2FA code. Please try again.')
+    } finally {
+      setIsVerifying(false)
+    }
+  }
+
+  if (twoFactorRequired) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen flex items-center justify-center bg-white px-4">
+          <div className="bg-white border border-gray-200 p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4 text-center text-black">Two-Factor Authentication</h2>
+            <p className="text-gray-600 mb-6 text-center">
+              Enter the 6-digit code from your authenticator app
+            </p>
+            
+            <form onSubmit={handleTwoFactorSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength="6"
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-center text-2xl tracking-widest focus:outline-none focus:border-blue-500 text-black"
+                  autoFocus
+                />
+              </div>
+
+              {error && (
+                <div className="text-red-500 text-sm text-center">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={twoFactorCode.length !== 6 || isVerifying}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg font-medium transition-colors text-white"
+              >
+                {isVerifying ? "Verifying..." : "Verify"}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  setTwoFactorRequired(false)
+                  setTwoFactorCode('')
+                  setError('')
+                }}
+                className="w-full py-2 text-gray-600 hover:text-black transition-colors"
+              >
+                Back to login
+              </button>
+            </form>
+          </div>
+        </div>
+      </>
+    )
   }
 
   const handleGoogleLogin = () => {

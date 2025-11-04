@@ -12,32 +12,35 @@ export default function Login() {
   })
   const navigate = useNavigate()
   const { sanitizeInput, validateInput } = useSecurityContext()
-  const { api, setUser, setAccessToken } = useAuthApi()
+  const { api, loginWithToken, getMe } = useAuthApi()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      console.log('Attempting login with:', { email: credentials.email })
-      console.log('API base URL:', api.defaults.baseURL)
+      console.log('🔵 Attempting login with:', { email: credentials.email })
+      console.log('🔵 API base URL:', api.defaults.baseURL)
       
       const response = await api.post('/api/auth/signin', credentials, { noAuth: true })
-      console.log('Login response:', response)
+      console.log('✅ Login response:', response)
+      
       const data = response.data
-      
-      // Store token and update context
       const token = data.accessToken || data.token
-      const userObj = data.user || { name: data.name, email: data.email, accountType: data.accountType || data.role }
+      console.log('🔵 Token received:', token ? 'Yes' : 'No')
       
-      // Store in localStorage for backward compatibility
-      localStorage.setItem('auth', JSON.stringify({ 
-        accessToken: token,
-        token: token,
-        ...userObj 
-      }))
-      
-      // Update context state
-      setAccessToken(token)
-      setUser(userObj)
+      // Fetch user data with the new token
+      try {
+        console.log('🔵 Calling getMe with token...')
+        const userObj = await getMe(token)
+        console.log('✅ User data fetched:', userObj)
+        // Now set both token and user data
+        loginWithToken(token, userObj)
+        console.log('✅ loginWithToken called with user data')
+      } catch (err) {
+        console.error('❌ Failed to fetch user data:', err)
+        // Even if fetching user fails, still login with token
+        loginWithToken(token, null)
+        console.log('⚠️ loginWithToken called without user data')
+      }
 
       navigate('/account')
     } catch (error) {

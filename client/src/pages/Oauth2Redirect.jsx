@@ -36,8 +36,22 @@ const OAuthCallback = () => {
             } else {
               // Normal login flow
               const {accessToken, refreshToken, user: userFromRes} = res.data;
-              const userObj = userFromRes || (await getMe(accessToken).catch(() => null));
-              loginWithToken(accessToken, userObj);
+              
+              if (userFromRes) {
+                // User data already provided
+                loginWithToken(accessToken, userFromRes);
+              } else {
+                // Fetch user data
+                try {
+                  const userObj = await getMe(accessToken);
+                  console.log('✅ User data fetched after OAuth');
+                  loginWithToken(accessToken, userObj);
+                } catch (err) {
+                  console.error('❌ Failed to fetch user data after OAuth:', err);
+                  loginWithToken(accessToken, null);
+                }
+              }
+              
               navigate("/");
             }
           })
@@ -61,8 +75,22 @@ const OAuthCallback = () => {
       }, { noAuth: true });
 
       const { accessToken, user: userFromRes } = res.data;
-      const userObj = userFromRes || (await getMe(accessToken).catch(() => null));
-      loginWithToken(accessToken, userObj);
+      
+      if (userFromRes) {
+        // User data already provided
+        loginWithToken(accessToken, userFromRes);
+      } else {
+        // Fetch user data
+        try {
+          const userObj = await getMe(accessToken);
+          console.log('✅ User data fetched after OAuth 2FA');
+          loginWithToken(accessToken, userObj);
+        } catch (err) {
+          console.error('❌ Failed to fetch user data after OAuth 2FA:', err);
+          loginWithToken(accessToken, null);
+        }
+      }
+      
       navigate("/");
     } catch (err) {
       console.error("2FA verification failed", err);

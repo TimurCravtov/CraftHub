@@ -9,7 +9,7 @@ export default function Signup() {
     const [errors, setErrors] = useState({ name: "", email: "", password: "" });
     const [passwordTouched, setPasswordTouched] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const {setUser, getMe} = useAuthApi()
+    const {setUser, getMe, api, loginWithToken} = useAuthApi()
     const [loginData, setLoginData] = useState({ email: "", password: "" });
     const [loginSubmitting, setLoginSubmitting] = useState(false);
     const [loginError, setLoginError] = useState("");
@@ -150,34 +150,34 @@ export default function Signup() {
 
         setIsSubmitting(true);
         try {
-            const res = await fetch("https://localhost:8443/api/auth/signup", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...signupData }),
-            });
-            if (!res.ok) {
-                const text = await res.text().catch(() => "Signup failed");
-                throw new Error(text || "Signup failed");
+            console.log('🔵 [Signup.jsx] Attempting signup...');
+            
+            const res = await api.post('/api/auth/signup', signupData, { noAuth: true });
+            console.log('✅ [Signup.jsx] Signup response:', res);
+            
+            const data = res.data;
+            const token = data.accessToken || data.token;
+            console.log('🔵 [Signup.jsx] Token received from signup:', token ? 'Yes' : 'No');
+
+            // Fetch user data with the new token
+            try {
+                console.log('🔵 [Signup.jsx] Calling getMe after signup...');
+                const userObj = await getMe(token);
+                console.log('✅ [Signup.jsx] User data fetched after signup:', userObj);
+                // Now set both token and user data
+                loginWithToken(token, userObj);
+                console.log('✅ [Signup.jsx] loginWithToken called with user data after signup');
+            } catch (err) {
+                console.error('❌ [Signup.jsx] Failed to fetch user data after signup:', err);
+                // Even if fetching user fails, still login with token
+                loginWithToken(token, null);
+                console.log('⚠️ [Signup.jsx] loginWithToken called without user data after signup');
             }
-            const data = await res.json();
-
-            localStorage.setItem(
-                "user",
-                JSON.stringify({
-                    name: signupData.name,
-                    email: signupData.email,
-                    accountType: signupData.accountType,
-                    token: data.accessToken ?? null,
-                })
-            );
-
-            setUser(getMe(data.accessToken));
-
 
             navigate("/");
         } catch (err) {
             console.error("Signup error:", err);
-            alert(typeof err === "string" ? err : err.message || "Error while signing up");
+            alert(err.response?.data?.message || err.message || "Error while signing up");
         } finally {
             setIsSubmitting(false);
         }
@@ -189,39 +189,42 @@ export default function Signup() {
         setLoginSubmitting(true);
 
         try {
-            const res = await fetch("https://localhost:8443/api/auth/signin", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(loginData),
-            });
-            if (!res.ok) {
-                const text = await res.text().catch(() => "Login failed");
-                throw new Error(text || "Login failed");
-            }
-            const data = await res.json();
+            console.log('🔵 [Signup.jsx] Attempting login with:', { email: loginData.email });
+            
+            const res = await api.post('/api/auth/signin', loginData, { noAuth: true });
+            console.log('✅ [Signup.jsx] Login response:', res);
 
-            if (data.requires2FA) {
+            // Check if 2FA is required
+            if (res.status === 202 && res.data.twoFactorRequired) {
+                console.log('🔵 [Signup.jsx] 2FA required');
                 setTwoFactorRequired(true);
-                setPendingUserId(data.userId);
+                setPendingUserId(res.data.userId);
                 return;
             }
 
-            if (res.ok) {
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify({
-                        email: loginData.email,
-                        role: data.role,
-                        token: data.accessToken ?? null,
-                    })
-                );
-                navigate("/");
-            } else {
-                throw new Error(data || "Login failed");
+            const data = res.data;
+            const token = data.accessToken || data.token;
+            console.log('🔵 [Signup.jsx] Token received:', token ? 'Yes' : 'No');
+
+            // Fetch user data with the new token
+            try {
+                console.log('🔵 [Signup.jsx] Calling getMe with token...');
+                const userObj = await getMe(token);
+                console.log('✅ [Signup.jsx] User data fetched:', userObj);
+                // Now set both token and user data
+                loginWithToken(token, userObj);
+                console.log('✅ [Signup.jsx] loginWithToken called with user data');
+            } catch (err) {
+                console.error('❌ [Signup.jsx] Failed to fetch user data:', err);
+                // Even if fetching user fails, still login with token
+                loginWithToken(token, null);
+                console.log('⚠️ [Signup.jsx] loginWithToken called without user data');
             }
+
+            navigate("/");
         } catch (err) {
             console.error("Login error:", err);
-            setLoginError(err.message || "Error while signing in");
+            setLoginError(err.response?.data?.message || err.message || "Error while signing in");
         } finally {
             setLoginSubmitting(false);
         }
@@ -233,32 +236,37 @@ export default function Signup() {
         setLoginSubmitting(true);
 
         try {
-            const res = await fetch("https://localhost:8443/api/auth/verify-2fa", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: pendingUserId, code: twoFactorCode }),
-            });
+            console.log('🔵 [Signup.jsx] Verifying 2FA...');
+            
+            const res = await api.post('/api/auth/verify-2fa', {
+                userId: pendingUserId.toString(),
+                code: twoFactorCode
+            }, { noAuth: true });
 
-            if (!res.ok) {
-                const text = await res.text().catch(() => "Invalid 2FA code");
-                throw new Error(text || "Invalid 2FA code");
+            console.log('✅ [Signup.jsx] 2FA verification response:', res);
+
+            const { accessToken } = res.data;
+            console.log('🔵 [Signup.jsx] Token received from 2FA:', accessToken ? 'Yes' : 'No');
+
+            // Fetch user data with the new token
+            try {
+                console.log('🔵 [Signup.jsx] Calling getMe after 2FA...');
+                const userObj = await getMe(accessToken);
+                console.log('✅ [Signup.jsx] User data fetched after 2FA:', userObj);
+                // Now set both token and user data
+                loginWithToken(accessToken, userObj);
+                console.log('✅ [Signup.jsx] loginWithToken called with user data after 2FA');
+            } catch (err) {
+                console.error('❌ [Signup.jsx] Failed to fetch user data after 2FA:', err);
+                // Even if fetching user fails, still login with token
+                loginWithToken(accessToken, null);
+                console.log('⚠️ [Signup.jsx] loginWithToken called without user data after 2FA');
             }
-
-            const data = await res.json();
-
-            localStorage.setItem(
-                "user",
-                JSON.stringify({
-                    email: loginData.email,
-                    role: data.role,
-                    token: data.accessToken ?? null,
-                })
-            );
 
             navigate("/");
         } catch (err) {
             console.error("2FA verification error:", err);
-            setLoginError(err.message || "Invalid 2FA code");
+            setLoginError(err.response?.data?.error || err.message || "Invalid 2FA code");
         } finally {
             setLoginSubmitting(false);
         }

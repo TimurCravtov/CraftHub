@@ -28,7 +28,7 @@ export default function Settings() {
 
   const navigate = useNavigate();
   const isSeller = user?.accountType === 'seller' || user?.role === 'seller';
-  const is2FAEnabled = user?.is2FAEnabled || false;
+  const is2FAEnabled = user?.twoFactorEnabled || user?.is2FAEnabled || false;
   const { sanitizeInput, sanitizeFormData } = useSecurityContext();
 
   // Fetch user data on component mount
@@ -168,18 +168,11 @@ export default function Settings() {
     if (is2FAEnabled) {
       try {
         setTwoFALoading(true);
-        const res = await fetch("https://localhost:8443/api/auth/2fa/disable", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user.token}`,
-          },
-          body: JSON.stringify({ currentPassword: form.currentPassword }),
-        });
+        
+        // Use the centralized API client
+        await api.post("api/auth/me/disable-2fa");
 
-        if (!res.ok) throw new Error((await res.text()) || "Failed to disable 2FA");
-
-        const updatedUser = { ...user, is2FAEnabled: false };
+        const updatedUser = { ...user, is2FAEnabled: false, twoFactorEnabled: false };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
         setMessage("✅ 2FA disabled successfully!");
@@ -187,7 +180,7 @@ export default function Settings() {
         setQrCode("");
         setTwoFactorCode("");
       } catch (err) {
-        setMessage("❌ " + (err.message || "Failed to disable 2FA"));
+        setMessage("❌ " + (err.response?.data?.error || err.message || "Failed to disable 2FA"));
       } finally {
         setTwoFALoading(false);
       }
@@ -195,12 +188,8 @@ export default function Settings() {
       try {
         setTwoFALoading(true);
 
-        // Call your API instance with noAuth
-        const res = await api.post("api/auth/me/enable-2fa", {}, {
-          headers: {
-            Authorization : "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNSIsInVzZXJuYW1lIjoiYWRzZGFzIiwiaWF0IjoxNzU5MjYyNjMxLCJleHAiOjE3NTkyNjYyMzF9.QaD371F8uUKyRncFN4-IRKMK0HVuoTkB9jnen99bZ_o"
-          },
-          noAuth: false });
+        // Call your API instance
+        const res = await api.post("api/auth/me/enable-2fa", {});
 
         // Assuming your API wrapper returns { data, status } like Axios
         const { qrCodeUrl } = res.data;
@@ -227,18 +216,12 @@ export default function Settings() {
     try {
       setTwoFALoading(true);
       const sanitizedCode = sanitizeInput(twoFactorCode, '2fa');
-      const res = await fetch("https://localhost:8443/api/auth/2fa/enable", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify({ twoFactorCode: sanitizedCode }),
+      
+      const res = await api.post("api/auth/me/confirm-2fa", { 
+        code: sanitizedCode 
       });
 
-      if (!res.ok) throw new Error((await res.text()) || "Failed to enable 2FA");
-
-      const updatedUser = { ...user, is2FAEnabled: true };
+      const updatedUser = { ...user, is2FAEnabled: true, twoFactorEnabled: true };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
       setMessage("✅ 2FA enabled successfully!");
@@ -246,7 +229,7 @@ export default function Settings() {
       setQrCode("");
       setTwoFactorCode("");
     } catch (err) {
-      setMessage("❌ " + (err.message || "Invalid 2FA code"));
+      setMessage("❌ " + (err.response?.data?.error || err.message || "Invalid 2FA code"));
     } finally {
       setTwoFALoading(false);
     }

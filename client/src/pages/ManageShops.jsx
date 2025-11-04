@@ -1,25 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../component/Header'
+import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 export default function ManageShops() {
   const [shops, setShops] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const { api } = useAuthApi()
 
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/shops/my-shops', {
-          headers: {
-            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth'))?.token}`
-          }
-        })
-
-        if (!response.ok) throw new Error('Failed to fetch shops')
-        
-        const data = await response.json()
-        setShops(data)
+        const response = await api.get('/api/shops/my-shops')
+        setShops(response.data)
       } catch (error) {
         console.error('Error fetching shops:', error)
       } finally {

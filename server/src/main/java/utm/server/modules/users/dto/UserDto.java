@@ -1,6 +1,5 @@
 package utm.server.modules.users.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,4 +18,5 @@ public class UserDto {
     private String profilePictureLink;
     private AccountType accountType;
     private AuthProvider provider;
+    private boolean twoFactorEnabled;
 }

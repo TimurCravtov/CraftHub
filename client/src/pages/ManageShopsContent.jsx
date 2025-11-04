@@ -1,44 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Store } from 'lucide-react'
+import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 export default function ManageShopsContent() {
   const [shops, setShops] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const { api } = useAuthApi()
 
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        // Try to get token from different possible locations
-        let token = null;
-        const authData = localStorage.getItem("auth");
-        const userData = localStorage.getItem("user");
-        
-        if (authData) {
-          const parsed = JSON.parse(authData);
-          token = parsed.token || parsed.accessToken;
-        } else if (userData) {
-          const parsed = JSON.parse(userData);
-          token = parsed.token || parsed.accessToken;
-        }
-
-        if (!token) {
-          console.error('No token found');
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch('http://localhost:8080/api/shops/my-shops', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        
-        if (!response.ok) throw new Error('Failed to fetch shops')
-        
-        const data = await response.json()
-        setShops(data)
+        const response = await api.get('/api/shops/my-shops')
+        setShops(response.data)
       } catch (error) {
         console.error('Error fetching shops:', error)
       } finally {

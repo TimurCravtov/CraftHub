@@ -4,8 +4,10 @@ import AccountHeader from './account/AccountHeader.jsx'
 import BrandingSection from './account/BrandingSection.jsx'
 import AboutShopSection from './account/AboutShopSection.jsx'
 import GallerySection from './account/GallerySection.jsx'
+import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 export default function Account() {
+  const { api } = useAuthApi()
   function isSellerFromJwt() {
     try {
       const authRaw = localStorage.getItem('auth')
@@ -66,32 +68,10 @@ export default function Account() {
       
       if (shopId) {
         try {
-          // Get token for authentication
-          let token = null;
-          const authData = localStorage.getItem("auth");
-          const userData = localStorage.getItem("user");
-          
-          if (authData) {
-            const parsed = JSON.parse(authData);
-            token = parsed.token || parsed.accessToken;
-          } else if (userData) {
-            const parsed = JSON.parse(userData);
-            token = parsed.token || parsed.accessToken;
-          }
+          const response = await api.get(`/api/shops/${shopId}`)
 
-          if (!token) {
-            console.error('No token found for loading shop data');
-            return;
-          }
-
-          const response = await fetch(`http://localhost:8080/api/shops/${shopId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-
-          if (response.ok) {
-            const shopData = await response.json();
+          if (response.data) {
+            const shopData = response.data;
             setForm(prev => ({
               ...prev,
               shopId: shopData.id || shopData.shopId,
@@ -156,24 +136,6 @@ export default function Account() {
   async function handleSubmit(e) {
     e.preventDefault()
     try {
-      // Get token for authentication
-      let token = null;
-      const authData = localStorage.getItem("auth");
-      const userData = localStorage.getItem("user");
-      
-      if (authData) {
-        const parsed = JSON.parse(authData);
-        token = parsed.token || parsed.accessToken;
-      } else if (userData) {
-        const parsed = JSON.parse(userData);
-        token = parsed.token || parsed.accessToken;
-      }
-
-      if (!token) {
-        alert('Please log in to create a shop');
-        return;
-      }
-
       const payload = {
         shopName: form.shopName,
         ownerName: ownerDisplayName,
@@ -186,27 +148,12 @@ export default function Account() {
 
       // Determine if this is a create or update operation
       const isUpdate = form.shopId !== null;
-      const endpoint = isUpdate 
-        ? `http://localhost:8080/api/shops/${form.shopId}`
-        : 'http://localhost:8080/api/shops';
+      const endpoint = `/api/shops${isUpdate ? `/${form.shopId}` : ''}`;
       
-      const method = isUpdate ? 'PUT' : 'POST';
+      const method = isUpdate ? 'put' : 'post';
 
-      const response = await fetch(endpoint, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to ${isUpdate ? 'update' : 'create'} shop: ${errorText}`);
-      }
-
-      const result = await response.json();
+      const response = await api[method](endpoint, payload);
+      const result = response.data;
       
       // Update local state with the returned shop data
       setForm(prev => ({
@@ -325,22 +272,16 @@ export default function Account() {
 
       // Different endpoints for new shop vs existing shop
       const endpoint = shopId 
-        ? `http://localhost:8080/api/shops/${shopId}/products`
-        : 'http://localhost:8080/api/products';
+        ? `/api/shops/${shopId}/products`
+        : '/api/products';
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
+      const response = await api.post(endpoint, formData, {
         headers: {
-          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth'))?.token}`
+          'Content-Type': 'multipart/form-data'
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create product');
-      }
-
-      const newProduct = await response.json();
+      const newProduct = response.data;
 
       // Update local state
       setForm(prev => ({
@@ -386,18 +327,9 @@ export default function Account() {
       
       if (shopId) {
         try {
-          const response = await fetch(
-            `http://localhost:8080/api/shops/${shopId}/products`,
-            {
-              headers: {
-                'Authorization': `Bearer ${JSON.parse(localStorage.getItem('auth'))?.token}`
-              }
-            }
-          );
+          const response = await api.get(`/api/shops/${shopId}/products`);
           
-          if (!response.ok) throw new Error('Failed to fetch shop items');
-          
-          const items = await response.json();
+          const items = response.data;
           setForm(prev => ({
             ...prev,
             shopId,

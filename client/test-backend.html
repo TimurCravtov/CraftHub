@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Connection Test</title>
+</head>
+<body>
+    <h1>Backend Connection Test</h1>
+    <button onclick="testBackend()">Test Backend Connection</button>
+    <pre id="output"></pre>
+
+    <script>
+        async function testBackend() {
+            const output = document.getElementById('output');
+            output.textContent = 'Testing connection to https://localhost:8443...\n';
+
+            try {
+                // Test 1: Simple fetch
+                output.textContent += '\n[Test 1] Using fetch()...\n';
+                const response = await fetch('https://localhost:8443/api/auth/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 't2@example.com',
+                        password: 'password123'
+                    }),
+                    credentials: 'include'
+                });
+                
+                output.textContent += `Status: ${response.status}\n`;
+                const data = await response.json();
+                output.textContent += `Response: ${JSON.stringify(data, null, 2)}\n`;
+                output.textContent += '\n✅ SUCCESS! Backend is reachable!\n';
+                
+            } catch (error) {
+                output.textContent += `\n❌ ERROR: ${error.message}\n`;
+                output.textContent += `Error name: ${error.name}\n`;
+                output.textContent += `Full error: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}\n`;
+                
+                if (error.message.includes('Failed to fetch')) {
+                    output.textContent += `\n⚠️ This is likely a CORS or SSL certificate issue.\n`;
+                    output.textContent += `\nPlease:\n`;
+                    output.textContent += `1. Open https://localhost:8443 in a new tab\n`;
+                    output.textContent += `2. Accept the certificate warning\n`;
+                    output.textContent += `3. Come back and try again\n`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

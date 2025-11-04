@@ -8,6 +8,7 @@ import { useToast } from '../toastContext.jsx'
 import { safeUrl, escapeText } from '../utils/sanitize.js'
 import { productsApi } from '../utils/productsApi.js'
 import { useSecurity } from '../hooks/useSecurity.js'
+import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 
 export default function ProductDetail() {
@@ -17,6 +18,7 @@ export default function ProductDetail() {
     const { addToCart, items } = useCart()
     const { showToast } = useToast()
     const { sanitizeInput } = useSecurity()
+    const { api } = useAuthApi()
     
     const [product, setProduct] = useState(null)
     const [shop, setShop] = useState(null)
@@ -37,11 +39,8 @@ export default function ProductDetail() {
                 const productData = await productsApi.getById(productId)
                 
                 // Fetch shop details
-                const shopResponse = await fetch(`http://localhost:8080/api/shops/${shopId}`)
-                if (!shopResponse.ok) {
-                    throw new Error("Failed to fetch shop details")
-                }
-                const shopData = await shopResponse.json()
+                const shopResponse = await api.get(`/api/shops/${shopId}`)
+                const shopData = shopResponse.data
                 
                 setProduct(productData)
                 setShop(shopData)

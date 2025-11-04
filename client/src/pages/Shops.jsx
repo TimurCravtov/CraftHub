@@ -2,6 +2,7 @@ import { Filter, Grid3X3, List, Heart } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../component/Header.jsx'
+import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 export default function Shops() {
   const navigate = useNavigate()
@@ -11,19 +12,20 @@ export default function Shops() {
 
   const [shops, setShops] = useState([])
   const [loading, setLoading] = useState(true)
+  const { api } = useAuthApi()
 
 
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const shopResponse = await fetch('http://localhost:8080/api/shops/')
-        const shopsData = await shopResponse.json()
+        const shopResponse = await api.get('/api/shops/')
+        const shopsData = shopResponse.data
         
       
         const shopsWithArtisans = await Promise.all(
           shopsData.map(async (shop) => {
-            const userResponse = await fetch(`http://localhost:8080/api/users/${shop.user_id}`)
-            const userData = await userResponse.json()
+            const userResponse = await api.get(`/api/users/${shop.user_id}`)
+            const userData = userResponse.data
             shop.artisan = userData.name  
             return shop
           })

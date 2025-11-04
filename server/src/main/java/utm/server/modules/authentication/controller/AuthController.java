@@ -60,7 +60,20 @@ public class AuthController {
             responseBody.put("accessToken", tokenPair.getAccessToken());
 
             return ResponseEntity.ok(responseBody);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            if ("2FA_REQUIRED".equals(e.getMessage())) {
+                // Find user ID for 2FA verification
+                UserEntity user = userRepository.findByEmail(signInDTO.getEmail())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                return ResponseEntity
+                        .status(HttpStatus.ACCEPTED) // 202 Accepted
+                        .body(Map.of(
+                                "twoFactorRequired", true,
+                                "message", "2FA verification required",
+                                "userId", user.getId(),
+                                "email", user.getEmail()));
+            }
             return ResponseEntity.badRequest().body("Sign in failed: " + e.getMessage());
         }
     }

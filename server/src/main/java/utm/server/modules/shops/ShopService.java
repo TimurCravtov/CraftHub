@@ -46,6 +46,7 @@ public class ShopService {
                 product.setShopEntity(shopEntity);
                 productRepository.save(product);
             }
+
         }
         return savedShop;
     }

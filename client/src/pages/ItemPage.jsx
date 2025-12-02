@@ -77,57 +77,28 @@ export default function ItemPage() {
     const visibleProducts = useMemo(() => filteredProducts.slice(0, itemsToShow), [filteredProducts, itemsToShow])
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="itempage-page futuristic-page-base">
             <Header />
 
-            <div
-                className="relative h-64 bg-cover bg-center"
-                style={{ backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)' }}
-            >
-                <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
-                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
-                    <h1 className="text-4xl font-bold text-white mb-2">Shop Items</h1>
-                    {shopId ? (
-                        <div className="flex items-center space-x-2 text-white/80">
-                            <a href="/" className="hover:text-white">Home</a>
-                            <span>&gt;</span>
-                            <a href="/shops" className="hover:text-white">Shops</a>
-                            <span>&gt;</span>
-                            <span>{shopName ? shopName : `Shop ${shopId}`}</span>
-                            <span>&gt;</span>
-                            <span>Items</span>
-                        </div>
-                    ) : (
-                        <div className="flex items-center space-x-2 text-white/80">
-                            <a href="/" className="hover:text-white">Home</a>
-                            <span>&gt;</span>
-                            <a href="/shops" className="hover:text-white">Shops</a>
-                            <span>&gt;</span>
-                            <span>Items</span>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                    <div className="flex items-center space-x-4">
-                        <button className="inline-flex items-center space-x-2 border rounded px-3 py-1.5 bg-white hover:bg-slate-50">
-                            <Filter className="h-4 w-4" />
+            <div className="page-content itempage-content page-content--no-hero">
+                <div className="page-toolbar itempage-toolbar">
+                    <div className="page-toolbar-left itempage-toolbar-left">
+                        <button className="btn-primary" style={{ gap: '0.5rem' }}>
+                            <Filter className="itempage-filter-icon" />
                             <span>Filter</span>
                         </button>
-                        <div className="flex items-center space-x-2">
-                            <button className="p-2 rounded hover:bg-slate-100"><Grid3X3 className="h-4 w-4" /></button>
-                            <button className="p-2 rounded hover:bg-slate-100"><List className="h-4 w-4" /></button>
+                        <div className="itempage-view-toggle">
+                            <button className="itempage-view-button"><Grid3X3 className="itempage-view-icon" /></button>
+                            <button className="itempage-view-button"><List className="itempage-view-icon" /></button>
                         </div>
-                        <span className="text-sm text-slate-600">{`Showing 1-${Math.min(itemsToShow, products.length)} of ${products.length} items`}</span>
+                        <span className="itempage-summary-text">{`Showing 1-${Math.min(itemsToShow, products.length)} of ${products.length} items`}</span>
                     </div>
 
-                    <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm text-slate-600">Show</span>
+                    <div className="page-toolbar-right itempage-toolbar-right">
+                        <div className="itempage-show-per-page">
+                            <span className="itempage-summary-text">Show</span>
                             <select
-                                className="border rounded px-2 py-1 bg-white"
+                                className="toolbar-select itempage-select"
                                 value={itemsToShow}
                                 onChange={(e) => setItemsToShow(Number(e.target.value))}
                             >
@@ -137,10 +108,10 @@ export default function ItemPage() {
                             </select>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm text-slate-600">Sort by</span>
+                        <div className="itempage-sort-by">
+                            <span className="itempage-summary-text">Sort by</span>
                             <select
-                                className="border rounded px-2 py-1 bg-white"
+                                className="toolbar-select itempage-select"
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                             >
@@ -154,12 +125,12 @@ export default function ItemPage() {
                 </div>
 
                 {!shopId && (
-                    <div className="mt-6 p-4 rounded-md bg-yellow-50 text-yellow-800 text-sm">
+                    <div className="itempage-warning">
                         No shop id detected. Navigate via a shop page (e.g., /shops/5/items) to see that shop's items.
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                <div className="responsive-grid itempage-grid">
                     {visibleProducts.map((p) => {
                         const product = {
                             id: p.id,

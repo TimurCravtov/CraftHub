@@ -129,54 +129,52 @@ export default function Header() {
   }, [isSearchOpen, menuOpen])
 
   return (
-      <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+      <header className="header">
+        <div className="container-2xl header-container">
+          <div className="header-content">
             {/* Logo */}
-            <div className="flex items-center">
-              <a href="/" className="flex items-center space-x-2">
-                <img src="/assets/logo.png" alt="Craft Hub Logo" className="h-8 w-8 object-contain" />
-                <span className="text-xl font-bold bg-gradient-to-r from-[#733c91] to-purple-600 bg-clip-text text-transparent">
+            <div className="header-logo-wrapper">
+              <a href="/" className="header-logo">
+                <img src="/assets/logo.png" alt="Craft Hub Logo" className="header-logo-image" />
+                <span className="header-logo-text">
                 CraftHub
               </span>
               </a>
             </div>
 
             {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="header-nav">
               {[
                 { href: "/", label: "Home" },
                 { href: "/shops", label: "Shops" },
                 { href: "/items", label: "Items" },
-                { href: "/about", label: "About" },
-                { href: "/contact", label: "Contact" },
               ].map(link => (
                   <a
                       key={link.href}
                       href={link.href}
-                      className={`text-sm font-medium ${location.pathname === link.href ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}
+                      className={`header-nav-link ${location.pathname === link.href ? 'header-nav-link--active' : ''}`}
                   >
                     {link.label}
                     {location.pathname === link.href && (
-                        <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
+                        <div className="header-nav-link-indicator" />
                     )}
                   </a>
               ))}
             </nav>
 
             {/* Right side */}
-            <div className="flex items-center space-x-2 relative">
+            <div className="header-actions">
               {/* User Icon + Dropdown */}
-              <div id="user-menu" className="relative">
+              <div id="user-menu" className="header-user-menu">
                 <button
-                    className="p-2 rounded hover:bg-slate-100 flex items-center gap-2"
+                    className="header-icon-button"
                     onClick={handleAccountClick}
                 >
-                  <User className="h-5 w-5" />
+                  <User className="header-icon" />
                   {user && (
-                    <span className="text-sm font-medium">
+                    <span className="header-user-name">
                       Hi, {user.name}{" "}
-                      <span className="text-xs text-slate-500">
+                      <span className="header-user-role">
                         ({user.role || (isSeller ? "seller" : "buyer")})
                       </span>
                     </span>
@@ -184,18 +182,18 @@ export default function Header() {
                 </button>
 
                 {menuOpen && user && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border py-2 z-50">
+                    <div className="header-user-dropdown">
                       <button
                           onClick={() => { navigate("/settings"); setMenuOpen(false) }}
-                          className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-slate-100"
+                          className="header-dropdown-item"
                       >
-                        <Settings className="h-4 w-4" /> Settings
+                        <Settings className="header-dropdown-icon" /> Settings
                       </button>
                       <button
                           onClick={handleLogout}
-                          className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-slate-100"
+                          className="header-dropdown-item header-dropdown-item--danger"
                       >
-                        <LogOut className="h-4 w-4" /> Logout
+                        <LogOut className="header-dropdown-icon" /> Logout
                       </button>
                     </div>
                 )}
@@ -203,26 +201,26 @@ export default function Header() {
 
               {/* Search */}
               <button
-                  className={`p-2 rounded hover:bg-slate-100 ${isSearchOpen ? 'text-blue-600' : ''}`}
+                  className={`header-icon-button ${isSearchOpen ? 'header-icon-button--active' : ''}`}
                   onClick={handleSearchClick}
               >
-                <Search className="h-5 w-5" />
+                <Search className="header-icon" />
               </button>
 
               {/* Favorites */}
               <button
-                  className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/liked' ? 'text-pink-600' : ''}`}
+                  className={`header-icon-button ${location.pathname === '/liked' ? 'header-icon-button--active header-icon-button--pink' : ''}`}
                   onClick={() => navigate('/liked')}
               >
-                <Heart className="h-5 w-5" />
+                <Heart className="header-icon" />
               </button>
 
               {/* Cart */}
               <button
-                  className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/cart' ? 'text-blue-600' : ''}`}
+                  className={`header-icon-button ${location.pathname === '/cart' ? 'header-icon-button--active' : ''}`}
                   onClick={() => navigate('/cart')}
               >
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingCart className="header-icon" />
               </button>
 
               {/* Language Picker */}
@@ -231,26 +229,26 @@ export default function Header() {
 
             {/* Search popup */}
             {isSearchablePage && isSearchOpen && (
-                <div className="fixed top-20 right-8 z-[100] w-[92%] max-w-xl">
-                  <div ref={searchPopupRef} className="p-[1px] rounded-2xl bg-gradient-to-r from-indigo-500/60 via-fuchsia-500/60 to-cyan-500/60 shadow-[0_8px_40px_rgba(99,102,241,0.25)]">
-                    <div className="rounded-2xl bg-white/80 backdrop-blur-xl border border-white/20">
-                      <div className="flex items-center gap-3 px-4 py-3">
-                        <Search className="h-5 w-5 text-slate-500" />
+                <div className="header-search-popup">
+                  <div ref={searchPopupRef} className="header-search-popup-wrapper">
+                    <div className="header-search-popup-content">
+                      <div className="header-search-popup-inner">
+                        <Search className="header-search-icon" />
                         <input
                             ref={searchInputRef}
                             type="text"
                             placeholder={getSearchPlaceholder()}
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            className="w-full bg-transparent outline-none text-sm text-slate-800 placeholder:text-slate-400"
+                            className="header-search-input"
                         />
                         <button
                             type="button"
                             onClick={() => setIsSearchOpen(false)}
-                            className="inline-flex items-center justify-center h-7 w-7 rounded-md hover:bg-slate-100 text-slate-500 hover:text-slate-700"
+                            className="header-search-close"
                             aria-label="Close search"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="header-search-close-icon" />
                         </button>
                       </div>
                     </div>

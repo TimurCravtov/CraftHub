@@ -1,0 +1,18 @@
+UNUSED CSS CLASSES FOUND:
+
+1. .home-hero-image - Not used in any component (hero removed from Home)
+2. .home-hero-text - Not used in any component (hero removed from Home)
+3. .page-header-inline - Not used (removed from all pages)
+4. .itempage-hero-title - Not used (ItemPage hero removed)
+5. .itempage-hero - Not used (ItemPage hero removed)
+6. .itempage-hero-overlay - Not used (ItemPage hero removed)
+7. .itempage-hero-content - Not used (ItemPage hero removed)
+8. .itempage-breadcrumb - Not used (ItemPage hero removed)
+9. .shops-hero-text - Not used (Shops hero removed)
+10. .page-hero - Still used in AccountHeader.jsx (KEEP)
+11. .page-hero-overlay - Still used in AccountHeader.jsx (KEEP)
+12. .page-hero-content - Still used in AccountHeader.jsx (KEEP)
+13. .page-hero-title - Still used in AccountHeader.jsx (KEEP)
+
+Note: Some classes like .page-hero are still used in AccountHeader component, so they should be kept.
+

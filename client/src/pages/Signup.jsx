@@ -282,18 +282,18 @@ export default function Signup() {
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="absolute top-4 left-4">
+        <div className="signup-page">
+            <div className="signup-back-wrapper">
                 <button
                     onClick={() => window.history.back()}
-                    className="flex items-center space-x-2 text-black hover:text-blue-600"
+                    className="signup-back-button"
                 >
                     <span>Back</span>
                 </button>
             </div>
 
-            <div className="flex justify-center items-center mt-10">
-                <div className="container" id="container">
+            <div className="signup-body">
+                <div className="signup-shell" id="container">
                     {/* Sign Up */}
                     <div className="form-container sign-up-container">
                         <form onSubmit={handleSignUp} noValidate>
@@ -310,16 +310,18 @@ export default function Signup() {
                                 placeholder="Name"
                                 value={signupData.name}
                                 onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, 'name') })}
+                                className="glass-input"
                             />
-                            {errors.name && <div className="text-sm text-red-600">{errors.name}</div>}
+                            {errors.name && <div className="form-error">{errors.name}</div>}
 
                             <input
                                 type="email"
                                 placeholder="Email"
                                 value={signupData.email}
                                 onChange={(e) => setSignupData({ ...signupData, email: sanitizeInput(e.target.value, 'email') })}
+                                className="glass-input"
                             />
-                            {errors.email && <div className="text-sm text-red-600">{errors.email}</div>}
+                            {errors.email && <div className="form-error">{errors.email}</div>}
 
                             <input
                                 type="password"
@@ -327,6 +329,7 @@ export default function Signup() {
                                 value={signupData.password}
                                 onChange={(e) => setSignupData({ ...signupData, password: sanitizeInput(e.target.value, 'password') })}
                                 onBlur={() => setPasswordTouched(true)}
+                                className="glass-input"
                             />
 
                             {/* Password Requirements - Grid Layout with Backend Validation */}
@@ -350,12 +353,12 @@ export default function Signup() {
 
                             {/* Backend Password Validation Errors */}
                             {isValidatingPassword && (
-                                <div className="text-sm text-blue-600 mb-2">Validating password...</div>
+                                <div className="form-info signup-info">Validating password...</div>
                             )}
                             {passwordValidationErrors.length > 0 && (
                                 <div className="password-validation-errors">
                                     {passwordValidationErrors.map((error, index) => (
-                                        <div key={index} className="text-sm text-red-600">{error}</div>
+                                        <div key={index} className="form-error">{error}</div>
                                     ))}
                                 </div>
                             )}
@@ -385,10 +388,10 @@ export default function Signup() {
                             </div>
 
                             {passwordTouched && errors.password && (
-                                <div className="text-sm text-red-600 mt-2">{errors.password}</div>
+                                <div className="form-error signup-error">{errors.password}</div>
                             )}
 
-                            <button type="submit" disabled={!isFormValid() || isSubmitting}>
+                            <button type="submit" className="btn-primary" disabled={!isFormValid() || isSubmitting}>
                                 {isSubmitting ? "Creating..." : "Sign Up"}
                             </button>
                         </form>
@@ -411,6 +414,7 @@ export default function Signup() {
                                         placeholder="Email"
                                         value={loginData.email}
                                         onChange={(e) => setLoginData({ ...loginData, email: sanitizeInput(e.target.value, 'email') })}
+                                        className="glass-input"
                                         required
                                     />
                                     <input
@@ -418,25 +422,27 @@ export default function Signup() {
                                         placeholder="Password"
                                         value={loginData.password}
                                         onChange={(e) => setLoginData({ ...loginData, password: sanitizeInput(e.target.value, 'password') })}
+                                        className="glass-input"
                                         required
                                     />
                                 </>
                             ) : (
                                 <>
-                                    <p className="mb-2 text-gray-700">Enter your 2FA code</p>
+                                    <p className="form-note signup-note">Enter your 2FA code</p>
                                     <input
                                         type="text"
                                         placeholder="6-digit code"
                                         value={twoFactorCode}
                                         onChange={(e) => setTwoFactorCode(e.target.value)}
+                                        className="glass-input"
                                         required
                                     />
                                 </>
                             )}
 
-                            {loginError && <div className="text-sm text-red-600 mb-2">{loginError}</div>}
+                            {loginError && <div className="form-error signup-error">{loginError}</div>}
 
-                            <button type="submit" disabled={loginSubmitting}>
+                            <button type="submit" className="btn-primary" disabled={loginSubmitting}>
                                 {loginSubmitting
                                     ? (twoFactorRequired ? "Verifying..." : "Signing In...")
                                     : (twoFactorRequired ? "Verify 2FA" : "Sign In")}
@@ -461,103 +467,6 @@ export default function Signup() {
                     </div>
                 </div>
             </div>
-
-      {/* Styles */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
-        * { box-sizing: border-box; }
-        body { font-family: 'Montserrat', sans-serif; }
-        h1 { font-weight: bold; margin: 0; }
-        p { font-size: 14px; font-weight: 100; line-height: 20px; letter-spacing: 0.5px; margin: 20px 0 30px; }
-        span { font-size: 12px; }
-        button { border-radius: 20px; border: 1px solid #2563EB; background-color: #2563EB; color: #FFFFFF; font-size: 12px; font-weight: bold; padding: 12px 45px; letter-spacing: 1px; text-transform: uppercase; transition: transform 80ms ease-in; }
-        button:active { transform: scale(0.95); }
-        button:focus { outline: none; }
-        button.ghost { background-color: transparent; border-color: #FFFFFF; }
-        button:disabled { background-color: #94A3B8; border-color: #94A3B8; cursor: not-allowed; }
-        .social-container { margin: 15px 0; display: flex; gap: 10px; justify-content: center; }
-        .password-requirements { 
-            margin: 8px 0 12px 0; 
-            text-align: left; 
-            font-size: 11px; 
-            line-height: 1.3; 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 2px; 
-        }
-        .account-type-container {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin: 10px 0 15px 0;
-        }
-        .account-type-option {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            border: 1px solid #ddd;
-            background-color: #fff;
-        }
-        .account-type-option.selected {
-            background-color: #EBF4FF;
-            border-color: #2563EB;
-            color: #2563EB;
-        }
-        .account-type-option input[type="radio"] {
-            margin: 0;
-            width: auto;
-            padding: 0;
-        }
-        .account-type-option span {
-            font-size: 12px;
-            font-weight: 500;
-        }
-        form { background-color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 40px; height: 100%; text-align: center; }
-        input { background-color: #eee; border: none; padding: 12px 15px; margin: 6px 0; width: 100%; }
-        .container { 
-            background-color: #fff; 
-            border-radius: 10px; 
-            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22); 
-            position: relative; 
-            overflow: hidden; 
-            width: 900px; 
-            max-width: 100%; 
-            min-height: 580px; 
-        }
-        .form-container { position: absolute; top: 0; height: 100%; transition: all 0.6s ease-in-out; }
-        .sign-in-container { left: 0; width: 50%; z-index: 2; }
-        .container.right-panel-active .sign-in-container { transform: translateX(100%); }
-        .sign-up-container { left: 0; width: 50%; opacity: 0; z-index: 1; }
-        .container.right-panel-active .sign-up-container { transform: translateX(100%); opacity: 1; z-index: 5; animation: show 0.6s; }
-        @keyframes show { 0%, 49.99% { opacity: 0; z-index: 1; } 50%, 100% { opacity: 1; z-index: 5; } }
-        .overlay-container { position: absolute; top: 0; left: 50%; width: 50%; height: 100%; overflow: hidden; transition: transform 0.6s ease-in-out; z-index: 100; }
-        .container.right-panel-active .overlay-container { transform: translateX(-100%); }
-        .overlay { 
-            background: #1E40AF; 
-            background: -webkit-linear-gradient(to right, #2563EB, #1D4ED8); 
-            background: linear-gradient(to right, #2563EB, #1D4ED8); 
-            background-repeat: no-repeat; 
-            background-size: cover; 
-            background-position: 0 0; 
-            color: #FFFFFF; 
-            position: relative; 
-            left: -100%; 
-            height: 100%; 
-            width: 200%; 
-            transform: translateX(0); 
-            transition: transform 0.6s ease-in-out; 
-        }
-        .container.right-panel-active .overlay { transform: translateX(50%); }
-        .overlay-panel { position: absolute; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 40px; text-align: center; top: 0; height: 100%; width: 50%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
-        .overlay-left { transform: translateX(-20%); left: 0; }
-        .container.right-panel-active .overlay-left { transform: translateX(0); }
-        .overlay-right { right: 0; transform: translateX(0); }
-        .container.right-panel-active .overlay-right { transform: translateX(20%); }
-      `}</style>
         </div>
     );
 }

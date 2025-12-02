@@ -132,43 +132,21 @@ export default function Home() {
 
   // Categories are static pills; featured below auto-slides
   return (
-      <div className="min-h-screen bg-white">
+      <div className="home-page futuristic-page-base">
         <Header />
 
-        <div className="relative h-64">
-          {/* Plain image */}
-          <img
-              src="/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg"
-              alt="Plant store"
-              className="w-full h-full object-cover brightness-40"
-          />
+        {/* Minimalist Gradient Transition */}
+        <div className="home-minimalist-transition"></div>
 
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
-
-          {/* Content */}
-          <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl font-bold text-white mb-4">Artisan Shops</h1>
-            <p className="text-white/90 mb-4 text-lg">
-              Discover unique handmade creations from talented artisans
-            </p>
-            <div className="flex items-center space-x-2 text-white/80">
-              <a href="/" className="hover:text-white">Home</a>
-              <span>&gt;</span>
-              <span>Welcome</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+        <div className="page-content">
 
           {/* Categories Filter */}
-          <div className="mt-6 flex items-center gap-3 overflow-x-auto no-scrollbar">
+          <div className="home-categories">
             {categories.map((c) => (
                 <button
                     key={c}
                     onClick={() => setActiveCategory(c)}
-                    className={`px-4 py-1.5 rounded-full whitespace-nowrap transition-all duration-300 border backdrop-blur bg-white/70 hover:bg-white/90 shadow-sm ${activeCategory === c ? 'border-transparent text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-[0_4px_24px_rgba(99,102,241,0.35)]' : 'border-slate-200 text-slate-700'}`}
+                    className={activeCategory === c ? 'home-category-btn is-active' : 'home-category-btn'}
                 >
                   {t(`categories.${c}`)} {/* Use t for category names */}
                 </button>
@@ -176,14 +154,14 @@ export default function Home() {
           </div>
 
           {/* Featured carousel */}
-          <div className="mt-8 relative">
-            <div ref={featuredRef} className="flex gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar">
+          <div className="home-featured">
+            <div ref={featuredRef} className="home-featured-carousel">
               {filteredFeatured.map((f) => (
-                  <div key={f.id} className="min-w-[280px] md:min-w-[360px] snap-start relative rounded-2xl overflow-hidden border bg-white">
-                    <img src={safeUrl(f.image)} alt={f.title} className="h-40 w-full object-cover" />
-                    <div className="p-4">
-                      <p className="text-xs text-slate-500">{f.title}</p>
-                      <h3 className="text-lg font-semibold">{f.subtitle}</h3>
+                  <div key={f.id} className="home-featured-card">
+                    <img src={safeUrl(f.image)} alt={f.title} className="home-featured-card-image" />
+                    <div className="home-featured-card-body">
+                      <p className="home-featured-card-category">{f.title}</p>
+                      <h3 className="home-featured-card-title">{f.subtitle}</h3>
                     </div>
                   </div>
               ))}
@@ -191,11 +169,11 @@ export default function Home() {
           </div>
 
           {/* Recently added */}
-          <div className="mt-10">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">{t('recentlyAdded')}</h2> {/* Use t for section title */}
+          <div className="home-section">
+            <div className="home-section-header">
+              <h2 className="home-section-title">{t('recentlyAdded')}</h2> {/* Use t for section title */}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            <div className="responsive-grid">
 
         {products.map((p) => {
           const product = {
@@ -213,121 +191,82 @@ export default function Home() {
           </div>
 
           {/* Top shops section to enrich page */}
-          <div className="mt-16">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">{t('topShops')}</h2> {/* Use t for section title */}
+          <div className="home-shops-section">
+            <div className="home-section-header">
+              <h2 className="home-section-title">{t('topShops')}</h2> {/* Use t for section title */}
             </div>
-            <div className="relative mt-4">
-              <div className="relative">
-                <div className="mx-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {pagedShops.map((s) => (
-                      <a key={s.id} href={`/shops/${s.id}`} className="group block w-full bg-white rounded-2xl overflow-hidden border hover:shadow-lg transition-shadow">
-                        <div className="relative h-48 bg-slate-100">
-                          <img src={safeUrl(s.image)} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-center gap-3">
-                            <img src={safeUrl(s.logo || '/assets/react.svg')} alt={`${s.name} logo`} className="h-10 w-10 rounded-full object-cover border" />
-                            <div className="flex-1">
-                              <h3 className="text-sm font-semibold text-gray-900 truncate">{s.name}</h3>
-                              <p className="text-xs text-gray-500 truncate">{s.description || s.artisan}</p>
+            <div className="home-shops-container">
+              <div className="home-shops-grid-wrapper">
+                <div className="home-shops-grid">
+                  {pagedShops.map((s) => (
+                    <a key={s.id} href={`/shops/${s.id}`} className="home-shop-card">
+                      <div className="home-shop-card-image-wrapper">
+                        <img src={safeUrl(s.image)} alt={s.name} className="home-shop-card-image" />
+                      </div>
+                      <div className="home-shop-card-body">
+                        <div className="home-shop-card-header">
+                          <img src={safeUrl(s.logo || '/assets/react.svg')} alt={`${s.name} logo`} className="home-shop-card-logo" />
+                          <div className="home-shop-card-info">
+                            <h3 className="home-shop-card-name">{s.name}</h3>
+                            <p className="home-shop-card-description">{s.description || s.artisan}</p>
+                          </div>
+                          <div className="home-shop-card-rating">
+                            <div className="home-shop-card-stars">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className={`home-shop-card-star ${i < Math.floor(s.rating) ? 'home-shop-card-star--filled' : 'home-shop-card-star--empty'}`} />
+                              ))}
                             </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex -space-x-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className={`h-4 w-4 ${i < Math.floor(s.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                                ))}
-                              </div>
-                              <span className="text-xs text-gray-600">{s.rating?.toFixed?.(1) ?? s.rating}</span>
-                            </div>
+                            <span className="home-shop-card-rating-value">{s.rating?.toFixed?.(1) ?? s.rating}</span>
                           </div>
                         </div>
-                      </a>
-                    ))}
+                      </div>
+                    </a>
+                  ))}
+                </div>
+
+                {/* Controls (outside grid) */}
+                <div className="home-shops-controls">
+                  <div className="home-shops-nav">
+                    <button
+                      aria-label="Prev shops"
+                      onClick={() => setShopsPage((p) => Math.max(0, p - 1))}
+                      className="home-shops-nav-btn"
+                      disabled={shopsPage === 0}
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      aria-label="Next shops"
+                      onClick={() => setShopsPage((p) => Math.min(totalShopPages - 1, p + 1))}
+                      className="home-shops-nav-btn"
+                      disabled={shopsPage >= totalShopPages - 1}
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
                   </div>
 
-                  {/* Controls (outside grid) */}
-                  <div className="mt-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="home-shops-pagination">
+                    {Array.from({ length: totalShopPages }).map((_, i) => (
                       <button
-                        aria-label="Prev shops"
-                        onClick={() => setShopsPage((p) => Math.max(0, p - 1))}
-                        className="p-2 rounded-full bg-white border shadow hover:bg-slate-50 disabled:opacity-40"
-                        disabled={shopsPage === 0}
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </button>
-                      <button
-                        aria-label="Next shops"
-                        onClick={() => setShopsPage((p) => Math.min(totalShopPages - 1, p + 1))}
-                        className="p-2 rounded-full bg-white border shadow hover:bg-slate-50 disabled:opacity-40"
-                        disabled={shopsPage >= totalShopPages - 1}
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-2">
-                      {Array.from({ length: totalShopPages }).map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setShopsPage(i)}
-                          className={`h-2.5 w-2.5 rounded-full transition-colors ${i === shopsPage ? 'bg-blue-600' : 'bg-slate-300 hover:bg-slate-400'}`}
-                          aria-label={`Go to page ${i + 1}`}
-                        />
-                      ))}
-                    </div>
+                        key={i}
+                        onClick={() => setShopsPage(i)}
+                        className={i === shopsPage ? 'home-shops-pagination-dot is-active' : 'home-shops-pagination-dot'}
+                        aria-label={`Go to page ${i + 1}`}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
-              
             </div>
           </div>
 
           {/* Show more CTA */}
-          <div className="mt-12 flex justify-center">
-            <a href="/shops" className="px-6 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors">{t('showMore')}</a> {/* Use t for button text */}
+          <div className="home-show-more">
+            <a href="/shops" className="btn-primary">{t('showMore')}</a> {/* Use t for button text */}
           </div>
 
         </div>
 
-        <footer className="bg-slate-50 mt-16 border-t">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div>
-                <h3 className="text-lg font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">CraftHub.</h3>
-                <p className="text-sm text-slate-600 mb-4">Connecting artisans with craft lovers<br />400 University Drive Suite 200<br />Coral Gables, FL 33134 USA</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-4 text-slate-600">Links</h4>
-                <div className="space-y-2">
-                  <a href="/" className="block text-sm hover:text-slate-900">Home</a>
-                  <a href="/shop" className="block text-sm hover:text-slate-900">Shop</a>
-                  <a href="/about" className="block text-sm hover:text-slate-900">About</a>
-                  <a href="/contact" className="block text-sm hover:text-slate-900">Contact</a>
-                </div>
-              </div>
-              <div>
-                <h4 className="font-medium mb-4 text-slate-600">Help</h4>
-                <div className="space-y-2">
-                  <a href="#" className="block text-sm hover:text-slate-900">Payment Options</a>
-                  <a href="#" className="block text-sm hover:text-slate-900">Privacy Policies</a>
-                </div>
-              </div>
-              <div>
-                <h4 className="font-medium mb-4 text-slate-600">Newsletter</h4>
-                <div className="flex space-x-2">
-                  <input placeholder="Enter your Email Address" className="flex-1 border rounded px-3 py-2" />
-                  <button className="px-4 py-2 rounded bg-blue-600 text-white">SUBSCRIBE</button>
-                </div>
-              </div>
-            </div>
-            <div className="border-t mt-8 pt-8">
-              <p className="text-sm text-slate-600">All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
       </div>
   )
 }

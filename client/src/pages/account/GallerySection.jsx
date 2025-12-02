@@ -155,33 +155,33 @@ export default function GallerySection({
     };
 
     return (
-        <div className="border rounded-2xl bg-white">
-            <div className="p-5 border-b flex items-center justify-between">
+        <div className="account-section gallery-section">
+            <div className="account-section-header">
                 <div>
-                    <h2 className="text-lg font-semibold">Photos & gallery</h2>
-                    <span className="text-xs text-slate-500">Add images and items for sale</span>
+                    <h2 className="account-section-title">Photos & gallery</h2>
+                    <span className="account-section-subtitle">Add images and items for sale</span>
                 </div>
                 {!editing?.gallery ? (
                     <button
                         type="button"
                         onClick={() => setEditing(e => ({ ...e, gallery: true }))}
-                        className="px-3 py-1.5 rounded-full text-xs text-white bg-gray-900 hover:bg-gray-800"
+                        className="btn-primary account-section-edit-button"
                     >
                         Edit section
                     </button>
                 ) : (
-                    <div className="flex items-center gap-2">
+                    <div className="account-section-actions">
                         <button
                             type="button"
                             onClick={() => setEditing(e => ({ ...e, gallery: false }))}
-                            className="px-3 py-1.5 rounded border text-xs hover:bg-slate-50"
+                            className="btn-secondary account-section-cancel-button"
                         >
                             Cancel
                         </button>
                         <button
                             type="button"
                             onClick={handleSaveSection}
-                            className="px-3 py-1.5 rounded text-xs text-white bg-gray-900 hover:bg-gray-800"
+                            className="btn-primary account-section-save-button"
                             disabled={uploading}
                         >
                             {uploading ? "Uploading..." : "Save section"}
@@ -191,63 +191,63 @@ export default function GallerySection({
             </div>
 
             {!editing?.gallery ? (
-                <div className="p-5">
+                <div className="account-section-content gallery-section-view">
                     {form?.items?.length ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="gallery-section-grid">
                             {form.items.map((item, i) => (
-                                <div key={i} className="relative group">
+                                <div key={i} className="gallery-section-item">
                                     {item?.images?.[0]?.url ? (
                                         <img
                                             src={item.images[0].url}
                                             alt={`item-${i}`}
-                                            className={`h-28 w-full object-cover rounded-lg border ${item.images[0].uploading ? "opacity-50" : ""}`}
+                                            className={`gallery-section-item-image ${item.images[0].uploading ? "gallery-section-item-image--uploading" : ""}`}
                                             onError={(e) => { e.target.style.display = 'none'; }}
                                         />
                                     ) : (
-                                        <div className="h-28 w-full bg-gray-200 rounded-lg border flex items-center justify-center">
-                                            <span className="text-gray-400 text-xs">No image</span>
+                                        <div className="gallery-section-item-placeholder">
+                                            <span className="gallery-section-item-placeholder-text">No image</span>
                                         </div>
                                     )}
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 rounded-b-lg">
-                                        <p className="text-sm font-medium">{item?.name || 'Unnamed item'}</p>
-                                        <p className="text-xs">${item?.price || '0.00'}</p>
+                                    <div className="gallery-section-item-overlay">
+                                        <p className="gallery-section-item-name">{item?.name || 'Unnamed item'}</p>
+                                        <p className="gallery-section-item-price">${item?.price || '0.00'}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-slate-600">No items yet. Add some to your shop.</p>
+                        <p className="gallery-section-empty">No items yet. Add some to your shop.</p>
                     )}
                 </div>
             ) : (
-                <div className="p-5 space-y-6">
-                    <div className="border rounded-lg p-4 space-y-4">
+                <div className="account-section-content gallery-section-edit">
+                    <div className="gallery-section-form">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Item Name <span className="text-red-500">*</span>
+                            <label className="account-form-label">
+                                Item Name <span className="gallery-section-required">*</span>
                             </label>
                             <input
                                 type="text"
                                 name="name"
                                 value={form?.currentItem?.name || ''}
                                 onChange={handleItemChange}
-                                className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="glass-input account-form-input"
                                 placeholder="What are you selling?"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label className="account-form-label">
                                 Price
                             </label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-2 text-slate-500">$</span>
+                            <div className="gallery-section-price-input-wrapper">
+                                <span className="gallery-section-price-symbol">$</span>
                                 <input
                                     type="number"
                                     name="price"
                                     value={form?.currentItem?.price || ''}
                                     onChange={handleItemChange}
-                                    className="w-full border rounded px-3 py-2 pl-7 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="glass-input account-form-input gallery-section-price-input"
                                     placeholder="0.00"
                                     min="0"
                                     step="0.01"
@@ -256,7 +256,7 @@ export default function GallerySection({
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label className="account-form-label">
                                 Description
                             </label>
                             <textarea
@@ -264,13 +264,13 @@ export default function GallerySection({
                                 value={form?.currentItem?.description || ''}
                                 onChange={handleItemChange}
                                 rows={3}
-                                className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="glass-input account-form-textarea"
                                 placeholder="Tell buyers about your item..."
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label className="account-form-label">
                                 Photos
                             </label>
                             <input
@@ -278,35 +278,35 @@ export default function GallerySection({
                                 multiple
                                 accept="image/*"
                                 onChange={handleImageChange}
-                                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100"
+                                className="account-form-file gallery-section-file-input"
                                 disabled={uploading}
                             />
-                            <p className="mt-1 text-xs text-slate-500">
+                            <p className="gallery-section-file-hint">
                                 Add up to 5 photos to show your item's details (max 5MB each)
                             </p>
 
                             {form?.currentItem?.images?.length > 0 && (
-                                <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div className="gallery-section-preview-grid">
                                     {form.currentItem.images.map((img, idx) => {
                                         const src = getImageSrc(img)
                                         return (
-                                            <div key={idx} className="relative group">
+                                            <div key={idx} className="gallery-section-preview-item">
                                                 {src ? (
                                                     <img
                                                         src={src}
                                                         alt={`preview-${idx}`}
-                                                        className={`h-28 w-full object-cover rounded-lg border ${img.uploading ? "opacity-50" : ""}`}
+                                                        className={`gallery-section-preview-image ${img.uploading ? "gallery-section-preview-image--uploading" : ""}`}
                                                         onError={(e) => { e.target.style.display = 'none'; }}
                                                     />
                                                 ) : (
-                                                    <div className="h-28 w-full bg-gray-200 rounded-lg border flex items-center justify-center">
-                                                        <span className="text-gray-400 text-xs">No preview</span>
+                                                    <div className="gallery-section-preview-placeholder">
+                                                        <span className="gallery-section-preview-placeholder-text">No preview</span>
                                                     </div>
                                                 )}
 
                                                 <button
                                                     onClick={() => removeCurrentImage(idx)}
-                                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all"
+                                                    className="gallery-section-remove-button"
                                                     title="Remove image"
                                                 >
                                                     <span className="sr-only">Remove</span>
@@ -314,7 +314,7 @@ export default function GallerySection({
                                                 </button>
 
                                                 {img.uploading && (
-                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-sm rounded-lg">Uploading...</div>
+                                                    <div className="gallery-section-uploading-overlay">Uploading...</div>
                                                 )}
                                             </div>
                                         )
@@ -326,7 +326,7 @@ export default function GallerySection({
                         <button
                             type="button"
                             onClick={handleAddItem}
-                            className="w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="btn-primary btn-primary--full gallery-section-add-button"
                             disabled={uploading || !form?.currentItem?.name}
                         >
                             {uploading ? "Uploading..." : "Add Item"}
@@ -334,34 +334,34 @@ export default function GallerySection({
                     </div>
 
                     {form?.items?.length > 0 && (
-                        <div className="mt-4">
-                            <h3 className="text-sm font-medium text-slate-700 mb-2">Added Items</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="gallery-section-added">
+                            <h3 className="gallery-section-added-title">Added Items</h3>
+                            <div className="gallery-section-grid">
                                 {form.items.map((item, index) => (
-                                    <div key={index} className="relative group">
+                                    <div key={index} className="gallery-section-item">
                                         {item?.images?.[0]?.url ? (
                                             <img
                                                 src={item.images[0].url}
                                                 alt={`item-${index}`}
-                                                className={`h-28 w-full object-cover rounded-lg border ${item.images[0].uploading ? "opacity-50" : ""}`}
+                                                className={`gallery-section-item-image ${item.images[0].uploading ? "gallery-section-item-image--uploading" : ""}`}
                                                 onError={(e) => { e.target.style.display = 'none'; }}
                                             />
                                         ) : (
-                                            <div className="h-28 w-full bg-gray-200 rounded-lg border flex items-center justify-center">
-                                                <span className="text-gray-400 text-xs">No image</span>
+                                            <div className="gallery-section-item-placeholder">
+                                                <span className="gallery-section-item-placeholder-text">No image</span>
                                             </div>
                                         )}
                                         <button
                                             onClick={() => handleRemoveItem(index)}
-                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all"
+                                            className="gallery-section-remove-button"
                                             title="Remove item"
                                         >
                                             <span className="sr-only">Remove</span>
                                             ×
                                         </button>
-                                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 rounded-b-lg">
-                                            <p className="text-sm font-medium">{item?.name || 'Unnamed item'}</p>
-                                            <p className="text-xs">${item?.price || '0.00'}</p>
+                                        <div className="gallery-section-item-overlay">
+                                            <p className="gallery-section-item-name">{item?.name || 'Unnamed item'}</p>
+                                            <p className="gallery-section-item-price">${item?.price || '0.00'}</p>
                                         </div>
                                     </div>
                                 ))}

@@ -88,19 +88,19 @@ export default function ProductDetail() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white">
+            <div className="product-page futuristic-page-base">
                 <Header />
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="animate-pulse">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                            <div className="space-y-4">
-                                <div className="aspect-square bg-gray-200 rounded-2xl"></div>
+                <div className="container-2xl product-container">
+                    <div className="product-skeleton">
+                        <div className="product-grid">
+                            <div>
+                                <div className="product-image-placeholder" />
                             </div>
-                            <div className="space-y-6">
-                                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                                <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-                                <div className="h-4 bg-gray-200 rounded w-full"></div>
-                                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                            <div>
+                                <div className="product-skeleton-line product-skeleton-line--lg" />
+                                <div className="product-skeleton-line product-skeleton-line--md" />
+                                <div className="product-skeleton-line product-skeleton-line--sm" />
+                                <div className="product-skeleton-line product-skeleton-line--sm" />
                             </div>
                         </div>
                     </div>
@@ -111,17 +111,17 @@ export default function ProductDetail() {
 
     if (!product || !shop) {
         return (
-            <div className="min-h-screen bg-white">
+            <div className="product-page futuristic-page-base">
                 <Header />
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="text-center">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h1>
-                        <p className="text-gray-600 mb-6">The product you're looking for doesn't exist or has been removed.</p>
+                <div className="container-2xl product-container">
+                    <div className="empty-state">
+                        <h1 className="empty-state-title">Product not found</h1>
+                        <p className="empty-state-text">The product you're looking for doesn't exist or has been removed.</p>
                         <button
                             onClick={() => navigate(-1)}
-                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                            className="btn-secondary"
                         >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            <ArrowLeft size={16} />
                             Go back
                         </button>
                     </div>
@@ -135,53 +135,46 @@ export default function ProductDetail() {
     const mainImage = images[selectedImage] || product.imageUrl || 'https://via.placeholder.com/400x400?text=No+Image'
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="product-page futuristic-page-base">
             <Header />
 
-            {/* Breadcrumb */}
-            <div className="bg-gray-50 border-b">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <nav className="flex items-center space-x-2 text-sm text-gray-600">
-                        <a href="/" className="hover:text-gray-900">Home</a>
+            <div className="product-breadcrumb-bar">
+                <div className="product-breadcrumb-inner">
+                    <nav className="product-breadcrumb">
+                        <a href="/">Home</a>
                         <span>&gt;</span>
-                        <a href="/shops" className="hover:text-gray-900">Shops</a>
+                        <a href="/shops">Shops</a>
                         <span>&gt;</span>
-                        <a href={`/shops/${shopId}`} className="hover:text-gray-900">{shop?.name || 'Shop'}</a>
+                        <a href={`/shops/${shopId}`}>{shop?.name || 'Shop'}</a>
                         <span>&gt;</span>
-                        <span className="text-gray-900">{product.title}</span>
+                        <span className="product-breadcrumb-current">{product.title}</span>
                     </nav>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="product-container">
+                <div className="product-grid">
                     {/* Product Images */}
-                    <div className="space-y-4">
-                        <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden">
+                    <div className="product-gallery">
+                        <div className="product-image-main">
                             <img
                                 src={safeUrl(mainImage)}
                                 alt={sanitizeInput(product.title, 'text')}
-                                className="w-full h-full object-cover"
                             />
                         </div>
                         
                         {/* Thumbnail Images - only show if multiple images */}
                         {images.length > 1 && (
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="product-thumbnails">
                                 {images.map((image, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setSelectedImage(index)}
-                                        className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                                            selectedImage === index 
-                                                ? 'border-blue-500' 
-                                                : 'border-gray-200 hover:border-gray-300'
-                                        }`}
+                                        className={`product-thumbnail ${selectedImage === index ? 'is-active' : ''}`}
                                     >
                                         <img
                                             src={safeUrl(image)}
                                             alt={`${sanitizeInput(product.title, 'text')} ${index + 1}`}
-                                            className="w-full h-full object-cover"
                                         />
                                     </button>
                                 ))}
@@ -190,102 +183,83 @@ export default function ProductDetail() {
                     </div>
 
                     {/* Product Details */}
-                    <div className="space-y-6">
-                        {/* Product Title */}
+                    <div className="product-details">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
+                            <h1 className="product-title">{product.title}</h1>
                         </div>
 
-                        {/* Price */}
-                        <div className="text-3xl font-bold text-gray-900">
+                        <div className="product-price">
                             {Number(product.price)} lei
                         </div>
 
-                        {/* Description */}
                         {product.description && (
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-                                <p className="text-gray-600 leading-relaxed">
+                                <h3 className="product-section-title">Description</h3>
+                                <p className="product-description-text">
                                     {product.description}
                                 </p>
                             </div>
                         )}
 
-                        {/* Shop Info */}
                         {shop && (
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <h4 className="font-semibold text-gray-900 mb-2">Sold by</h4>
-                                <div className="flex items-center space-x-3">
-                                    <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
-                                        {shop.logo ? (
+                            <div className="product-shop-card">
+                                <h4 className="product-section-title">Sold by</h4>
+                                <div className="product-shop-info">
+                                    <div className="product-shop-avatar">
+                                        {shop.logo || shop.profilePicture ? (
                                             <img
-                                                src={safeUrl(shop.logo)}
+                                                src={safeUrl(shop.logo || shop.profilePicture)}
                                                 alt={shop.name || 'Shop'}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : shop.profilePicture ? (
-                                            <img
-                                                src={safeUrl(shop.profilePicture)}
-                                                alt={shop.name || 'Shop'}
-                                                className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                                                <span className="text-blue-600 font-semibold text-sm">
-                                                    {shop.name ? shop.name.charAt(0).toUpperCase() : 'S'}
-                                                </span>
-                                            </div>
+                                            <span>{shop.name ? shop.name.charAt(0).toUpperCase() : 'S'}</span>
                                         )}
                                     </div>
                                     <div>
-                                        <p className="font-medium text-gray-900">{shop.name || 'Unknown Shop'}</p>
+                                        <p className="product-shop-name">{shop.name || 'Unknown Shop'}</p>
                                         {shop.description && (
-                                            <p className="text-sm text-gray-600">{shop.description}</p>
+                                            <p className="product-shop-description">{shop.description}</p>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Quantity Selector */}
                         <div>
-                            <h4 className="font-semibold text-gray-900 mb-2">Quantity</h4>
-                            <div className="flex items-center space-x-3">
+                            <h4 className="product-section-title">Quantity</h4>
+                            <div className="product-quantity-controls">
                                 <button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                    className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                                    className="product-quantity-button"
+                                    type="button"
                                 >
-                                    <Minus className="w-4 h-4" />
+                                    <Minus size={16} />
                                 </button>
-                                <span className="text-lg font-medium w-8 text-center">{quantity}</span>
+                                <span className="product-quantity-value">{quantity}</span>
                                 <button
                                     onClick={() => setQuantity(quantity + 1)}
-                                    className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                                    className="product-quantity-button"
+                                    type="button"
                                 >
-                                    <Plus className="w-4 h-4" />
+                                    <Plus size={16} />
                                 </button>
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="space-y-3">
-                            <div className="flex space-x-3">
+                        <div className="product-actions">
+                            <div className="product-actions-row">
                                 <button
                                     onClick={handleAddToCart}
-                                    className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                                        inCart || justAdded
-                                            ? 'bg-green-600 text-white hover:bg-green-700'
-                                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                                    }`}
+                                    className={`btn-primary product-primary-button ${inCart || justAdded ? 'product-primary-button--in-cart' : ''}`}
                                 >
                                     {inCart || justAdded ? (
                                         <>
-                                            <Check className="w-5 h-5 mr-2" />
+                                            <Check size={20} />
                                             {justAdded ? 'Added!' : 'In Cart'}
                                         </>
                                     ) : (
                                         <>
-                                            <ShoppingCart className="w-5 h-5 mr-2" />
+                                            <ShoppingCart size={20} />
                                             Add to Cart
                                         </>
                                     )}
@@ -293,24 +267,21 @@ export default function ProductDetail() {
                                 
                                 <button
                                     onClick={handleLike}
-                                    className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
-                                        liked
-                                            ? 'border-pink-500 bg-pink-50 text-pink-600'
-                                            : 'border-gray-300 hover:border-pink-300 hover:bg-pink-50'
-                                    }`}
+                                    className={`product-like-button ${liked ? 'is-liked' : ''}`}
+                                    type="button"
                                 >
-                                    <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                                    <Heart size={20} fill={liked ? 'currentColor' : 'none'} />
                                 </button>
                                 
-                                <button className="w-12 h-12 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50">
-                                    <Share2 className="w-5 h-5" />
+                                <button className="product-share-button" type="button">
+                                    <Share2 size={20} />
                                 </button>
                             </div>
                             
                             {shop && (
                                 <button
                                     onClick={() => navigate(`/shops/${shopId}`)}
-                                    className="w-full py-3 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                    className="btn-secondary btn-secondary--full btn-secondary--large"
                                 >
                                     View Shop
                                 </button>

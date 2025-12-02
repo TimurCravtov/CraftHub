@@ -1,6 +1,6 @@
 export const redirectToOAuthProvider = (provider) => {
 
-    const redirectUri = `https://localhost:5173/oauth/redirect/${provider}`;
+    const redirectUri = `https://localhost:8443/oauth/redirect/${provider}`;
 
     let authUrl = "";
 

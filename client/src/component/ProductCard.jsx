@@ -31,33 +31,33 @@ export default function ProductCard({ product }) {
 
     return (
         <div 
-            className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            className="product-card"
             onClick={handleCardClick}
         >
             {/* Image */}
-            <div className="relative h-48">
+            <div className="product-card-image-wrapper">
                 <img
                     src={safeUrl(imageUrl)}
                     alt={escapeText(title)}
-                    className="w-full h-full object-cover"
+                    className="product-card-image"
                 />
 
                 {/* Floating Heart */}
-                <div className="absolute top-2 right-2">
-                    <button onClick={(e) => { e.stopPropagation(); toggleLike(product) }} className={`flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm transition-all duration-300 shadow opacity-70 hover:scale-110 ${liked ? 'text-pink-600' : 'text-pink-500 hover:text-pink-700 hover:bg-white/90'}`}>
-                        <Heart className={`w-4 h-4 ${liked ? 'fill-pink-600' : ''}`} />
+                <div className="product-card-like-wrapper">
+                    <button onClick={(e) => { e.stopPropagation(); toggleLike(product) }} className={`product-card-like-button ${liked ? 'product-card-like-button--liked' : ''}`}>
+                        <Heart className={`product-card-like-icon ${liked ? 'product-card-like-icon--filled' : ''}`} />
                     </button>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="p-3">
-                <h2 className="text-sm font-semibold text-gray-900 truncate">{title}</h2>
-                <p className="text-xs text-gray-500 truncate">{sellerName}</p>
+            <div className="product-card-body">
+                <h2 className="product-card-title">{title}</h2>
+                <p className="product-card-seller">{sellerName}</p>
 
                 {/* Price + Cart */}
-                <div className="mt-2 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-gray-900">{Number(price)} lei</p>
+                <div className="product-card-footer">
+                    <p className="product-card-price">{Number(price)} lei</p>
                     <button
                         onClick={() => {
                             const wasInCart = inCart
@@ -76,10 +76,10 @@ export default function ProductCard({ product }) {
                             })
                             setTimeout(() => setJustAdded(false), 1200)
                         }}
-                        className={`flex items-center justify-center w-8 h-8 border rounded-lg transition-all duration-200 hover:scale-110 ${inCart || justAdded ? 'bg-green-600 border-green-600 text-white hover:bg-green-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-100 hover:border-gray-400 hover:text-gray-700'}`}
+                        className={`product-card-cart-button ${inCart || justAdded ? 'product-card-cart-button--in-cart' : ''}`}
                         aria-label="Add to cart"
                     >
-                        {inCart || justAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
+                        {inCart || justAdded ? <Check className="product-card-cart-icon" /> : <ShoppingCart className="product-card-cart-icon" />}
                     </button>
                 </div>
             </div>

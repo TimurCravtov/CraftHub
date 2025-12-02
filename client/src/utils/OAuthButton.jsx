@@ -5,11 +5,11 @@ import { redirectToOAuthProvider } from "./redirectToOAuthProvider";
 const providers = {
     google: {
         label: "Continue with Google",
-        icon: <FaGoogle className="w-5 h-5 mr-2" />,
+        icon: <FaGoogle style={{ width: '1.25rem', height: '1.25rem', color: 'white', filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))' }} />,
     },
     facebook: {
         label: "Continue with Facebook",
-        icon: <FaFacebook className="w-5 h-5 mr-2" />,
+        icon: <FaFacebook style={{ width: '1.25rem', height: '1.25rem', color: 'white', filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))' }} />,
     },
 };
 
@@ -23,7 +23,8 @@ export function OAuthButton({ provider }) {
     return (
         <button
             onClick={() => redirectToOAuthProvider(provider)}
-            className="flex items-center justify-center w-full px-4 py-2 space-x-2 border rounded-lg shadow-sm hover:bg-gray-100 transition"
+            className="btn-primary btn-primary--full"
+            style={{ gap: '0.75rem' }}
         >
             {config.icon}
             <span>{config.label}</span>

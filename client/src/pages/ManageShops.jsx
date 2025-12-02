@@ -25,42 +25,42 @@ export default function ManageShops() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="manageshops-page futuristic-page-base">
       <Header />
       
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Manage Shops</h1>
+      <div className="container-2xl manageshops-container">
+        <div className="page-header">
+          <h1 className="page-header-title">Manage Shops</h1>
           <button
             onClick={() => navigate('/create-shop')}
-            className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
+            className="btn-primary manageshops-create-btn"
           >
             Create Shop
           </button>
         </div>
 
         {loading ? (
-          <p>Loading shops...</p>
+          <p className="manageshops-loading">Loading shops...</p>
         ) : shops.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="auto-fit-grid">
             {shops.map(shop => (
               <div 
                 key={shop.id} 
-                className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                className="manageshops-card"
               >
                 <img
                   src={shop.coverImage || '/assets/modern-plant-store-interior.jpg'}
                   alt={shop.shopName}
-                  className="w-full h-48 object-cover"
+                  className="manageshops-card-image"
                 />
-                <div className="p-4">
-                  <h2 className="text-xl font-semibold mb-2">{shop.shopName}</h2>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                <div className="manageshops-card-body">
+                  <h2 className="manageshops-card-title">{shop.shopName}</h2>
+                  <p className="manageshops-card-description line-clamp-2">
                     {shop.description || 'No description provided'}
                   </p>
                   <button
                     onClick={() => navigate(`/account/shops/${shop.id}`)}
-                    className="w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
+                    className="btn-primary manageshops-card-btn"
                   >
                     Manage Shop
                   </button>
@@ -69,11 +69,11 @@ export default function ManageShops() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">You don't have any shops yet</p>
+          <div className="empty-state">
+            <p className="empty-state-text">You don't have any shops yet</p>
             <button
               onClick={() => navigate('/create-shop')}
-              className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+              className="btn-primary manageshops-empty-btn"
             >
               Create Your First Shop
             </button>

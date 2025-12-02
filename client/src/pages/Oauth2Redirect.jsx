@@ -102,14 +102,14 @@ const OAuthCallback = () => {
 
   if (twoFactorRequired) {
     return (
-      <div className="h-screen flex flex-col justify-center items-center gap-6 bg-dark4back text-notBrightWhite">
-        <div className="bg-dark3back p-8 rounded-lg shadow-lg max-w-md w-full">
-          <h2 className="text-2xl font-bold mb-4 text-center">Two-Factor Authentication</h2>
-          <p className="text-gray-400 mb-6 text-center">
+      <div className="oauth-twofactor-page">
+        <div className="modal-card modal-card--shadow-lg oauth-twofactor-card">
+          <h2 className="page-title page-title--large">Two-Factor Authentication</h2>
+          <p className="page-description">
             Enter the 6-digit code from your authenticator app
           </p>
-          
-          <form onSubmit={handleTwoFactorSubmit} className="space-y-4">
+
+          <form onSubmit={handleTwoFactorSubmit} className="form">
             <div>
               <input
                 type="text"
@@ -119,13 +119,13 @@ const OAuthCallback = () => {
                 value={twoFactorCode}
                 onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
-                className="w-full px-4 py-3 bg-dark2back border border-gray-700 rounded-lg text-center text-2xl tracking-widest focus:outline-none focus:border-blue-500"
+                className="oauth-twofactor-input"
                 autoFocus
               />
             </div>
 
             {error && (
-              <div className="text-red-400 text-sm text-center">
+              <div className="oauth-error">
                 {error}
               </div>
             )}
@@ -133,7 +133,7 @@ const OAuthCallback = () => {
             <button
               type="submit"
               disabled={twoFactorCode.length !== 6 || isVerifying}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+              className="btn-primary oauth-submit"
             >
               {isVerifying ? "Verifying..." : "Verify"}
             </button>
@@ -144,14 +144,14 @@ const OAuthCallback = () => {
   }
 
   return (
-      <div className="h-screen flex flex-col justify-center items-center gap-3 bg-dark4back text-notBrightWhite text-lg font-medium">
+      <div className="oauth-loading">
         <Hourglass
             size={48}
             strokeWidth={1.5}
-            className="text-notBrightWhite animate-spin-accelerate"
+            className="oauth-spinner"
         />
         <div>Logging in {provider ? `using ${provider}` : ""}</div>
-        {error && <div className="text-red-400 text-sm">{error}</div>}
+        {error && <div className="oauth-loading-error">{error}</div>}
       </div>
   );
 };

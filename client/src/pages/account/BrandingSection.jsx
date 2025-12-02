@@ -2,60 +2,60 @@ import React from 'react'
 
 export default function BrandingSection({ form, editing, setEditing, handleChange, handleFiles, ownerDisplayName }) {
   return (
-    <div className="border rounded-2xl bg-white">
-      <div className="p-5 border-b flex items-center justify-between">
+    <div className="account-section branding-section">
+      <div className="account-section-header">
         <div>
-          <h2 className="text-lg font-semibold">Branding & about you</h2>
-          <div className="text-xs text-slate-500">Update name, cover, avatar, and your bio</div>
+          <h2 className="account-section-title">Branding & about you</h2>
+          <div className="account-section-subtitle">Update name, cover, avatar, and your bio</div>
         </div>
         {!editing.branding ? (
-          <button type="button" onClick={() => setEditing(e => ({ ...e, branding: true }))} className="px-3 py-1.5 rounded-full text-xs text-white bg-gray-900 hover:bg-gray-800">Edit section</button>
+          <button type="button" onClick={() => setEditing(e => ({ ...e, branding: true }))} className="btn-primary account-section-edit-button">Edit section</button>
         ) : (
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setEditing(e => ({ ...e, branding: false }))} className="px-3 py-1.5 rounded border text-xs hover:bg-slate-50">Cancel</button>
-            <button type="button" onClick={() => setEditing(e => ({ ...e, branding: false }))} className="px-3 py-1.5 rounded text-xs text-white bg-gray-900 hover:bg-gray-800">Save section</button>
+          <div className="account-section-actions">
+            <button type="button" onClick={() => setEditing(e => ({ ...e, branding: false }))} className="btn-secondary account-section-cancel-button">Cancel</button>
+            <button type="button" onClick={() => setEditing(e => ({ ...e, branding: false }))} className="btn-primary account-section-save-button">Save section</button>
           </div>
         )}
       </div>
       {!editing.branding ? (
-        <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <p className="text-sm text-slate-600">Shop name</p>
-            <p className="font-medium">{form.shopName || 'Untitled shop'}</p>
-            <p className="text-sm text-slate-600 mt-3">Owner</p>
-            <p className="font-medium">{ownerDisplayName}</p>
-            <p className="text-sm text-slate-600 mt-3">About you</p>
-            <p className="text-slate-700 whitespace-pre-wrap min-h-12">{form.ownerDescription || 'Share a short bio to connect with customers.'}</p>
+        <div className="account-section-content branding-section-view">
+          <div className="branding-section-main">
+            <p className="account-section-label">Shop name</p>
+            <p className="account-section-value">{form.shopName || 'Untitled shop'}</p>
+            <p className="account-section-label branding-section-label-spaced">Owner</p>
+            <p className="account-section-value">{ownerDisplayName}</p>
+            <p className="account-section-label branding-section-label-spaced">About you</p>
+            <p className="account-section-text">{form.ownerDescription || 'Share a short bio to connect with customers.'}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="branding-section-avatar">
             {form.avatarImage ? (
-              <img src={URL.createObjectURL(form.avatarImage)} alt="avatar" className="h-16 w-16 rounded-full object-cover border" />
+              <img src={URL.createObjectURL(form.avatarImage)} alt="avatar" className="branding-section-avatar-image" />
             ) : (
-              <div className="h-16 w-16 rounded-full bg-slate-100 border" />
+              <div className="branding-section-avatar-placeholder" />
             )}
             <div>
-              <p className="text-sm text-slate-600">Avatar</p>
-              <p className="text-xs text-slate-500">Shown in your shop header</p>
+              <p className="account-section-label">Avatar</p>
+              <p className="account-section-hint">Shown in your shop header</p>
             </div>
           </div>
         </div>
       ) : (
-        <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="account-section-content branding-section-edit">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Shop name</label>
-            <input name="shopName" value={form.shopName} onChange={handleChange} className="w-full border rounded px-3 py-2 bg-white" placeholder="e.g. Luna's Ceramics" required />
+            <label className="account-form-label">Shop name</label>
+            <input name="shopName" value={form.shopName} onChange={handleChange} className="glass-input account-form-input" placeholder="e.g. Luna's Ceramics" required />
           </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1">About you</label>
-            <textarea name="ownerDescription" value={form.ownerDescription} onChange={handleChange} rows={4} className="w-full border rounded px-3 py-2 bg-white" placeholder="Tell customers about yourself" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Cover image</label>
-            <input type="file" accept="image/*" onChange={(e) => handleFiles(e, 'coverImage')} className="block w-full text-sm" />
+          <div className="branding-section-edit-description">
+            <label className="account-form-label">About you</label>
+            <textarea name="ownerDescription" value={form.ownerDescription} onChange={handleChange} rows={4} className="glass-input account-form-textarea" placeholder="Tell customers about yourself" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Avatar image</label>
-            <input type="file" accept="image/*" onChange={(e) => handleFiles(e, 'avatarImage')} className="block w-full text-sm" />
+            <label className="account-form-label">Cover image</label>
+            <input type="file" accept="image/*" onChange={(e) => handleFiles(e, 'coverImage')} className="account-form-file" />
+          </div>
+          <div>
+            <label className="account-form-label">Avatar image</label>
+            <input type="file" accept="image/*" onChange={(e) => handleFiles(e, 'avatarImage')} className="account-form-file" />
           </div>
         </div>
       )}

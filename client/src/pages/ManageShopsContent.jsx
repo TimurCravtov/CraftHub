@@ -25,12 +25,12 @@ export default function ManageShopsContent() {
   }, [])
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-900">Your Shops</h2>
+    <div className="manageshops-panel">
+      <div className="manageshops-panel-header">
+        <h2 className="manageshops-panel-title">Your Shops</h2>
         <button
           onClick={() => navigate('/account')}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="btn-primary manageshops-panel-btn"
         >
           <Store className="h-4 w-4" />
           Create New Shop
@@ -38,52 +38,52 @@ export default function ManageShopsContent() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-32">
-          <div className="text-gray-600">Loading shops...</div>
+        <div className="manageshops-loading-box">
+          <div className="manageshops-loading-text">Loading shops...</div>
         </div>
       ) : shops.length === 0 ? (
-        <div className="text-center py-12">
-          <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No shops yet</h3>
-          <p className="text-gray-600 mb-4">Create your first shop to start selling</p>
+        <div className="manageshops-empty-panel">
+          <Store className="manageshops-empty-icon" />
+          <h3 className="manageshops-empty-title">No shops yet</h3>
+          <p className="manageshops-empty-subtitle">Create your first shop to start selling</p>
           <button
             onClick={() => navigate('/account')}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="btn-primary manageshops-empty-button"
           >
             Create Shop
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="manageshops-panel-grid">
           {shops.map((shop) => (
-            <div key={shop.id} className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3 mb-4">
+            <div key={shop.id} className="manageshops-panel-card">
+              <div className="manageshops-panel-card-header">
                 {shop.logo ? (
                   <img 
                     src={shop.logo} 
                     alt={shop.name} 
-                    className="h-12 w-12 rounded-lg object-cover"
+                    className="manageshops-panel-logo"
                   />
                 ) : (
-                  <div className="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <Store className="h-6 w-6 text-gray-400" />
+                  <div className="manageshops-panel-logo-fallback">
+                    <Store className="h-5 w-5" />
                   </div>
                 )}
                 <div>
-                  <h3 className="font-semibold text-gray-900">{shop.shopName || shop.name}</h3>
-                  <p className="text-sm text-gray-600">{shop.description}</p>
+                  <h3 className="manageshops-panel-name">{shop.shopName || shop.name}</h3>
+                  <p className="manageshops-panel-description">{shop.description}</p>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="manageshops-panel-actions">
                 <button
                   onClick={() => navigate(`/account?shopId=${shop.id}`)}
-                  className="flex-1 px-3 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                  className="manageshops-panel-edit"
                 >
                   Edit Shop
                 </button>
                 <button
                   onClick={() => navigate(`/shops/${shop.id}`)}
-                  className="flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
+                  className="manageshops-panel-view"
                 >
                   View Shop
                 </button>

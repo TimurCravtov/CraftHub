@@ -243,11 +243,11 @@ export default function Settings() {
 
   if (loading) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="page-loading page-loading--gradient">
           <Header />
-          <div className="max-w-lg mx-auto mt-16 p-8 bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl border border-gray-200">
-            <div className="flex justify-center items-center h-64">
-              <div className="text-lg text-gray-600">Loading user data...</div>
+          <div className="settings-loading-container">
+            <div className="settings-loading-content">
+              <div className="settings-loading-text">Loading user data...</div>
             </div>
           </div>
         </div>
@@ -255,19 +255,17 @@ export default function Settings() {
   }
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="settings-page futuristic-page-base">
         <Header />
-        <div className="max-w-4xl mx-auto mt-16 p-8 bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl border border-gray-200">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="settings-container">
+          <div className="settings-header">
+            <h1 className="settings-title">
               Account Settings
             </h1>
             {activeTab === 'account' && (
                 <button
                     onClick={handleEditToggle}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                        editing ? "bg-red-500 text-white hover:bg-red-600" : "bg-indigo-500 text-white hover:bg-indigo-600"
-                    }`}
+                    className={editing ? "btn-secondary settings-edit-btn settings-edit-btn--cancel" : "btn-primary settings-edit-btn settings-edit-btn--edit"}
                 >
                   {editing ? (
                       <>
@@ -284,12 +282,10 @@ export default function Settings() {
             )}
           </div>
 
-          <div className="flex space-x-1 mb-8 bg-gray-100 p-1 rounded-lg">
+          <div className="settings-tabs">
             <button
                 onClick={() => setActiveTab('account')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
-                    activeTab === 'account' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={activeTab === 'account' ? 'settings-tab is-active' : 'settings-tab'}
             >
               <SettingsIcon className="h-4 w-4" />
               Account Details
@@ -297,9 +293,7 @@ export default function Settings() {
             {isSeller && (
                 <button
                     onClick={() => setActiveTab('shops')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
-                        activeTab === 'shops' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                    className={activeTab === 'shops' ? 'settings-tab is-active' : 'settings-tab'}
                 >
                   <Store className="h-4 w-4" />
                   Manage Shops
@@ -307,59 +301,59 @@ export default function Settings() {
             )}
           </div>
 
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg border shadow-sm">
-            <p className="flex items-center gap-2 text-gray-700">
+          <div className="settings-user-info">
+            <p className="settings-user-info-item">
               <User className="h-5 w-5 text-indigo-500" />
-              <span className="font-medium">Name:</span> {user?.name || "N/A"}
+              <span className="settings-user-info-label">Name:</span> {user?.name || "N/A"}
             </p>
-            <p className="flex items-center gap-2 text-gray-700 mt-2">
+            <p className="settings-user-info-item">
               <Mail className="h-5 w-5 text-indigo-500" />
-              <span className="font-medium">Email:</span> {user?.email || "N/A"}
+              <span className="settings-user-info-label">Email:</span> {user?.email || "N/A"}
             </p>
-            <p className="flex items-center gap-2 text-gray-700 mt-2">
-              <span className="font-medium">Role:</span> {user?.accountType || user?.role || "buyer"}
+            <p className="settings-user-info-item">
+              <span className="settings-user-info-label">Role:</span> {user?.accountType || user?.role || "buyer"}
             </p>
-            <p className="flex items-center gap-2 text-gray-700 mt-2">
+            <p className="settings-user-info-item">
               <Shield className="h-5 w-5 text-indigo-500" />
-              <span className="font-medium">2FA:</span> {is2FAEnabled ? "Enabled" : "Disabled"}
+              <span className="settings-user-info-label">2FA:</span> {is2FAEnabled ? "Enabled" : "Disabled"}
             </p>
           </div>
 
           {activeTab === 'account' && (
               <>
                 {editing && (
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Choose Role</label>
+                    <form onSubmit={handleSubmit} className="settings-form">
+                      <div className="settings-field">
+                        <label className="settings-label">Choose Role</label>
                         <select
                             name="role"
                             value={form.role}
                             onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2 shadow-sm focus:ring-2 focus:ring-indigo-400"
+                            className="settings-select"
                         >
                           <option value="buyer">Buyer</option>
                           <option value="seller">Seller</option>
                         </select>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Current Password</label>
-                        <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+                      <div className="settings-field">
+                        <label className="settings-label">Current Password</label>
+                        <div className="settings-input-wrapper">
                           <Lock className="h-5 w-5 text-gray-400 mr-2" />
                           <input
                               type="password"
                               name="currentPassword"
                               value={form.currentPassword}
                               onChange={handleChange}
-                              className="flex-1 bg-transparent outline-none"
+                              className="settings-input"
                               required
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">New Name</label>
-                        <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+                      <div className="settings-field">
+                        <label className="settings-label">New Name</label>
+                        <div className="settings-input-wrapper">
                           <User className="h-5 w-5 text-gray-400 mr-2" />
                           <input
                               type="text"
@@ -367,14 +361,14 @@ export default function Settings() {
                               value={form.newName}
                               onChange={handleChange}
                               placeholder="Leave empty if unchanged"
-                              className="flex-1 bg-transparent outline-none"
+                              className="settings-input"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">New Password</label>
-                        <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+                      <div className="settings-field">
+                        <label className="settings-label">New Password</label>
+                        <div className="settings-input-wrapper">
                           <KeyRound className="h-5 w-5 text-gray-400 mr-2" />
                           <input
                               type="password"
@@ -382,14 +376,14 @@ export default function Settings() {
                               value={form.newPassword}
                               onChange={handleChange}
                               placeholder="Leave empty if unchanged"
-                              className="flex-1 bg-transparent outline-none"
+                              className="settings-input"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">New Email</label>
-                        <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+                      <div className="settings-field">
+                        <label className="settings-label">New Email</label>
+                        <div className="settings-input-wrapper">
                           <Mail className="h-5 w-5 text-gray-400 mr-2" />
                           <input
                               type="email"
@@ -397,24 +391,22 @@ export default function Settings() {
                               value={form.newEmail}
                               onChange={handleChange}
                               placeholder="Leave empty if unchanged"
-                              className="flex-1 bg-transparent outline-none"
+                              className="settings-input"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Two-Factor Authentication</label>
+                      <div className="settings-field">
+                        <label className="settings-label">Two-Factor Authentication</label>
                         <button
                             type="button"
                             onClick={handle2FAToggle}
                             disabled={twoFALoading}
-                            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all ${
-                                twoFALoading
-                                    ? "bg-gray-400 text-white cursor-not-allowed"
-                                    : is2FAEnabled
-                                        ? "bg-red-600 text-white hover:bg-red-700"
-                                        : "bg-green-600 text-white hover:bg-green-700"
-                            }`}
+                            className={twoFALoading
+                                ? "settings-2fa-btn"
+                                : is2FAEnabled
+                                    ? "settings-2fa-btn settings-2fa-btn--disable"
+                                    : "settings-2fa-btn settings-2fa-btn--enable"}
                         >
                           <Shield className="h-5 w-5" />
                           {twoFALoading ? "Processing..." : is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
@@ -422,16 +414,16 @@ export default function Settings() {
                       </div>
 
                       {show2FAConfirm && (
-                          <div className="space-y-4">
+                          <div className="settings-2fa-section">
                             <div>
-                              <p className="text-sm text-gray-600 mb-2">
+                              <p className="settings-2fa-instructions">
                                 Scan this QR code with your authenticator app:
                               </p>
-                              <img src={qrCode} alt="2FA QR Code" className="mx-auto w-48 h-48" />
+                              <img src={qrCode} alt="2FA QR Code" className="settings-2fa-qr" />
                             </div>
-                            <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-1">Enter 2FA Code</label>
-                              <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
+                            <div className="settings-field">
+                              <label className="settings-label">Enter 2FA Code</label>
+                              <div className="settings-input-wrapper">
                                 <Shield className="h-5 w-5 text-gray-400 mr-2" />
                                 <input
                                     type="text"
@@ -439,7 +431,7 @@ export default function Settings() {
                                     value={twoFactorCode}
                                     onChange={handleChange}
                                     placeholder="Enter 6-digit code"
-                                    className="flex-1 bg-transparent outline-none"
+                                    className="settings-input"
                                 />
                               </div>
                             </div>
@@ -447,9 +439,7 @@ export default function Settings() {
                                 type="button"
                                 onClick={handle2FASubmit}
                                 disabled={twoFALoading}
-                                className={`w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all ${
-                                    twoFALoading ? "opacity-50 cursor-not-allowed" : ""
-                                }`}
+                                className="btn-primary settings-2fa-verify-btn"
                             >
                               <Save className="h-5 w-5" />
                               Verify 2FA Code
@@ -459,7 +449,7 @@ export default function Settings() {
 
                       <button
                           type="submit"
-                          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all"
+                          className="btn-primary settings-submit-btn"
                       >
                         <Save className="h-5 w-5" /> Save Changes
                       </button>
@@ -472,8 +462,8 @@ export default function Settings() {
 
           {message && (
               <p
-                  className={`mt-6 text-center text-sm font-medium ${
-                      message.startsWith("✅") ? "text-green-600" : "text-red-600"
+                  className={`settings-message ${
+                      message.startsWith("✅") ? "settings-message--success" : "settings-message--error"
                   }`}
               >
                 {message}

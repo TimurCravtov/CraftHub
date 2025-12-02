@@ -88,49 +88,28 @@ export default function Items() {
     const visibleProducts = useMemo(() => filteredProducts.slice(0, itemsToShow), [filteredProducts, itemsToShow])
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="items-page futuristic-page-base">
             <Header />
 
-            <div
-                className="relative h-64 bg-cover bg-center"
-                style={{ backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)' }}
-            >
-                <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
-                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
-                    <h1 className="text-4xl font-bold text-white mb-4">Items</h1>
-                    <div className="flex items-center space-x-2 text-white/80">
-                        <a href="/" className="text-blue-400 hover:text-white">Home</a>
-                        <span>&gt;</span>
-                        {fromShops && (
-                            <>
-                                <a href="/shops" className="text-blue-400 hover:text-white">Shops</a>
-                                <span>&gt;</span>
-                            </>
-                        )}
-                        <span>Items</span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                    <div className="flex items-center space-x-4">
-                        <button className="inline-flex items-center space-x-2 border rounded px-3 py-1.5 bg-white hover:bg-slate-50">
+            <div className="page-content page-content--no-hero">
+                <div className="page-toolbar">
+                    <div className="page-toolbar-left">
+                        <button className="btn-primary" style={{ gap: '0.5rem' }}>
                             <Filter className="h-4 w-4" />
                             <span>Filter</span>
                         </button>
-                        <div className="flex items-center space-x-2">
-                            <button className="p-2 rounded hover:bg-slate-100"><Grid3X3 className="h-4 w-4" /></button>
-                            <button className="p-2 rounded hover:bg-slate-100"><List className="h-4 w-4" /></button>
+                        <div className="items-view-toggle">
+                            <button><Grid3X3 className="h-4 w-4" /></button>
+                            <button><List className="h-4 w-4" /></button>
                         </div>
-                        <span className="text-sm text-slate-600">{`Showing 1-${Math.min(itemsToShow, products.length)} of ${products.length} items`}</span>
+                        <span className="items-summary">{`Showing 1-${Math.min(itemsToShow, products.length)} of ${products.length} items`}</span>
                     </div>
 
-                    <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm text-slate-600">Show</span>
+                    <div className="page-toolbar-right">
+                        <div className="page-toolbar-left">
+                            <span className="items-summary">Show</span>
                             <select
-                                className="border rounded px-2 py-1 bg-white"
+                                className="toolbar-select"
                                 value={itemsToShow}
                                 onChange={(e) => setItemsToShow(Number(e.target.value))}
                             >
@@ -140,10 +119,10 @@ export default function Items() {
                             </select>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                            <span className="text-sm text-slate-600">Sort by</span>
+                        <div className="page-toolbar-left">
+                            <span className="items-summary">Sort by</span>
                             <select
-                                className="border rounded px-2 py-1 bg-white"
+                                className="toolbar-select"
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                             >
@@ -156,7 +135,7 @@ export default function Items() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                <div className="responsive-grid">
                     {visibleProducts.map((p) => {
                         const product = {
                             id: p.id,

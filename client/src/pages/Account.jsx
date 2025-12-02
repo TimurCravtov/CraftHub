@@ -346,12 +346,12 @@ export default function Account() {
   }, [location.search]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="account-page futuristic-page-base">
       <Header />
 
       <AccountHeader form={form} ownerDisplayName={ownerDisplayName} />
 
-      <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <form onSubmit={handleSubmit} className="container-2xl account-form">
         <BrandingSection form={form} editing={editing} setEditing={setEditing} handleChange={handleChange} handleFiles={handleFiles} ownerDisplayName={ownerDisplayName} />
 
         <AboutShopSection form={form} editing={editing} setEditing={setEditing} handleChange={handleChange} handleFiles={handleFiles} />
@@ -359,9 +359,9 @@ export default function Account() {
   <GallerySection form={form} editing={editing} setEditing={setEditing} handleItemChange={handleItemChange} handleItemImageChange={handleItemImageChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleRemoveCurrentImage={handleRemoveCurrentImage} />
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3">
-          <button type="button" onClick={() => window.history.back()} className="px-4 py-2 rounded border hover:bg-slate-50">Cancel</button>
-          <button type="submit" className="px-5 py-2 rounded bg-gray-900 text-white hover:bg-gray-800">Save</button>
+        <div className="account-actions">
+          <button type="button" onClick={() => window.history.back()} className="btn-secondary account-cancel-button">Cancel</button>
+          <button type="submit" className="btn-primary account-save-button">Save</button>
         </div>
       </form>
     </div>

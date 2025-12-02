@@ -15,88 +15,69 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="checkout-page futuristic-page-base">
       <Header />
 
-      <div
-        className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)' }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
-          <h1 className="text-4xl font-bold text-white mb-4">Checkout</h1>
-          <div className="flex items-center space-x-2 text-white/80">
-            <a href="/" className="hover:text-white">Home</a>
-            <span>&gt;</span>
-            <a href="/checkout" className="text-blue-600 font-semibold hover:text-white">Checkout</a>
-          </div>
-        </div>
-      </div>
+      <div className="container-2xl two-column-layout two-column-layout--spacious page-content--no-hero">
+        <form className="checkout-form">
+          <h2 className="checkout-section-title">Billing details</h2>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <form className="lg:col-span-2 space-y-5">
-          <h2 className="text-lg font-semibold">Billing details</h2>
-
-         
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">First Name</label>
-              <input className="w-full border rounded-md px-3 py-2" placeholder="John" />
-            </div>
-          
-
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">Town / City</label>
-              <input className="w-full border rounded-md px-3 py-2" />
-            </div>
-          
-
-          <div>
-            <label className="block text-sm text-slate-600 mb-1">Street address</label>
-            <input className="w-full border rounded-md px-3 py-2" />
+          <div className="checkout-field">
+            <label className="checkout-label">First Name</label>
+            <input className="checkout-input" placeholder="John" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">Phone</label>
-              <input className="w-full border rounded-md px-3 py-2" />
+          <div className="checkout-field">
+            <label className="checkout-label">Town / City</label>
+            <input className="checkout-input" />
+          </div>
+
+          <div className="checkout-field">
+            <label className="checkout-label">Street address</label>
+            <input className="checkout-input" />
+          </div>
+
+          <div className="checkout-grid">
+            <div className="checkout-field">
+              <label className="checkout-label">Phone</label>
+              <input className="checkout-input" />
             </div>
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">Email address</label>
-              <input type="email" className="w-full border rounded-md px-3 py-2" />
+            <div className="checkout-field">
+              <label className="checkout-label">Email address</label>
+              <input type="email" className="checkout-input" />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm text-slate-600 mb-1">Additional information</label>
-            <textarea rows={3} className="w-full border rounded-md px-3 py-2" />
+          <div className="checkout-field">
+            <label className="checkout-label">Additional information</label>
+            <textarea rows={3} className="checkout-textarea" />
           </div>
         </form>
 
-        <div className="lg:col-span-1">
-          <div className="border rounded-lg p-5 space-y-4">
-            <h3 className="font-semibold">Product</h3>
-            <div className="divide-y">
+        <div>
+          <div className="checkout-summary">
+            <h3 className="checkout-summary-title">Product</h3>
+            <div className="checkout-summary-list">
               {items.map(it => (
-                <div key={it.id} className="flex items-center justify-between py-2 text-sm">
-                  <span className="text-slate-700">{it.title} <span className="text-slate-400">x {it.qty}</span></span>
-                  <span className="font-medium">{formatted(it.price * it.qty)}</span>
+                <div key={it.id} className="checkout-summary-product">
+                  <span>{it.title} <span className="text-slate-400">x {it.qty}</span></span>
+                  <span>{formatted(it.price * it.qty)}</span>
                 </div>
               ))}
             </div>
-            <div className="flex items-center justify-between text-sm">
+            <div className="checkout-summary-row">
               <span className="text-slate-600">Subtotal</span>
               <span>{formatted(subtotal)}</span>
             </div>
-            <div className="flex items-center justify-between text-sm font-semibold text-amber-700">
-              <span>Total</span>
-              <span>{formatted(subtotal)}</span>
+            <div className="checkout-summary-row">
+              <span className="checkout-summary-total">Total</span>
+              <span className="checkout-summary-total">{formatted(subtotal)}</span>
             </div>
-            <div className="space-y-2 text-xs text-slate-600">
-              <label className="flex items-center gap-2"><input type="radio" name="pay" defaultChecked /> Direct Bank Transfer</label>
-              <p className="leading-relaxed"></p>
-              <label className="flex items-center gap-2"><input type="radio" name="pay" /> Cash</label>
+            <div className="checkout-payments">
+              <label><input type="radio" name="pay" defaultChecked /> Direct Bank Transfer</label>
+              <label><input type="radio" name="pay" /> Cash</label>
             </div>
-            <button onClick={handleOrderButton} className="w-full rounded-lg bg-gray-900 text-white py-2 hover:bg-gray-800">Place order</button>
+            <button onClick={handleOrderButton} className="btn-primary btn-primary--full btn-primary--large">Place order</button>
           </div>
         </div>
       </div>

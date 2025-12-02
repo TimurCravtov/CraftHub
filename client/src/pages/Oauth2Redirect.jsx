@@ -104,12 +104,12 @@ const OAuthCallback = () => {
     return (
       <div className="oauth-twofactor-page">
         <div className="modal-card modal-card--shadow-lg oauth-twofactor-card">
-          <h2 className="page-title page-title--large">Two-Factor Authentication</h2>
-          <p className="page-description">
+          <h2 className="oauth-twofactor-title">Two-Factor Authentication</h2>
+          <p className="oauth-twofactor-description">
             Enter the 6-digit code from your authenticator app
           </p>
 
-          <form onSubmit={handleTwoFactorSubmit} className="form">
+          <form onSubmit={handleTwoFactorSubmit} className="oauth-twofactor-form">
             <div>
               <input
                 type="text"
@@ -133,7 +133,7 @@ const OAuthCallback = () => {
             <button
               type="submit"
               disabled={twoFactorCode.length !== 6 || isVerifying}
-              className="btn-primary oauth-submit"
+              className="oauth-submit"
             >
               {isVerifying ? "Verifying..." : "Verify"}
             </button>

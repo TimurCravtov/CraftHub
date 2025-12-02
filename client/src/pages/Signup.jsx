@@ -152,7 +152,9 @@ export default function Signup() {
         try {
             console.log('🔵 [Signup.jsx] Attempting signup...');
             
-            const res = await api.post('/api/auth/signup', signupData, { noAuth: true });
+            // Sanitize signup data before sending
+            const sanitizedSignupData = sanitizeFormData(signupData);
+            const res = await api.post('/api/auth/signup', sanitizedSignupData, { noAuth: true });
             console.log('✅ [Signup.jsx] Signup response:', res);
             
             const data = res.data;
@@ -191,7 +193,9 @@ export default function Signup() {
         try {
             console.log('🔵 [Signup.jsx] Attempting login with:', { email: loginData.email });
             
-            const res = await api.post('/api/auth/signin', loginData, { noAuth: true });
+            // Sanitize login data before sending
+            const sanitizedLoginData = sanitizeFormData(loginData);
+            const res = await api.post('/api/auth/signin', sanitizedLoginData, { noAuth: true });
             console.log('✅ [Signup.jsx] Login response:', res);
 
             // Check if 2FA is required
@@ -238,9 +242,12 @@ export default function Signup() {
         try {
             console.log('🔵 [Signup.jsx] Verifying 2FA...');
             
+            // Sanitize 2FA code before sending
+            const sanitizedCode = sanitizeInput(twoFactorCode, '2fa');
+            
             const res = await api.post('/api/auth/verify-2fa', {
                 userId: pendingUserId.toString(),
-                code: twoFactorCode
+                code: sanitizedCode
             }, { noAuth: true });
 
             console.log('✅ [Signup.jsx] 2FA verification response:', res);
@@ -433,7 +440,7 @@ export default function Signup() {
                                         type="text"
                                         placeholder="6-digit code"
                                         value={twoFactorCode}
-                                        onChange={(e) => setTwoFactorCode(e.target.value)}
+                                        onChange={(e) => setTwoFactorCode(sanitizeInput(e.target.value, '2fa'))}
                                         className="glass-input"
                                         required
                                     />

@@ -8,8 +8,95 @@ import React, {
 } from "react";
 import axios from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
+import { sanitizeEmail, sanitizePassword, sanitizeName, sanitizeUserInput, sanitize2FA, sanitizeDescription, sanitizePhone, sanitizeAddress, safeUrl } from '../utils/sanitize.js';
 
 const AuthApiContext = createContext(null);
+
+/**
+ * Recursively sanitize request data to prevent XSS attacks
+ * This function handles objects, arrays, FormData, and primitive values
+ */
+function sanitizeRequestData(data) {
+    // Skip sanitization for FormData (file uploads)
+    if (data instanceof FormData) {
+        // Sanitize text fields in FormData
+        const sanitizedFormData = new FormData();
+        for (const [key, value] of data.entries()) {
+            if (value instanceof File || value instanceof Blob) {
+                sanitizedFormData.append(key, value);
+            } else {
+                const sanitized = sanitizeValueByKey(key, String(value));
+                sanitizedFormData.append(key, sanitized);
+            }
+        }
+        return sanitizedFormData;
+    }
+    
+    // Handle arrays
+    if (Array.isArray(data)) {
+        return data.map(item => {
+            if (item instanceof File || item instanceof Blob || typeof item !== 'object' || item === null) {
+                return typeof item === 'string' ? sanitizeValueByKey('', item) : item;
+            }
+            return sanitizeRequestData(item);
+        });
+    }
+    
+    // Handle objects
+    if (typeof data === 'object' && data !== null) {
+        const sanitized = {};
+        for (const [key, value] of Object.entries(data)) {
+            if (value === null || value === undefined) {
+                sanitized[key] = value;
+            } else if (value instanceof File || value instanceof Blob) {
+                sanitized[key] = value;
+            } else if (Array.isArray(value)) {
+                sanitized[key] = sanitizeRequestData(value);
+            } else if (typeof value === 'object') {
+                sanitized[key] = sanitizeRequestData(value);
+            } else {
+                sanitized[key] = sanitizeValueByKey(key, String(value));
+            }
+        }
+        return sanitized;
+    }
+    
+    // Handle primitive values
+    if (typeof data === 'string') {
+        return sanitizeValueByKey('', data);
+    }
+    
+    return data;
+}
+
+/**
+ * Sanitize a value based on its field name
+ */
+function sanitizeValueByKey(key, value) {
+    if (!value || typeof value !== 'string') return value;
+    
+    const lowerKey = key.toLowerCase();
+    
+    if (lowerKey.includes('email')) {
+        return sanitizeEmail(value);
+    } else if (lowerKey.includes('password')) {
+        return sanitizePassword(value);
+    } else if (lowerKey.includes('name') && !lowerKey.includes('description')) {
+        return sanitizeName(value);
+    } else if (lowerKey.includes('url')) {
+        return safeUrl(value);
+    } else if (lowerKey.includes('2fa') || lowerKey.includes('twofactor') || (lowerKey.includes('code') && lowerKey.includes('factor'))) {
+        return sanitize2FA(value);
+    } else if (lowerKey.includes('description')) {
+        return sanitizeDescription(value);
+    } else if (lowerKey.includes('phone')) {
+        return sanitizePhone(value);
+    } else if (lowerKey.includes('address') || lowerKey.includes('city') || lowerKey.includes('town')) {
+        return sanitizeAddress(value);
+    } else {
+        return sanitizeUserInput(value);
+    }
+}
 
 export function AuthApiProvider({ children }) {
     // Initialize from localStorage
@@ -91,6 +178,17 @@ export function AuthApiProvider({ children }) {
                 config.headers = config.headers || {};
                 config.headers.Authorization = `Bearer ${accessToken}`;
             }
+            
+            // Sanitize request data to prevent XSS
+            if (config.data) {
+                config.data = sanitizeRequestData(config.data);
+            }
+            
+            // Sanitize URL parameters
+            if (config.params) {
+                config.params = sanitizeRequestData(config.params);
+            }
+            
             return config;
         }, (error) => {
             console.error('Request interceptor error:', error);

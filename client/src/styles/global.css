@@ -2002,7 +2002,7 @@ body {
 .checkout-section-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #111827;
+  color: #ffffff;
 }
 
 .checkout-field {
@@ -2013,17 +2013,34 @@ body {
 
 .checkout-label {
   font-size: 0.9rem;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
 }
 
 /* Checkout inputs use standard form styling - no glass effect needed */
 .checkout-input,
 .checkout-textarea {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-sm);
   padding: 0.6rem 0.85rem;
   font-size: 0.95rem;
+  background: var(--color-white-03);
+  color: #ffffff;
+  backdrop-filter: var(--blur-sm);
+}
+
+.checkout-input::placeholder,
+.checkout-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.checkout-input:focus,
+.checkout-textarea:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.5);
+  background: var(--color-white-05);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
 }
 
 .checkout-grid {
@@ -2080,6 +2097,7 @@ body {
   align-items: center;
   padding: 0.6rem 0;
   font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .checkout-summary-product span:last-child {
@@ -2097,7 +2115,19 @@ body {
   flex-direction: column;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.checkout-payments label {
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkout-payments input[type="radio"] {
+  cursor: pointer;
 }
 
 /* Checkout place order now uses shared .btn-primary .btn-primary--full .btn-primary--large */

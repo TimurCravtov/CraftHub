@@ -110,4 +110,36 @@ export function sanitizeUserInput(input) {
     .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
 }
 
+// Sanitize 2FA code (only allow digits)
+export function sanitize2FA(input) {
+  if (!input) return ''
+  return String(input).replace(/\D/g, '') // Only allow digits
+}
+
+// Sanitize description/text content (allows more characters but still escapes HTML)
+export function sanitizeDescription(input) {
+  if (!input) return ''
+  return escapeText(input)
+    .replace(/javascript:/gi, '')
+    .replace(/data:/gi, '')
+    .replace(/vbscript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+}
+
+// Sanitize phone number (only allow digits, spaces, dashes, parentheses, plus)
+export function sanitizePhone(input) {
+  if (!input) return ''
+  return String(input).replace(/[^\d\s\-\(\)\+]/g, '')
+}
+
+// Sanitize address (allows alphanumeric, spaces, common punctuation)
+export function sanitizeAddress(input) {
+  if (!input) return ''
+  return escapeText(input)
+    .replace(/javascript:/gi, '')
+    .replace(/data:/gi, '')
+    .replace(/vbscript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+}
+
 

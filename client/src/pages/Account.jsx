@@ -5,9 +5,11 @@ import BrandingSection from './account/BrandingSection.jsx'
 import AboutShopSection from './account/AboutShopSection.jsx'
 import GallerySection from './account/GallerySection.jsx'
 import { useAuthApi } from '../context/apiAuthContext.jsx'
+import { useSecurity } from '../hooks/useSecurity.js'
 
 export default function Account() {
   const { api } = useAuthApi()
+  const { sanitizeFormData, sanitizeInput } = useSecurity()
   function isSellerFromJwt() {
     try {
       const authRaw = localStorage.getItem('auth')
@@ -104,7 +106,18 @@ export default function Account() {
 
   function handleChange(e) {
     const { name, value } = e.target
-    setForm(prev => ({ ...prev, [name]: value }))
+    let sanitizedValue = value
+    
+    // Sanitize based on field type
+    if (name === 'shopName') {
+      sanitizedValue = sanitizeInput(value, 'name')
+    } else if (name === 'shopDescription' || name === 'ownerDescription') {
+      sanitizedValue = sanitizeInput(value, 'description')
+    } else {
+      sanitizedValue = sanitizeInput(value, 'text')
+    }
+    
+    setForm(prev => ({ ...prev, [name]: sanitizedValue }))
   }
 
   function handleFiles(eOrFiles, key) {
@@ -136,11 +149,19 @@ export default function Account() {
   async function handleSubmit(e) {
     e.preventDefault()
     try {
-      const payload = {
+      // Sanitize all form data before sending
+      const sanitizedForm = sanitizeFormData({
         shopName: form.shopName,
         ownerName: ownerDisplayName,
         shopDescription: form.shopDescription,
         ownerDescription: form.ownerDescription,
+      })
+      
+      const payload = {
+        shopName: sanitizedForm.shopName,
+        ownerName: sanitizedForm.ownerName,
+        shopDescription: sanitizedForm.shopDescription,
+        ownerDescription: sanitizedForm.ownerDescription,
         logo: form.shopLogo || null,
         // images omitted for now
         hasShop: true,
@@ -177,11 +198,25 @@ export default function Account() {
 
   const handleItemChange = (e) => {
     const { name, value } = e.target
+    let sanitizedValue = value
+    
+    // Sanitize based on field type
+    if (name === 'name') {
+      sanitizedValue = sanitizeInput(value, 'name')
+    } else if (name === 'description') {
+      sanitizedValue = sanitizeInput(value, 'description')
+    } else if (name === 'price') {
+      // Price is numeric, but sanitize to prevent XSS in edge cases
+      sanitizedValue = sanitizeInput(value, 'text')
+    } else {
+      sanitizedValue = sanitizeInput(value, 'text')
+    }
+    
     setForm(prev => ({
       ...prev,
       currentItem: {
         ...prev.currentItem,
-        [name]: value
+        [name]: sanitizedValue
       }
     }))
   }
@@ -259,10 +294,17 @@ export default function Account() {
     const shopId = form.shopId; // Will be null for new shops, populated for existing ones
     
     try {
+      // Sanitize text fields before adding to FormData
+      const sanitizedData = sanitizeFormData({
+        name: name?.trim() || '',
+        price: price ? price.toString() : '0',
+        description: description?.trim() || ''
+      })
+      
       const formData = new FormData();
-      formData.append('name', name.trim());
-      formData.append('price', price ? price.toString() : '0');
-      formData.append('description', description?.trim() || '');
+      formData.append('name', sanitizedData.name);
+      formData.append('price', sanitizedData.price);
+      formData.append('description', sanitizedData.description);
       
       if (images?.length) {
         images.forEach(image => {

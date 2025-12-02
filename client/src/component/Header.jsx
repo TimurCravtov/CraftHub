@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { User, Search, Heart, ShoppingCart, X, LogOut, Settings } from 'lucide-react'
 import { LanguagePicker } from './LanguagePicker.jsx'
 import {useAuthApi} from "../context/apiAuthContext.jsx";
+import { useSecurity } from '../hooks/useSecurity.js'
 
 export default function Header() {
   const location = useLocation()
@@ -13,6 +14,7 @@ export default function Header() {
   const searchInputRef = useRef(null)
   const searchPopupRef = useRef(null)
   const {user, setUser, login, logout, getMe} = useAuthApi()
+  const { sanitizeInput } = useSecurity()
   function getSellerFromJwt() {
     try {
       const authRaw = localStorage.getItem('auth')
@@ -89,9 +91,11 @@ export default function Header() {
 
   function handleSearchChange(e) {
     const value = e.target.value
-    setSearchTerm(value)
+    // Sanitize search input to prevent XSS
+    const sanitizedValue = sanitizeInput(value, 'text')
+    setSearchTerm(sanitizedValue)
     const params = new URLSearchParams(location.search)
-    if (value) params.set('q', value)
+    if (sanitizedValue) params.set('q', sanitizedValue)
     else params.delete('q')
 
     const path = isSearchablePage ? location.pathname : '/shops'

@@ -17,17 +17,20 @@ export default function Login() {
   const [error, setError] = useState('')
   
   const navigate = useNavigate()
-  const { sanitizeInput, validateInput } = useSecurityContext()
+  const { sanitizeInput, validateInput, sanitizeFormData } = useSecurityContext()
   const { api, loginWithToken, getMe } = useAuthApi()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     try {
-      console.log('🔵 Attempting login with:', { email: credentials.email })
+      // Sanitize credentials before sending
+      const sanitizedCredentials = sanitizeFormData(credentials)
+      
+      console.log('🔵 Attempting login with:', { email: sanitizedCredentials.email })
       console.log('🔵 API base URL:', api.defaults.baseURL)
       
-      const response = await api.post('/api/auth/signin', credentials, { noAuth: true })
+      const response = await api.post('/api/auth/signin', sanitizedCredentials, { noAuth: true })
       console.log('✅ Login response:', response)
       
       // Check if 2FA is required
@@ -74,9 +77,12 @@ export default function Login() {
     setIsVerifying(true)
 
     try {
+      // Sanitize 2FA code before sending
+      const sanitizedCode = sanitizeInput(twoFactorCode, '2fa')
+      
       const res = await api.post('/api/auth/verify-2fa', {
         userId: twoFactorData.userId.toString(),
-        code: twoFactorCode
+        code: sanitizedCode
       }, { noAuth: true })
 
       const { accessToken } = res.data
@@ -119,7 +125,7 @@ export default function Login() {
                   pattern="[0-9]*"
                   maxLength="6"
                   value={twoFactorCode}
-                  onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setTwoFactorCode(sanitizeInput(e.target.value, '2fa'))}
                   placeholder="000000"
                   className="glass-input"
                   autoFocus

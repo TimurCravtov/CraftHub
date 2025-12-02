@@ -129,7 +129,7 @@ export default function Settings() {
         newName: sanitizedForm.newName,
       };
 
-      const res = await fetch("https://localhost:8443/api/auth/update-user", {
+      const res = await fetch("http://localhost:8080/api/auth/update-user", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

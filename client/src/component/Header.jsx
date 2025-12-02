@@ -68,11 +68,6 @@ export default function Header() {
   }
 
   useEffect(() => {
-
-    if (localStorage.getItem('user')) {
-      setUser(localStorage.getItem("user"))
-    }
-
     if (location.pathname === '/shops' && location.hash === '#search') {
       setIsSearchOpen(true)
       navigate('/shops', { replace: true })
@@ -172,12 +167,20 @@ export default function Header() {
                     className="p-2 rounded hover:bg-slate-100 flex items-center gap-2"
                     onClick={handleAccountClick}
                 >
-                  <User className="h-5 w-5" />
+                  {user?.profilePictureLink ? (
+                      <img
+                          src={user.profilePictureLink}
+                          alt={user.name}
+                          className="h-8 w-8 rounded-full object-cover border border-slate-200"
+                      />
+                  ) : (
+                      <User className="h-5 w-5" />
+                  )}
                   {user && (
                     <span className="text-sm font-medium">
                       Hi, {user.name}{" "}
                       <span className="text-xs text-slate-500">
-                        ({user.role || (isSeller ? "seller" : "buyer")})
+                        ({user.role || user.accountType || (isSeller ? "seller" : "buyer")})
                       </span>
                     </span>
                   )}

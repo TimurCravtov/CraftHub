@@ -13,12 +13,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOriginPatterns(clientBaseUrl, "https://localhost:*", "http://localhost:*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .exposedHeaders("Authorization")
-                .allowCredentials(true)
-                .maxAge(3600);
+        // CORS is handled in SecurityConfig
+        // registry.addMapping("/**")
+        //         .allowedOriginPatterns(clientBaseUrl, "https://localhost:*", "http://localhost:*")
+        //         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        //         .allowedHeaders("*")
+        //         .exposedHeaders("Authorization")
+        //         .allowCredentials(true)
+        //         .maxAge(3600);
     }
 }

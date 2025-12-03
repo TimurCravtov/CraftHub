@@ -1,5 +1,6 @@
 package utm.server.modules.products.dto;
 
+import io.micrometer.observation.annotation.Observed;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

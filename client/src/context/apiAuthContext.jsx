@@ -25,7 +25,12 @@ export function AuthApiProvider({ children }) {
         try {
             const auth = JSON.parse(localStorage.getItem("auth") || "{}");
             if (auth.name || auth.email) {
-                return { name: auth.name, email: auth.email, accountType: auth.accountType };
+                return { 
+                    name: auth.name, 
+                    email: auth.email, 
+                    accountType: auth.accountType,
+                    profilePictureLink: auth.profilePictureLink 
+                };
             }
             return null;
         } catch {
@@ -45,7 +50,7 @@ export function AuthApiProvider({ children }) {
             try {
                 console.log("Attempting to refresh token...");
                 const res = await axios.post(
-                    "https://localhost:8443/api/auth/refresh",
+                    "http://localhost:8080/api/auth/refresh",
                     {},
                     { withCredentials: true }
                 );
@@ -80,7 +85,7 @@ export function AuthApiProvider({ children }) {
 
     const api = useMemo(() => {
         const instance = axios.create({
-            baseURL: "https://localhost:8443",  // Removed trailing slash
+            baseURL: "http://localhost:8080",  // Removed trailing slash
             withCredentials: true, // send cookies automatically
             timeout: 10000, // 10 second timeout
         });
@@ -145,7 +150,8 @@ export function AuthApiProvider({ children }) {
                 token: accessToken,
                 name: user.name,
                 email: user.email,
-                accountType: user.accountType
+                accountType: user.accountType,
+                profilePictureLink: user.profilePictureLink
             }));
             
             return user;
@@ -168,7 +174,8 @@ export function AuthApiProvider({ children }) {
             token: token,
             name: userData?.name,
             email: userData?.email,
-            accountType: userData?.accountType
+            accountType: userData?.accountType,
+            profilePictureLink: userData?.profilePictureLink
         }));
     }, []);
 

@@ -11,7 +11,6 @@ import utm.server.modules.authentication.dto.UpdateUserDTO;
 import utm.server.modules.authentication.dto.UserSignInDTO;
 import utm.server.modules.authentication.dto.UserSignUpDTO;
 import utm.server.modules.authentication.service.AuthService;
-import utm.server.modules.jwt.JwtService;
 import utm.server.modules.jwt.JwtTokenPair;
 import utm.server.modules.users.UserEntity;
 import utm.server.modules.users.UserRepository;
@@ -26,7 +25,6 @@ import static utm.server.modules.authentication.service.CookieService.setRefresh
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtService jwtService;
     private final UserRepository userRepository;
 
     @PostMapping("/signup")

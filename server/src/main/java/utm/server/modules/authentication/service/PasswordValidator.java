@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class PasswordValidator {
 
-    private static final int MIN_LENGTH = 12;
+    private static final int MIN_LENGTH = 8;
     private static final int MAX_LENGTH = 64;
 
     private static final Pattern HAS_UPPER = Pattern.compile("[A-Z]");

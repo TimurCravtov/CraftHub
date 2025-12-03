@@ -25,6 +25,7 @@ export default function Signup() {
     const { sanitizeInput, validateInput, sanitizeFormData } = useSecurity();
 
     const reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const MIN_LENGTH = 8;
 
     // Client-side password validation
     const validatePasswordClient = (password) => {
@@ -177,7 +178,10 @@ export default function Signup() {
             navigate("/");
         } catch (err) {
             console.error("Signup error:", err);
-            alert(err.response?.data?.message || err.message || "Error while signing up");
+            const errorMessage = typeof err.response?.data === 'string' 
+                ? err.response.data 
+                : (err.response?.data?.message || err.message || "Error while signing up");
+            alert(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

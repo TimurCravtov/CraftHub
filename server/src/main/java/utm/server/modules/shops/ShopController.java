@@ -33,6 +33,11 @@ public class ShopController {
         return shopMapper.toDto(shopService.addShop(shopRequest, user));
     }
 
+    @PutMapping("/{shopId}")
+    public ShopDto updateShop(@PathVariable Long shopId, @RequestBody ShopCreationRequestDTO shopRequest) {
+        return shopMapper.toDto(shopService.updateShop(shopId, shopRequest));
+    }
+
     @GetMapping("/")
     public List<ShopDto> getAllShops() {
         return shopService.getAllShops()
@@ -44,6 +49,14 @@ public class ShopController {
     @GetMapping("/name")
     public List<ShopDto> getShopsByName(@RequestParam String name) {
         return shopService.getShopsByName(name)
+                .stream()
+                .map(shopMapper::toDto)
+                .toList();
+    }
+
+    @GetMapping("/my-shops")
+    public List<ShopDto> getMyShops(@AuthenticationPrincipal UserSecurityPrincipal user) {
+        return shopService.getShopsByUserId(user.getId())
                 .stream()
                 .map(shopMapper::toDto)
                 .toList();

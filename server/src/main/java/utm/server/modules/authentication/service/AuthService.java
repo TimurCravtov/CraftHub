@@ -227,14 +227,20 @@ public class AuthService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid current password");
+        // Only check password for LOCAL users
+        if (user.getProvider() == AuthProvider.LOCAL) {
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new RuntimeException("Invalid current password");
+            }
         }
 
         if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
-            if (request.getCurrentPassword() == null
-                    || !passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-                throw new RuntimeException("Current password is required to set a new password");
+            // For LOCAL users, require current password to change it
+            if (user.getProvider() == AuthProvider.LOCAL) {
+                if (request.getCurrentPassword() == null
+                        || !passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                    throw new RuntimeException("Current password is required to set a new password");
+                }
             }
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }

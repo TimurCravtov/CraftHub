@@ -19,6 +19,7 @@ import Cart from './pages/Cart.jsx'
 import { ToastProvider } from './toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Account from './pages/Account.jsx'
+import CreateShop from './pages/CreateShop.jsx'
 import { TranslationProvider, useTranslation } from './context/translationContext.jsx'
 import { SecurityProvider } from './context/securityContext.jsx'
 
@@ -43,6 +44,14 @@ const router = createBrowserRouter([
   {
     path: '/account',
     element: <Account />,
+  },
+  {
+    path: '/create-shop',
+    element: <CreateShop />,
+  },
+  {
+    path: '/edit-shop/:shopId',
+    element: <CreateShop />,
   },
   {
     path: '/oauth/redirect/:provider',

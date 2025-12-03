@@ -27,13 +27,14 @@ public class ShopService {
     @Transactional
     public ShopEntity addShop(ShopCreationRequestDTO shopRequest, UserSecurityPrincipal user) {
 
-        if (shopRepository.existsByUser_Id(user.getId()))
-            throw new RuntimeException("A shop is already linked to a user");
+        // if (shopRepository.existsByUser_Id(user.getId()))
+        //    throw new RuntimeException("A shop is already linked to a user");
 
         ShopEntity shopEntity = new ShopEntity();
 
         shopEntity.setName(shopRequest.getName());
         shopEntity.setDescription(shopRequest.getDescription());
+        shopEntity.setShopImageKey(shopRequest.getShopImageKey());
         shopEntity.setUser(UserEntity.builder().id(user.getId()).build());
 
         ShopEntity savedShop = shopRepository.save(shopEntity);
@@ -58,6 +59,10 @@ public class ShopService {
         return shopRepository.findByName(name);
     }
 
+    public List<ShopEntity> getShopsByUserId(Long userId) {
+        return shopRepository.findByUser_Id(userId);
+    }
+
     public ShopEntity getShopById(Long shopId){
         Optional<ShopEntity> shopEntityOptional = shopRepository.findById(shopId);
         if (shopEntityOptional.isPresent()) {
@@ -65,6 +70,14 @@ public class ShopService {
         } else {
             throw new RuntimeException("Shop not found with id: " + shopId);
         }
+    }
+
+    public ShopEntity updateShop(Long shopId, ShopCreationRequestDTO shopRequest) {
+        ShopEntity shop = getShopById(shopId);
+        if (shopRequest.getName() != null) shop.setName(shopRequest.getName());
+        if (shopRequest.getDescription() != null) shop.setDescription(shopRequest.getDescription());
+        if (shopRequest.getShopImageKey() != null) shop.setShopImageKey(shopRequest.getShopImageKey());
+        return shopRepository.save(shop);
     }
 
     public ShopEntity getShopByUuid(java.util.UUID uuid){

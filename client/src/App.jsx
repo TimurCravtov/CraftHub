@@ -1,5 +1,6 @@
 import Header from './component/Header.jsx'
 import ManageShops from './pages/ManageShops'
+import CreateShop from './pages/CreateShop'
 import { Routes, Route } from 'react-router-dom';
 
 
@@ -11,7 +12,8 @@ export default function App() {
       <Routes>
         {/* ...other routes... */}
         <Route path="/account/shops" element={<ManageShops />} />
-        <Route path="/create-shop" element={<Account />} />
+        <Route path="/create-shop" element={<CreateShop />} />
+        <Route path="/edit-shop/:shopId" element={<CreateShop />} />
         <Route path="/account/shops/:shopId" element={<Account />} />
       </Routes>
 

@@ -49,20 +49,20 @@ export default function ManageShops() {
                 className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
                 <img
-                  src={shop.coverImage || '/assets/modern-plant-store-interior.jpg'}
+                  src={shop.shopBannerImageUrl || shop.coverImage || '/assets/modern-plant-store-interior.jpg'}
                   alt={shop.shopName}
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-4">
-                  <h2 className="text-xl font-semibold mb-2">{shop.shopName}</h2>
+                  <h2 className="text-xl font-semibold mb-2">{shop.name || shop.shopName}</h2>
                   <p className="text-sm text-gray-600 mb-4 line-clamp-2">
                     {shop.description || 'No description provided'}
                   </p>
                   <button
-                    onClick={() => navigate(`/account/shops/${shop.id}`)}
+                    onClick={() => navigate(`/edit-shop/${shop.id}`)}
                     className="w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
                   >
-                    Manage Shop
+                    Edit Shop
                   </button>
                 </div>
               </div>

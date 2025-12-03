@@ -15,7 +15,7 @@ export default function Settings() {
     role: "buyer",
   });
 
-  const {api} = useAuthApi();
+  const {api, setUser: setGlobalUser} = useAuthApi();
   const [message, setMessage] = useState("");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,8 @@ export default function Settings() {
   const [twoFALoading, setTwoFALoading] = useState(false);
 
   const navigate = useNavigate();
-  const isSeller = user?.accountType === 'seller' || user?.role === 'seller';
+  const isSeller = (user?.accountType || user?.role || "").toLowerCase() === 'seller';
+  const isLocalUser = user?.provider === 'LOCAL';
   const is2FAEnabled = user?.twoFactorEnabled || user?.is2FAEnabled || false;
   const { sanitizeInput, sanitizeFormData } = useSecurityContext();
 
@@ -47,7 +48,7 @@ export default function Settings() {
           newPassword: "",
           newEmail: userData.email || "",
           newName: userData.name || "",
-          role: userData.accountType || userData.role || "buyer",
+          role: (userData.accountType || userData.role || "buyer").toLowerCase(),
         });
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -59,7 +60,7 @@ export default function Settings() {
           newPassword: "",
           newEmail: localUser.email || "",
           newName: localUser.name || "",
-          role: localUser.accountType || localUser.role || "buyer",
+          role: (localUser.accountType || localUser.role || "buyer").toLowerCase(),
         });
       } finally {
         setLoading(false);
@@ -114,7 +115,7 @@ export default function Settings() {
       setMessage("Nothing to update");
       return;
     }
-    if (!form.currentPassword) {
+    if (isLocalUser && !form.currentPassword) {
       setMessage("Please enter your current password to confirm changes.");
       return;
     }
@@ -129,18 +130,8 @@ export default function Settings() {
         newName: sanitizedForm.newName,
       };
 
-      const res = await fetch("http://localhost:8080/api/auth/update-user", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) throw new Error((await res.text()) || "Update failed");
-
-      const updatedUser = await res.json();
+      const res = await api.put("/api/auth/update-user", body);
+      const updatedUser = res.data;
       const updatedUserData = {
         ...user,
         ...updatedUser,
@@ -149,7 +140,15 @@ export default function Settings() {
       };
 
       localStorage.setItem("user", JSON.stringify(updatedUserData));
+      
+      // Update auth in localStorage so other components see the change
+      const auth = JSON.parse(localStorage.getItem("auth") || "{}");
+      const newAuth = { ...auth, ...updatedUserData };
+      localStorage.setItem("auth", JSON.stringify(newAuth));
+
       setUser(updatedUserData);
+      if (setGlobalUser) setGlobalUser(updatedUserData);
+
       setMessage("✅ Account updated successfully!");
       setEditing(false);
       setForm({
@@ -157,7 +156,7 @@ export default function Settings() {
         newPassword: "",
         newEmail: updatedUserData.email || "",
         newName: updatedUserData.name || "",
-        role: updatedUserData.accountType || updatedUserData.role || "buyer",
+        role: (updatedUserData.accountType || updatedUserData.role || "buyer").toLowerCase(),
       });
     } catch (err) {
       setMessage("❌ " + (err.message || "Something went wrong"));
@@ -329,19 +328,40 @@ export default function Settings() {
               <>
                 {editing && (
                     <form onSubmit={handleSubmit} className="space-y-5">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Choose Role</label>
-                        <select
-                            name="role"
-                            value={form.role}
-                            onChange={handleChange}
-                            className="w-full border rounded-lg px-3 py-2 shadow-sm focus:ring-2 focus:ring-indigo-400"
-                        >
-                          <option value="buyer">Buyer</option>
-                          <option value="seller">Seller</option>
-                        </select>
+                      <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                        <label className="block text-sm font-semibold text-indigo-900 mb-2">Account Type</label>
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="role"
+                                value="buyer"
+                                checked={form.role === 'buyer'}
+                                onChange={handleChange}
+                                className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                            />
+                            <span className="text-gray-700">Buyer</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="role"
+                                value="seller"
+                                checked={form.role === 'seller'}
+                                onChange={handleChange}
+                                className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                            />
+                            <span className="text-gray-700 font-medium">Seller (Enable Shop Management)</span>
+                          </label>
+                        </div>
+                        <p className="text-xs text-indigo-600 mt-2">
+                          {form.role === 'seller' 
+                            ? "As a seller, you can create shops and list products." 
+                            : "As a buyer, you can browse and purchase items."}
+                        </p>
                       </div>
 
+                      {isLocalUser && (
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">Current Password</label>
                         <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
@@ -356,6 +376,7 @@ export default function Settings() {
                           />
                         </div>
                       </div>
+                      )}
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">New Name</label>

@@ -29,32 +29,38 @@ export default function ProductCard({ product }) {
     return (
         <Link 
             to={productLink}
-            className="block relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+            className="group relative block w-full max-w-xs overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-slate-300/50"
         >
             {/* Image */}
-            <div className="relative h-48">
+            <div className="relative h-64 overflow-hidden bg-slate-100">
                 <img
                     src={safeUrl(imageUrl)}
                     alt={escapeText(title)}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                 {/* Floating Heart */}
-                <div className="absolute top-2 right-2">
-                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(product) }} className={`flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm transition-all duration-300 shadow opacity-70 hover:scale-110 ${liked ? 'text-pink-600' : 'text-pink-500 hover:text-pink-700 hover:bg-white/90'}`}>
-                        <Heart className={`w-4 h-4 ${liked ? 'fill-pink-600' : ''}`} />
+                <div className="absolute top-3 right-3 z-10">
+                    <button 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(product) }} 
+                        className={`flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-110 shadow-sm ${liked ? 'bg-white/90 text-pink-500' : 'bg-white/70 text-slate-600 hover:bg-white hover:text-pink-500'}`}
+                    >
+                        <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
                     </button>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="p-3">
-                <h2 className="text-sm font-semibold text-gray-900 truncate">{title}</h2>
-                <p className="text-xs text-gray-500 truncate">{sellerName}</p>
+            <div className="p-5">
+                <div className="mb-4">
+                    <h2 className="mb-1 truncate text-lg font-bold text-slate-900">{title}</h2>
+                    <p className="truncate text-sm font-medium text-slate-500">{sellerName}</p>
+                </div>
 
                 {/* Price + Cart */}
-                <div className="mt-2 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-gray-900">{Number(price)} lei</p>
+                <div className="flex items-center justify-between">
+                    <p className="text-lg font-bold text-slate-900">{Number(price)} lei</p>
                     <button
                         onClick={(e) => {
                             e.preventDefault()
@@ -65,9 +71,7 @@ export default function ProductCard({ product }) {
                             showToast(wasInCart ? 'Item already in cart' : 'Added to cart', 'success', 5000, {
                                 actionLabel: wasInCart ? undefined : 'Undo',
                                 onAction: () => {
-                                    // Remove if it was just added now
                                     if (!wasInCart) {
-                                        // Use direct cart API to remove
                                         const evt = new CustomEvent('cart:remove', { detail: { id } })
                                         window.dispatchEvent(evt)
                                     }
@@ -75,10 +79,10 @@ export default function ProductCard({ product }) {
                             })
                             setTimeout(() => setJustAdded(false), 1200)
                         }}
-                        className={`flex items-center justify-center w-8 h-8 border rounded-lg transition-all duration-200 hover:scale-110 ${inCart || justAdded ? 'bg-green-600 border-green-600 text-white hover:bg-green-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-100 hover:border-gray-400 hover:text-gray-700'}`}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 shadow-sm ${inCart || justAdded ? 'bg-emerald-500 text-white shadow-emerald-200' : 'bg-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white'}`}
                         aria-label="Add to cart"
                     >
-                        {inCart || justAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
+                        {inCart || justAdded ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
                     </button>
                 </div>
             </div>

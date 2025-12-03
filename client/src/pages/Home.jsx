@@ -133,198 +133,234 @@ export default function Home() {
 
   // Categories are static pills; featured below auto-slides
   return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
         <Header />
 
-        <div className="relative h-64">
-          {/* Plain image */}
+        {/* Hero Section */}
+        <div className="relative h-[85vh] min-h-[600px] w-full overflow-hidden">
           <img
               src="/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg"
-              alt="Plant store"
-              className="w-full h-full object-cover brightness-40"
+              alt="Artisan Workshop"
+              className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-[20s] hover:scale-110"
           />
-
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
-
-          {/* Content */}
-          <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl font-bold text-white mb-4">Artisan Shops</h1>
-            <p className="text-white/90 mb-4 text-lg">
-              Discover unique handmade creations from talented artisans
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-slate-900/10" />
+          
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8">
+            <h1 className="mb-6 text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-2xl">
+              Crafted with Soul.
+            </h1>
+            <p className="mb-10 max-w-2xl text-xl text-slate-100 sm:text-2xl drop-shadow-lg font-light">
+              Discover unique handmade creations from talented artisans around the world.
             </p>
-            <div className="flex items-center space-x-2 text-white/80">
-              <a href="/" className="hover:text-white">Home</a>
-              <span>&gt;</span>
-              <span>Welcome</span>
+            <div className="flex flex-col gap-4 sm:flex-row animate-fade-in-up">
+              <a 
+                href="/shops" 
+                className="inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-slate-900 transition-all hover:bg-slate-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95"
+              >
+                Explore Shops
+              </a>
+              <a 
+                href="/items" 
+                className="inline-flex items-center justify-center rounded-full border-2 border-white/30 bg-white/10 backdrop-blur-sm px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white/20 hover:border-white active:scale-95"
+              >
+                Browse Items
+              </a>
             </div>
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
 
           {/* Categories Filter */}
-          <div className="mt-6 flex items-center gap-3 overflow-x-auto no-scrollbar">
-            {categories.map((c) => (
-                <button
-                    key={c}
-                    onClick={() => setActiveCategory(c)}
-                    className={`px-4 py-1.5 rounded-full whitespace-nowrap transition-all duration-300 border backdrop-blur bg-white/70 hover:bg-white/90 shadow-sm ${activeCategory === c ? 'border-transparent text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-[0_4px_24px_rgba(99,102,241,0.35)]' : 'border-slate-200 text-slate-700'}`}
-                >
-                  {t(`categories.${c}`)} {/* Use t for category names */}
-                </button>
-            ))}
-          </div>
-
-          {/* Featured carousel */}
-          <div className="mt-8 relative">
-            <div ref={featuredRef} className="flex gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar">
-              {filteredFeatured.map((f) => (
-                  <div key={f.id} className="min-w-[280px] md:min-w-[320px] snap-start">
-                    <ProductCard product={f} />
-                  </div>
+          <div className="mb-20">
+            <div className="flex items-center justify-between mb-8">
+               <h2 className="text-2xl font-bold tracking-tight text-slate-900">Browse by Category</h2>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-6 no-scrollbar mask-linear-fade">
+              {categories.map((c) => (
+                  <button
+                      key={c}
+                      onClick={() => setActiveCategory(c)}
+                      className={`group relative flex-shrink-0 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300 ${
+                        activeCategory === c 
+                        ? 'bg-slate-900 text-white shadow-lg ring-2 ring-slate-900 ring-offset-2' 
+                        : 'bg-white text-slate-600 shadow-sm hover:bg-slate-50 hover:text-slate-900 hover:shadow-md ring-1 ring-slate-200'
+                      }`}
+                  >
+                    {t(`categories.${c}`)}
+                  </button>
               ))}
             </div>
           </div>
 
-          {/* Recently added */}
-          <div className="mt-10">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">{t('recentlyAdded')}</h2> {/* Use t for section title */}
+          {/* Featured carousel */}
+          <section className="mb-24">
+            <div className="mb-10 flex items-end justify-between">
+               <div>
+                 <h2 className="text-3xl font-bold tracking-tight text-slate-900">Featured Collections</h2>
+                 <p className="mt-2 text-slate-500 text-lg">Curated picks just for you.</p>
+               </div>
+               <a href="/items" className="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 sm:block group">
+                 View all items <span className="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
+               </a>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
 
-        {products.map((p) => {
-          const product = {
-            id: p.id,
-            uuid: p.uuid,
-            title: p.title,
-            description: p.description || '',
-            price: p.price,
-            imageLinks: p.imageLinks || ['https://source.unsplash.com/featured/800x600?handmade'],
-            shop: p.shop,
-            shopId: p.shopId,
-            shopUuid: p.shopUuid
-          }
-
-          return <ProductCard key={product.id} product={product} />
-        })}
-            </div>
-          </div>
-
-          {/* Top shops section to enrich page */}
-          <div className="mt-16">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">{t('topShops')}</h2> {/* Use t for section title */}
-            </div>
-            <div className="relative mt-4">
-              <div className="relative">
-                <div className="mx-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {pagedShops.map((s) => (
-                      <a key={s.id} href={`/shops/${s.id}`} className="group block w-full bg-white rounded-2xl overflow-hidden border hover:shadow-lg transition-shadow">
-                        <div className="relative h-48 bg-slate-100">
-                          <img src={safeUrl(s.image)} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-center gap-3">
-                            <img src={safeUrl(s.logo || '/assets/react.svg')} alt={`${s.name} logo`} className="h-10 w-10 rounded-full object-cover border" />
-                            <div className="flex-1">
-                              <h3 className="text-sm font-semibold text-gray-900 truncate">{s.name}</h3>
-                              <p className="text-xs text-gray-500 truncate">{s.description || s.artisan}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex -space-x-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className={`h-4 w-4 ${i < Math.floor(s.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                                ))}
-                              </div>
-                              <span className="text-xs text-gray-600">{s.rating?.toFixed?.(1) ?? s.rating}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-
-                  {/* Controls (outside grid) */}
-                  <div className="mt-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <button
-                        aria-label="Prev shops"
-                        onClick={() => setShopsPage((p) => Math.max(0, p - 1))}
-                        className="p-2 rounded-full bg-white border shadow hover:bg-slate-50 disabled:opacity-40"
-                        disabled={shopsPage === 0}
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </button>
-                      <button
-                        aria-label="Next shops"
-                        onClick={() => setShopsPage((p) => Math.min(totalShopPages - 1, p + 1))}
-                        className="p-2 rounded-full bg-white border shadow hover:bg-slate-50 disabled:opacity-40"
-                        disabled={shopsPage >= totalShopPages - 1}
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </button>
+            <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+              <div ref={featuredRef} className="flex gap-8 overflow-x-auto pb-12 pt-4 no-scrollbar snap-x">
+                {filteredFeatured.map((f) => (
+                    <div key={f.id} className="min-w-[280px] md:min-w-[340px] snap-center transition-transform hover:scale-[1.02]">
+                      <ProductCard product={f} />
                     </div>
-
-                    <div className="flex items-center justify-center gap-2">
-                      {Array.from({ length: totalShopPages }).map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setShopsPage(i)}
-                          className={`h-2.5 w-2.5 rounded-full transition-colors ${i === shopsPage ? 'bg-blue-600' : 'bg-slate-300 hover:bg-slate-400'}`}
-                          aria-label={`Go to page ${i + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
-              
             </div>
-          </div>
+          </section>
+
+          {/* Recently added */}
+          <section className="mb-24">
+            <div className="mb-10 flex items-center justify-between">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">{t('recentlyAdded')}</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-12 gap-x-8">
+              {products.map((p) => {
+                const product = {
+                  id: p.id,
+                  uuid: p.uuid,
+                  title: p.title,
+                  description: p.description || '',
+                  price: p.price,
+                  imageLinks: p.imageLinks || ['https://source.unsplash.com/featured/800x600?handmade'],
+                  shop: p.shop,
+                  shopId: p.shopId,
+                  shopUuid: p.shopUuid
+                }
+
+                return <ProductCard key={product.id} product={product} />
+              })}
+            </div>
+          </section>
+
+          {/* Top shops section */}
+          <section className="mb-20">
+            <div className="mb-10 flex items-center justify-between">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">{t('topShops')}</h2>
+              <a href="/shops" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500 group">
+                 View all shops <span className="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
+              </a>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+              {pagedShops.map((s) => (
+                <a key={s.id} href={`/shops/${s.id}`} className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ring-1 ring-slate-200/50">
+                  <div className="relative h-64 overflow-hidden bg-slate-100">
+                    <img src={safeUrl(s.image)} alt={s.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
+                    <div className="absolute bottom-5 left-5 right-5 flex items-center gap-4">
+                      <img src={safeUrl(s.logo || '/assets/react.svg')} alt={`${s.name} logo`} className="h-14 w-14 rounded-full object-cover border-2 border-white shadow-lg" />
+                      <div className="text-white">
+                        <h3 className="text-lg font-bold leading-tight">{s.name}</h3>
+                        <p className="text-sm opacity-90 font-light">{s.artisan}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-1 flex-col p-6">
+                    <p className="mb-6 line-clamp-2 text-sm leading-relaxed text-slate-600">{s.description || s.artisan}</p>
+                    <div className="mt-auto flex items-center gap-1.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`h-4 w-4 ${i < Math.floor(s.rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
+                      ))}
+                      <span className="ml-2 text-sm font-medium text-slate-500">({s.rating?.toFixed?.(1) ?? s.rating})</span>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            {/* Controls */}
+            <div className="mt-12 flex items-center justify-between border-t border-slate-100 pt-8">
+              <div className="flex items-center gap-3">
+                <button
+                  aria-label="Prev shops"
+                  onClick={() => setShopsPage((p) => Math.max(0, p - 1))}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900 disabled:opacity-40"
+                  disabled={shopsPage === 0}
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  aria-label="Next shops"
+                  onClick={() => setShopsPage((p) => Math.min(totalShopPages - 1, p + 1))}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900 disabled:opacity-40"
+                  disabled={shopsPage >= totalShopPages - 1}
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-center gap-2">
+                {Array.from({ length: totalShopPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setShopsPage(i)}
+                    className={`h-2 w-2 rounded-full transition-all duration-300 ${i === shopsPage ? 'w-8 bg-slate-900' : 'bg-slate-300 hover:bg-slate-400'}`}
+                    aria-label={`Go to page ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
 
           {/* Show more CTA */}
-          <div className="mt-12 flex justify-center">
-            <a href="/shops" className="px-6 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors">{t('showMore')}</a> {/* Use t for button text */}
+          <div className="mt-20 flex justify-center">
+            <a href="/shops" className="px-10 py-4 rounded-full bg-slate-900 text-white font-semibold shadow-lg hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+              {t('showMore')}
+            </a>
           </div>
 
         </div>
 
-        <footer className="bg-slate-50 mt-16 border-t">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div>
-                <h3 className="text-lg font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">CraftHub.</h3>
-                <p className="text-sm text-slate-600 mb-4">Connecting artisans with craft lovers<br />400 University Drive Suite 200<br />Coral Gables, FL 33134 USA</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-4 text-slate-600">Links</h4>
-                <div className="space-y-2">
-                  <a href="/" className="block text-sm hover:text-slate-900">Home</a>
-                  <a href="/shop" className="block text-sm hover:text-slate-900">Shop</a>
-                  <a href="/about" className="block text-sm hover:text-slate-900">About</a>
-                  <a href="/contact" className="block text-sm hover:text-slate-900">Contact</a>
+        <footer className="bg-slate-900 text-slate-300 mt-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">CraftHub.</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">Connecting artisans with craft lovers around the globe. Discover the beauty of handmade.</p>
+                <div className="pt-4">
+                   <p className="text-sm text-slate-500">400 University Drive Suite 200<br />Coral Gables, FL 33134 USA</p>
                 </div>
               </div>
               <div>
-                <h4 className="font-medium mb-4 text-slate-600">Help</h4>
-                <div className="space-y-2">
-                  <a href="#" className="block text-sm hover:text-slate-900">Payment Options</a>
-                  <a href="#" className="block text-sm hover:text-slate-900">Privacy Policies</a>
+                <h4 className="font-semibold text-white mb-6">Explore</h4>
+                <div className="space-y-3">
+                  <a href="/" className="block text-sm hover:text-white transition-colors">Home</a>
+                  <a href="/shops" className="block text-sm hover:text-white transition-colors">Shops</a>
+                  <a href="/items" className="block text-sm hover:text-white transition-colors">Items</a>
+                  <a href="/about" className="block text-sm hover:text-white transition-colors">About Us</a>
                 </div>
               </div>
               <div>
-                <h4 className="font-medium mb-4 text-slate-600">Newsletter</h4>
-                <div className="flex space-x-2">
-                  <input placeholder="Enter your Email Address" className="flex-1 border rounded px-3 py-2" />
-                  <button className="px-4 py-2 rounded bg-blue-600 text-white">SUBSCRIBE</button>
+                <h4 className="font-semibold text-white mb-6">Support</h4>
+                <div className="space-y-3">
+                  <a href="/contact" className="block text-sm hover:text-white transition-colors">Contact Us</a>
+                  <a href="#" className="block text-sm hover:text-white transition-colors">Payment Options</a>
+                  <a href="#" className="block text-sm hover:text-white transition-colors">Privacy Policy</a>
+                  <a href="#" className="block text-sm hover:text-white transition-colors">Terms of Service</a>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-white mb-6">Stay Updated</h4>
+                <p className="text-sm text-slate-400 mb-4">Subscribe to our newsletter for the latest updates and offers.</p>
+                <div className="flex flex-col space-y-3">
+                  <input placeholder="Enter your email" className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <button className="w-full px-4 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-500 transition-colors">Subscribe</button>
                 </div>
               </div>
             </div>
-            <div className="border-t mt-8 pt-8">
-              <p className="text-sm text-slate-600">All rights reserved.</p>
+            <div className="border-t border-slate-800 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-slate-500">© 2024 CraftHub. All rights reserved.</p>
+              <div className="flex space-x-6">
+                 {/* Social icons could go here */}
+              </div>
             </div>
           </div>
         </footer>

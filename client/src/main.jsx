@@ -19,7 +19,10 @@ import Cart from './pages/Cart.jsx'
 import { ToastProvider } from './toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Account from './pages/Account.jsx'
+import ManageShops from './pages/ManageShops.jsx'
 import CreateShop from './pages/CreateShop.jsx'
+import NotFound from './pages/NotFound.jsx'
+import TooManyRequests from './pages/TooManyRequests.jsx'
 import { TranslationProvider, useTranslation } from './context/translationContext.jsx'
 import { SecurityProvider } from './context/securityContext.jsx'
 
@@ -43,6 +46,14 @@ const router = createBrowserRouter([
   },
   {
     path: '/account',
+    element: <Account />,
+  },
+  {
+    path: '/account/shops',
+    element: <ManageShops />,
+  },
+  {
+    path: '/account/shops/:shopId',
     element: <Account />,
   },
   {
@@ -114,12 +125,16 @@ const router = createBrowserRouter([
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },
       { path: 'settings', element: <Settings /> },
-      { path: '*', element: <App /> },
+      { path: '*', element: <NotFound /> },
     ],
   },
   {
+    path: '/too-many-requests',
+    element: <TooManyRequests />,
+  },
+  {
     path: '*',
-    element: <App />,
+    element: <NotFound />,
   },
 ])
 

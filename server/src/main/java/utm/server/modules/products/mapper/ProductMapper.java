@@ -22,8 +22,7 @@ public class ProductMapper {
         ShopEntity shop = product.getShopEntity();
         List<ProductImageEntity> imageEntities = productImageService.findAllByProductId(product.getId());
 
-        return  ProductDto
-                .builder()
+        ProductDto.ProductDtoBuilder builder = ProductDto.builder()
                 .title(product.getTitle())
                 .description(product.getDescription())
                 .price(product.getPrice())
@@ -31,11 +30,16 @@ public class ProductMapper {
                 .imageLinks(imageEntities
                         .stream()
                         .map(i->imageService.getPermanentLink(i.getKey()))
-                        .toList())
-                .shop(ProductDto.ShopDto.builder()
-                        .id(shop.getId())
-                        .name(shop.getName())
-                        .build())
-                .build();
+                        .toList());
+
+        if (shop != null) {
+            builder.shopId(shop.getId());
+            builder.shop(ProductDto.ShopDto.builder()
+                    .id(shop.getId())
+                    .name(shop.getName())
+                    .build());
+        }
+
+        return builder.build();
     }
 }

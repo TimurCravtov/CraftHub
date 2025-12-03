@@ -18,12 +18,15 @@ public class ProductDto {
     private String description;
     private double price;
     private List<String> imageLinks;
+    private Long shopId;
     private ShopDto shop;
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ShopDto {
-        String name;
-        Long id;
+        private String name;
+        private Long id;
     }
 }

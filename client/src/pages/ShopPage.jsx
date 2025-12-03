@@ -10,6 +10,8 @@ export default function ShopPage() {
   const { id } = useParams()
   const [shopName, setShopName] = useState('')
   const [shopDescription, setShopDescription] = useState('')
+  const [shopImage, setShopImage] = useState('')
+  const [shopLogo, setShopLogo] = useState('')
   const [artisanName, setArtisanName] = useState('')
   const [relatedProducts, setRelatedProducts] = useState([])
   const { api } = useAuthApi()
@@ -24,6 +26,8 @@ export default function ShopPage() {
         // Normalize and set shop fields
         setShopName(shopData.name || shopData.shopName || '')
         setShopDescription(shopData.description || shopData.shopDescription || '')
+        setShopImage(shopData.image || shopData.coverImage || '')
+        setShopLogo(shopData.logo || shopData.shopLogo || '')
 
         // If shop has user_id or owner id, fetch user details
         const userId = shopData.user_id || shopData.ownerId || shopData.userId
@@ -48,7 +52,7 @@ export default function ShopPage() {
             title: p.title || p.name || 'Untitled',
             description: p.description || p.shortDescription || '',
             price: p.price ?? p.cost ?? 0,
-            image: (p.imageLinks && p.imageLinks[0]) || p.image || p.imageUrl || 'https://source.unsplash.com/featured/800x600?craft',
+            image: (p.imageLinks && p.imageLinks[0]) || p.image || p.imageUrl || '/assets/product-placeholder.svg',
           }))
           setRelatedProducts(normalized)
         } catch (pErr) {
@@ -68,7 +72,7 @@ export default function ShopPage() {
 
       <div
         className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg)' }}
+        style={{ backgroundImage: `url(${shopImage || '/assets/cover-placeholder.svg'})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
@@ -87,7 +91,7 @@ export default function ShopPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-4">
             <div className="aspect-square bg-orange-100 rounded-lg overflow-hidden">
-              <img src="/assets/modern-plant-store-interior.jpg" alt="Product" className="w-full h-full object-cover" />
+              <img src={shopLogo || '/assets/shop-placeholder.svg'} alt="Shop Logo" className="w-full h-full object-cover" />
             </div>
           </div>
 

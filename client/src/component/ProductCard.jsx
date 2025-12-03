@@ -8,7 +8,7 @@ import { escapeText, safeUrl } from '../utils/sanitize.js'
 
 export default function ProductCard({ product }) {
     const { id, uuid, title, price, imageLinks, shop, shopId, shopUuid } = product || {}
-    const imageUrl = (imageLinks && imageLinks.length > 0) ? imageLinks[0] : null
+    const imageUrl = (imageLinks && imageLinks.length > 0) ? imageLinks[0] : '/assets/product-placeholder.svg'
     const sellerName = shop?.name || ''
 
     const { isLiked, toggleLike } = useLikes()

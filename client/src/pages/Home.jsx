@@ -61,7 +61,7 @@ export default function Home() {
     return products.slice(0, 6).map((p) => ({
       ...p,
       // Ensure we have the fields ProductCard needs if they aren't already on p
-      imageLinks: p.imageLinks || ['/assets/modern-plant-store-interior.jpg'],
+      imageLinks: p.imageLinks || ['/assets/product-placeholder.svg'],
       shop: p.shop,
       shopId: p.shopId,
       shopUuid: p.shopUuid
@@ -229,7 +229,7 @@ export default function Home() {
                   title: p.title,
                   description: p.description || '',
                   price: p.price,
-                  imageLinks: p.imageLinks || ['https://source.unsplash.com/featured/800x600?handmade'],
+                  imageLinks: p.imageLinks || ['/assets/product-placeholder.svg'],
                   shop: p.shop,
                   shopId: p.shopId,
                   shopUuid: p.shopUuid
@@ -253,10 +253,10 @@ export default function Home() {
               {pagedShops.map((s) => (
                 <a key={s.id} href={`/shops/${s.id}`} className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ring-1 ring-slate-200/50">
                   <div className="relative h-64 overflow-hidden bg-slate-100">
-                    <img src={safeUrl(s.image)} alt={s.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img src={safeUrl(s.image || '/assets/cover-placeholder.svg')} alt={s.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
                     <div className="absolute bottom-5 left-5 right-5 flex items-center gap-4">
-                      <img src={safeUrl(s.logo || '/assets/react.svg')} alt={`${s.name} logo`} className="h-14 w-14 rounded-full object-cover border-2 border-white shadow-lg" />
+                      <img src={safeUrl(s.logo || '/assets/shop-placeholder.svg')} alt={`${s.name} logo`} className="h-14 w-14 rounded-full object-cover border-2 border-white shadow-lg" />
                       <div className="text-white">
                         <h3 className="text-lg font-bold leading-tight">{s.name}</h3>
                         <p className="text-sm opacity-90 font-light">{s.artisan}</p>

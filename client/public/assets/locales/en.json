@@ -18,5 +18,19 @@
   "featured": "Featured",
   "recentlyAdded": "Recently added",
   "topShops": "Top rated shops",
-  "showMore": "Show more"
+  "showMore": "Show more",
+  "header": {
+    "home": "Home",
+    "shops": "Shops",
+    "items": "Items",
+    "about": "About",
+    "contact": "Contact",
+    "searchItems": "Search items...",
+    "searchShops": "Search artisan shops...",
+    "hi": "Hi",
+    "settings": "Settings",
+    "logout": "Logout",
+    "seller": "seller",
+    "buyer": "buyer"
+  }
 }

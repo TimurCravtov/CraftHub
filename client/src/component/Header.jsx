@@ -3,8 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { User, Search, Heart, ShoppingCart, X, LogOut, Settings } from 'lucide-react'
 import { LanguagePicker } from './LanguagePicker.jsx'
 import {useAuthApi} from "../context/apiAuthContext.jsx";
+import { useTranslation } from '../context/translationContext.jsx';
 
 export default function Header() {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -99,8 +101,8 @@ export default function Header() {
   }
 
   function getSearchPlaceholder() {
-    if (location.pathname === '/items') return 'Search items...'
-    return 'Search artisan shops...'
+    if (location.pathname === '/items') return t('header.searchItems')
+    return t('header.searchShops')
   }
 
   useEffect(() => {
@@ -140,11 +142,11 @@ export default function Header() {
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               {[
-                { href: "/", label: "Home" },
-                { href: "/shops", label: "Shops" },
-                { href: "/items", label: "Items" },
-                { href: "/about", label: "About" },
-                { href: "/contact", label: "Contact" },
+                { href: "/", label: t('header.home') },
+                { href: "/shops", label: t('header.shops') },
+                { href: "/items", label: t('header.items') },
+                { href: "/about", label: t('header.about') },
+                { href: "/contact", label: t('header.contact') },
               ].map(link => (
                   <a
                       key={link.href}
@@ -178,9 +180,9 @@ export default function Header() {
                   )}
                   {user && (
                     <span className="text-sm font-medium">
-                      Hi, {user.name}{" "}
+                      {t('header.hi')}, {user.name}{" "}
                       <span className="text-xs text-slate-500">
-                        ({user.role || user.accountType || (isSeller ? "seller" : "buyer")})
+                        ({user.role || user.accountType || (isSeller ? t('header.seller') : t('header.buyer'))})
                       </span>
                     </span>
                   )}
@@ -192,13 +194,13 @@ export default function Header() {
                           onClick={() => { navigate("/settings"); setMenuOpen(false) }}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-slate-100"
                       >
-                        <Settings className="h-4 w-4" /> Settings
+                        <Settings className="h-4 w-4" /> {t('header.settings')}
                       </button>
                       <button
                           onClick={handleLogout}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-slate-100"
                       >
-                        <LogOut className="h-4 w-4" /> Logout
+                        <LogOut className="h-4 w-4" /> {t('header.logout')}
                       </button>
                     </div>
                 )}

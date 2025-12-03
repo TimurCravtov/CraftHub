@@ -18,5 +18,19 @@
   "featured": "Recomandate",
   "recentlyAdded": "Adăugat recent",
   "topShops": "Magazine de top",
-  "showMore": "Arată mai mult"
+  "showMore": "Arată mai mult",
+  "header": {
+    "home": "Acasă",
+    "shops": "Magazine",
+    "items": "Articole",
+    "about": "Despre",
+    "contact": "Contact",
+    "searchItems": "Caută articole...",
+    "searchShops": "Caută magazine artizanale...",
+    "hi": "Salut",
+    "settings": "Setări",
+    "logout": "Deconectare",
+    "seller": "vânzător",
+    "buyer": "cumpărător"
+  }
 }

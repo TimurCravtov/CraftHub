@@ -69,7 +69,7 @@ const router = createBrowserRouter([
     element: <Items />,
   },
   {
-    path: '/product/:shopId/:productId',
+    path: '/product/:shopUuid/:productUuid',
     element: <ProductDetail />,
   },
   {
@@ -100,7 +100,7 @@ const router = createBrowserRouter([
       { path: 'shops/:id/Itempage', element: <ItemPage /> },
       { path: 'Itempage', element: <ItemPage /> },
       { path: 'items', element: <Items /> },
-      { path: 'product/:shopId/:productId', element: <ProductDetail /> },
+      { path: 'product/:shopUuid/:productUuid', element: <ProductDetail /> },
       { path: 'liked', element: <Liked /> },
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },

@@ -59,13 +59,14 @@ export default function Home() {
   const featured = useMemo(() => {
     if (!products || products.length === 0) return []
     return products.slice(0, 6).map((p) => ({
-      id: p.id ? `f-${p.id}` : `f-${Math.random().toString(36).slice(2, 7)}`,
-      title: p.title || t('featured'),
-      subtitle: (p.description && p.description.slice(0, 80)) || '',
-      image: (p.imageLinks && p.imageLinks[0]) || '/assets/modern-plant-store-interior.jpg',
-      category: p.category || 'All',
+      ...p,
+      // Ensure we have the fields ProductCard needs if they aren't already on p
+      imageLinks: p.imageLinks || ['/assets/modern-plant-store-interior.jpg'],
+      shop: p.shop,
+      shopId: p.shopId,
+      shopUuid: p.shopUuid
     }))
-  }, [products, t])
+  }, [products])
 
   const filteredFeatured = useMemo(() => activeCategory === 'All' ? featured : featured.filter(f => f.category === activeCategory), [activeCategory, featured])
 
@@ -179,12 +180,8 @@ export default function Home() {
           <div className="mt-8 relative">
             <div ref={featuredRef} className="flex gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar">
               {filteredFeatured.map((f) => (
-                  <div key={f.id} className="min-w-[280px] md:min-w-[360px] snap-start relative rounded-2xl overflow-hidden border bg-white">
-                    <img src={safeUrl(f.image)} alt={f.title} className="h-40 w-full object-cover" />
-                    <div className="p-4">
-                      <p className="text-xs text-slate-500">{f.title}</p>
-                      <h3 className="text-lg font-semibold">{f.subtitle}</h3>
-                    </div>
+                  <div key={f.id} className="min-w-[280px] md:min-w-[320px] snap-start">
+                    <ProductCard product={f} />
                   </div>
               ))}
             </div>
@@ -200,11 +197,14 @@ export default function Home() {
         {products.map((p) => {
           const product = {
             id: p.id,
+            uuid: p.uuid,
             title: p.title,
             description: p.description || '',
             price: p.price,
             imageLinks: p.imageLinks || ['https://source.unsplash.com/featured/800x600?handmade'],
-            shop: p.shopId ? { id: p.shopId, name: p.sellerName || '' } : undefined,
+            shop: p.shop,
+            shopId: p.shopId,
+            shopUuid: p.shopUuid
           }
 
           return <ProductCard key={product.id} product={product} />

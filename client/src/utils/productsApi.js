@@ -1,14 +1,14 @@
 import { apiRequest } from './apiClient'
 
 export const getProducts = () => 
-  apiRequest({ url: '/api/products' })
+  apiRequest({ url: '/api/products/findall' })
 
 export const getProduct = (id) => 
-  apiRequest({ url: `/api/products/${id}` })
+  apiRequest({ url: `/api/products/findById/${id}` })
 
 export const createProduct = (productData) => 
   apiRequest({ 
-    url: '/api/products', 
+    url: '/api/products/', 
     method: 'POST', 
     data: productData 
   })
@@ -16,26 +16,25 @@ export const createProduct = (productData) =>
 export const productsApi = {
     async getAll() {
         // GET /api/products/findall
-        return apiRequest('/api/products/findall', { method: 'GET' })
+        return apiRequest({ url: '/api/products/findall', method: 'GET' })
     },
 
     async getById(productId) {
-        // GET /api/products/{id}
+        // GET /api/products/findById/{id}
         const safeId = encodeURIComponent(String(productId))
-        return apiRequest(`/api/products/${safeId}`, { method: 'GET' })
+        return apiRequest({ url: `/api/products/findById/${safeId}`, method: 'GET' })
     },
 
     async searchByTitle(title) {
         // GET /api/products/{title}
         const safeTitle = encodeURIComponent(title)
-        return apiRequest(`/api/products/${safeTitle}`, { method: 'GET' })
+        return apiRequest({ url: `/api/products/${safeTitle}`, method: 'GET' })
     },
 
     async getBySeller(sellerId) {
-        // Placeholder for a future endpoint like /api/products/by-seller/{sellerId}
-        // For now, this tries to search by title if you pass a seller name instead.
+        // GET /api/products/by-shop/{id}
         const safeId = encodeURIComponent(String(sellerId))
-        return apiRequest(`/api/products/by-seller/${safeId}`, { method: 'GET' })
+        return apiRequest({ url: `/api/products/by-shop/${safeId}`, method: 'GET' })
     }
 }
 

@@ -22,29 +22,17 @@ export default function Items() {
                 const productsResponse = await api.get("/api/products/findall")
                 const data = productsResponse.data
 
-                const validProducts = data.filter(product => product.shop_id !== null)
-                const productsWithShops = await Promise.all(
-                    
-                validProducts.map(async (product) => {
-                const id = BigInt(product.shop_id)
-                const shopResponse = await api.get(`/api/shops/${id}`)
-                const shopData = shopResponse.data
-                product.sellerName = shopData.name  
-                product.shopId = product.shop_id
-                return product
-          })
-        )
-
-        setProducts(productsWithShops)
-
-
                 const normalized = (Array.isArray(data) ? data : []).map((p, idx) => ({
                     id: p.id ?? idx + 1,
+                    uuid: p.uuid,
                     title: p.title ?? 'Untitled',
-                    sellerName: p.sellerName ?? 'Unknown seller',
+                    sellerName: p.shop?.name ?? 'Unknown seller',
                     price: p.price ?? 0,
-                    imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?handmade',
+                    imageUrl: p.imageUrl ?? (p.imageLinks && p.imageLinks[0]) ?? 'https://source.unsplash.com/featured/800x600?handmade',
                     shopId: p.shopId ?? p.shop_id,
+                    shopUuid: p.shopUuid,
+                    shop: p.shop,
+                    imageLinks: p.imageLinks
                 }))
                 // shuffle
                 for (let i = normalized.length - 1; i > 0; i -= 1) {

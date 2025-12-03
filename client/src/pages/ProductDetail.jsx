@@ -12,7 +12,7 @@ import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 
 export default function ProductDetail() {
-    const { shopId, productId } = useParams()
+    const { shopUuid, productUuid } = useParams()
     const navigate = useNavigate()
     const { isLiked, toggleLike } = useLikes()
     const { addToCart, items } = useCart()
@@ -36,14 +36,20 @@ export default function ProductDetail() {
                 setLoading(true)
                 
                 // Fetch product details using productsApi
-                const productData = await productsApi.getById(productId)
-                
-                // Fetch shop details
-                const shopResponse = await api.get(`/api/shops/${shopId}`)
-                const shopData = shopResponse.data
+                const productData = await productsApi.getById(productUuid)
                 
                 setProduct(productData)
-                setShop(shopData)
+                if (productData.shop) {
+                    setShop(productData.shop)
+                } else if (shopUuid && shopUuid !== 'unknown') {
+                     // Fallback: try to fetch shop if not in product data
+                     try {
+                        const shopResponse = await api.get(`/api/shops/${shopUuid}`)
+                        setShop(shopResponse.data)
+                     } catch (e) {
+                        console.warn("Could not fetch shop details", e)
+                     }
+                }
             } catch (error) {
                 console.error("Error fetching data:", error)
                 showToast("Failed to load product details", "error")
@@ -52,10 +58,10 @@ export default function ProductDetail() {
             }
         }
 
-        if (shopId && productId) {
+        if (productUuid) {
             fetchProductDetails()
         }
-    }, [shopId, productId, showToast])
+    }, [shopUuid, productUuid, showToast])
 
     const handleAddToCart = () => {
         if (!product) return
@@ -109,7 +115,7 @@ export default function ProductDetail() {
         )
     }
 
-    if (!product || !shop) {
+    if (!product) {
         return (
             <div className="min-h-screen bg-white">
                 <Header />
@@ -131,8 +137,8 @@ export default function ProductDetail() {
     }
 
     // Handle images - use the imageUrl directly from backend
-    const images = product.imageUrl ? [product.imageUrl] : []
-    const mainImage = images[selectedImage] || product.imageUrl || 'https://via.placeholder.com/400x400?text=No+Image'
+    const images = product.imageLinks || (product.imageUrl ? [product.imageUrl] : [])
+    const mainImage = images[selectedImage] || images[0] || 'https://via.placeholder.com/400x400?text=No+Image'
 
     return (
         <div className="min-h-screen bg-white">
@@ -145,8 +151,12 @@ export default function ProductDetail() {
                         <a href="/" className="hover:text-gray-900">Home</a>
                         <span>&gt;</span>
                         <a href="/shops" className="hover:text-gray-900">Shops</a>
-                        <span>&gt;</span>
-                        <a href={`/shops/${shopId}`} className="hover:text-gray-900">{shop?.name || 'Shop'}</a>
+                        {shop && (
+                            <>
+                                <span>&gt;</span>
+                                <a href={`/shops/${shop.uuid || shop.id}`} className="hover:text-gray-900">{shop.name}</a>
+                            </>
+                        )}
                         <span>&gt;</span>
                         <span className="text-gray-900">{product.title}</span>
                     </nav>
@@ -309,7 +319,7 @@ export default function ProductDetail() {
                             
                             {shop && (
                                 <button
-                                    onClick={() => navigate(`/shops/${shopId}`)}
+                                    onClick={() => navigate(`/shops/${shopUuid || shop.uuid || shop.id}`)}
                                     className="w-full py-3 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                 >
                                     View Shop

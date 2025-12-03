@@ -76,13 +76,13 @@ export default function ManageShopsContent() {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => navigate(`/edit-shop/${shop.id}`)}
+                  onClick={() => navigate(`/edit-shop/${shop.uuid}`)}
                   className="flex-1 px-3 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
                 >
                   Edit Shop
                 </button>
                 <button
-                  onClick={() => navigate(`/shops/${shop.id}`)}
+                  onClick={() => navigate(`/shops/${shop.uuid}`)}
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
                 >
                   View Shop

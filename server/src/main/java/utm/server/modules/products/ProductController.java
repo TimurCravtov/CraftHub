@@ -30,6 +30,11 @@ public class ProductController {
         return productService.addProduct(product, user);
     }
 
+    @PutMapping("/{id}")
+    public ProductDto updateProduct(@PathVariable Long id, @RequestBody ProductCreationDto product, @AuthenticationPrincipal UserSecurityPrincipal user) throws NoRightsException {
+        return productService.updateProduct(id, product, user);
+    }
+
     @GetMapping("/findById/{id}")
     public ResponseEntity<?> findById(@PathVariable String id) {
         try {

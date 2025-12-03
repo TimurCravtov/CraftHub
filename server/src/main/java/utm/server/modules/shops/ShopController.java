@@ -34,8 +34,18 @@ public class ShopController {
     }
 
     @PutMapping("/{shopId}")
-    public ShopDto updateShop(@PathVariable Long shopId, @RequestBody ShopCreationRequestDTO shopRequest) {
-        return shopMapper.toDto(shopService.updateShop(shopId, shopRequest));
+    public ShopDto updateShop(@PathVariable String shopId, @RequestBody ShopCreationRequestDTO shopRequest) {
+        try {
+            java.util.UUID uuid = java.util.UUID.fromString(shopId);
+            return shopMapper.toDto(shopService.updateShop(uuid, shopRequest));
+        } catch (IllegalArgumentException e) {
+             try {
+                Long id = Long.parseLong(shopId);
+                return shopMapper.toDto(shopService.updateShop(id, shopRequest));
+            } catch (NumberFormatException nfe) {
+                throw new RuntimeException("Invalid Shop ID format");
+            }
+        }
     }
 
     @GetMapping("/")

@@ -102,4 +102,29 @@ public class ProductService {
         return productMapper.toDto(saved);
      
     }
+
+    @Transactional
+    public ProductDto updateProduct(Long id, ProductCreationDto productDto, UserSecurityPrincipal authUser) throws NoRightsException {
+        UserEntity user = userSecurityPrincipalMapper.getUser(authUser);
+        
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!productEditPermissionService.hasRightsToEditProducts(product.getShopEntity().getId(), user))
+             throw new NoRightsException("You do not have permission to edit this product");
+
+        product.setTitle(productDto.title());
+        product.setDescription(productDto.description());
+        product.setPrice(productDto.price());
+
+        // Handle images if needed - for now assuming we just update text fields or append images
+        // If we want to replace images, we need more logic in ProductImageService
+        if (productDto.productImagesTemp() != null && !productDto.productImagesTemp().isEmpty()) {
+             List<ImageUploadResponse> permanentImages = productDto.productImagesTemp().stream()
+                .map(img -> imageService.confirmUpload(img.key())).toList();
+             productImageService.saveAll(permanentImages, product);
+        }
+
+        return productMapper.toDto(productRepository.save(product));
+    }
 }

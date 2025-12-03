@@ -80,6 +80,14 @@ public class ShopService {
         return shopRepository.save(shop);
     }
 
+    public ShopEntity updateShop(java.util.UUID shopId, ShopCreationRequestDTO shopRequest) {
+        ShopEntity shop = getShopByUuid(shopId);
+        if (shopRequest.getName() != null) shop.setName(shopRequest.getName());
+        if (shopRequest.getDescription() != null) shop.setDescription(shopRequest.getDescription());
+        if (shopRequest.getShopImageKey() != null) shop.setShopImageKey(shopRequest.getShopImageKey());
+        return shopRepository.save(shop);
+    }
+
     public ShopEntity getShopByUuid(java.util.UUID uuid){
         Optional<ShopEntity> shopEntityOptional = shopRepository.findByUuid(uuid);
         if (shopEntityOptional.isPresent()) {

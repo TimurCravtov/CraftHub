@@ -16,6 +16,7 @@ export default function CreateShop() {
   
   const [form, setForm] = useState({
     shopId: null,
+    shopUuid: null,
     shopName: '',
     shopDescription: '',
     ownerDescription: '',
@@ -23,6 +24,7 @@ export default function CreateShop() {
     shopLogoKey: null,
     items: [],
     currentItem: {
+      id: null,
       name: '',
       price: '',
       description: '',
@@ -41,6 +43,7 @@ export default function CreateShop() {
             setForm(prev => ({
               ...prev,
               shopId: shopData.id || shopData.shopId,
+              shopUuid: shopData.uuid,
               shopName: shopData.shopName || shopData.name || '',
               shopDescription: shopData.shopDescription || shopData.description || '',
               ownerDescription: shopData.ownerDescription || '',
@@ -231,12 +234,23 @@ export default function CreateShop() {
         price: parseFloat(price),
         description: description?.trim() || '',
         shopId: form.shopId,
-        productImagesTemp: images.map(img => ({ key: img.objectKey, url: img.url }))
+        productImagesTemp: images.filter(img => img.key || img.objectKey).map(img => ({ key: img.objectKey || img.key, url: img.url }))
       };
 
       if (form.shopId) {
         // If shop exists, save product immediately
-        await api.post('/api/products/', productData);
+        // Check if we are updating or creating
+        if (form.currentItem.id && !String(form.currentItem.id).startsWith('temp-')) {
+             // Update existing product
+             // We need a PUT endpoint for products, or use POST if it handles updates (usually not)
+             // Assuming we might need to add PUT endpoint to ProductController
+             // For now, let's try POSTing to /api/products/update/{id} or similar if it existed, 
+             // but since I don't see one, I will assume I need to create it or use a different approach.
+             // Actually, let's just add the PUT endpoint in the backend in the next step.
+             await api.put(`/api/products/${form.currentItem.id}`, productData);
+        } else {
+             await api.post('/api/products/', productData);
+        }
 
         // Refresh items
         const itemsResponse = await api.get(`/api/shops/${form.shopId}/products`);
@@ -249,14 +263,16 @@ export default function CreateShop() {
         // We store it in a format that we can use later to submit
         setForm(prev => ({
           ...prev,
-          items: [...prev.items, { ...productData, name: name.trim(), id: Date.now(), images: images }] // Keep UI friendly fields too
+          items: form.currentItem.id 
+            ? prev.items.map(i => i.id === form.currentItem.id ? { ...productData, name: name.trim(), id: form.currentItem.id, images: images } : i)
+            : [...prev.items, { ...productData, name: name.trim(), id: `temp-${Date.now()}`, images: images }] 
         }));
       }
 
       setShowItemModal(false);
       setForm(prev => ({
         ...prev,
-        currentItem: { name: '', price: '', description: '', images: [] }
+        currentItem: { id: null, name: '', price: '', description: '', images: [] }
       }));
 
     } catch (error) {
@@ -282,13 +298,20 @@ export default function CreateShop() {
       }
 
       const isUpdate = !!form.shopId
-      const endpoint = isUpdate ? `/api/shops/${form.shopId}` : '/api/shops/addshop'
+      // Use UUID if available for update, otherwise fallback to ID
+      const endpoint = isUpdate 
+        ? `/api/shops/${form.shopUuid || form.shopId}` 
+        : '/api/shops/addshop'
       const method = isUpdate ? 'put' : 'post'
 
       const response = await api[method](endpoint, payload)
       const result = response.data
       
-      setForm(prev => ({ ...prev, shopId: result.id || result.shopId }))
+      setForm(prev => ({ 
+        ...prev, 
+        shopId: result.id || result.shopId,
+        shopUuid: result.uuid || prev.shopUuid
+      }))
       
       // If we have local items that need to be saved (for new shop)
       if (!isUpdate && form.items.length > 0) {
@@ -395,7 +418,10 @@ export default function CreateShop() {
                 <h2 className="text-xl font-semibold text-gray-900">Products</h2>
                 <button
                   type="button"
-                  onClick={() => setShowItemModal(true)}
+                  onClick={() => {
+                      setForm(prev => ({ ...prev, currentItem: { id: null, name: '', price: '', description: '', images: [] } }));
+                      setShowItemModal(true);
+                  }}
                   className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
                 >
                   <Plus className="h-4 w-4" />
@@ -413,10 +439,10 @@ export default function CreateShop() {
                   {form.items.map((item, index) => (
                     <div key={index} className="flex gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 group">
                       <div className="h-20 w-20 bg-gray-200 rounded-md flex-shrink-0 overflow-hidden">
-                        {item.images?.[0] || item.imageUrls?.[0] ? (
+                        {item.images?.[0] || item.imageUrls?.[0] || item.imageLinks?.[0] ? (
                           <img 
-                            src={item.images?.[0]?.url || item.images?.[0] || item.imageUrls?.[0]} 
-                            alt={item.name} 
+                            src={item.images?.[0]?.url || item.images?.[0] || item.imageUrls?.[0] || item.imageLinks?.[0]} 
+                            alt={item.name || item.title} 
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -426,20 +452,38 @@ export default function CreateShop() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
+                        <h3 className="font-medium text-gray-900 truncate">{item.name || item.title}</h3>
                         <p className="text-indigo-600 font-medium">${item.price}</p>
                         <p className="text-sm text-gray-500 truncate">{item.description}</p>
                       </div>
-                      <button 
-                        onClick={() => {
-                           // Handle remove logic
-                           // For now just remove from local state if it's a new shop, or call API if existing
-                           // But let's keep it simple for this iteration
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 rounded-full transition-all self-start"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex gap-2 self-start">
+                        <button 
+                          onClick={() => {
+                            setForm(prev => ({
+                              ...prev,
+                              currentItem: {
+                                ...item,
+                                name: item.name || item.title,
+                                images: (item.imageLinks || []).map(url => ({ url, uploading: false, key: null })) // key is null for existing images, backend handles it?
+                              }
+                            }));
+                            setShowItemModal(true);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-all"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                        </button>
+                        <button 
+                          onClick={() => {
+                             // Handle remove logic
+                             // For now just remove from local state if it's a new shop, or call API if existing
+                             // But let's keep it simple for this iteration
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 rounded-full transition-all"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -480,8 +524,11 @@ export default function CreateShop() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-              <h2 className="text-xl font-bold text-gray-900">Add New Product</h2>
-              <button onClick={() => setShowItemModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <h2 className="text-xl font-bold text-gray-900">{form.currentItem.id ? 'Edit Product' : 'Add New Product'}</h2>
+              <button onClick={() => {
+                  setShowItemModal(false);
+                  setForm(prev => ({ ...prev, currentItem: { id: null, name: '', price: '', description: '', images: [] } }));
+              }} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <X className="h-5 w-5 text-gray-500" />
               </button>
             </div>
@@ -553,7 +600,10 @@ export default function CreateShop() {
 
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
               <button
-                onClick={() => setShowItemModal(false)}
+                onClick={() => {
+                    setShowItemModal(false);
+                    setForm(prev => ({ ...prev, currentItem: { id: null, name: '', price: '', description: '', images: [] } }));
+                }}
                 className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Cancel
@@ -562,7 +612,7 @@ export default function CreateShop() {
                 onClick={handleSaveItem}
                 className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
               >
-                Add Product
+                {form.currentItem.id ? 'Save Changes' : 'Add Product'}
               </button>
             </div>
           </div>

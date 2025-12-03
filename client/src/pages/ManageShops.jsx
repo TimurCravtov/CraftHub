@@ -59,7 +59,7 @@ export default function ManageShops() {
                     {shop.description || 'No description provided'}
                   </p>
                   <button
-                    onClick={() => navigate(`/edit-shop/${shop.id}`)}
+                    onClick={() => navigate(`/edit-shop/${shop.uuid}`)}
                     className="w-full px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800"
                   >
                     Edit Shop

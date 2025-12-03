@@ -28,6 +28,7 @@ public class ShopMapper {
 
         shopDto.setShopImageUrl(icon);
         shopDto.setShopBannerImageUrl(banner);
+        shopDto.setUserId(shopEntity.getUserId());
         return shopDto;
 
     }

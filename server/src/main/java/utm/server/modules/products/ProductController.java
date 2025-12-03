@@ -31,11 +31,27 @@ public class ProductController {
     }
 
     @GetMapping("/findById/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) {
-        return productService.findById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(404)
-                        .body(new ErrorMessage(HttpStatus.NOT_FOUND.value(), "Product with Id not found")));
+    public ResponseEntity<?> findById(@PathVariable String id) {
+        try {
+            // Try parsing as UUID first
+            java.util.UUID uuid = java.util.UUID.fromString(id);
+            return productService.findByUuid(uuid)
+                    .<ResponseEntity<?>>map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.status(404)
+                            .body(new ErrorMessage(HttpStatus.NOT_FOUND.value(), "Product with UUID not found")));
+        } catch (IllegalArgumentException e) {
+            // Fallback to Long ID for backward compatibility (optional, or remove if strict)
+            try {
+                Long longId = Long.parseLong(id);
+                return productService.findById(longId)
+                        .<ResponseEntity<?>>map(ResponseEntity::ok)
+                        .orElseGet(() -> ResponseEntity.status(404)
+                                .body(new ErrorMessage(HttpStatus.NOT_FOUND.value(), "Product with Id not found")));
+            } catch (NumberFormatException nfe) {
+                 return ResponseEntity.status(400)
+                        .body(new ErrorMessage(HttpStatus.BAD_REQUEST.value(), "Invalid ID format"));
+            }
+        }
     }
 
     @GetMapping("/findall")

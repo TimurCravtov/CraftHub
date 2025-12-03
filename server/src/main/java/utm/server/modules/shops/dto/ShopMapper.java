@@ -13,6 +13,7 @@ public class ShopMapper {
     public ShopDto toDto(ShopEntity shopEntity) {
         ShopDto shopDto = new ShopDto();
         shopDto.setId(shopEntity.getId());
+        shopDto.setUuid(shopEntity.getUuid());
         shopDto.setName(shopEntity.getName());
         shopDto.setDescription(shopEntity.getDescription());
 

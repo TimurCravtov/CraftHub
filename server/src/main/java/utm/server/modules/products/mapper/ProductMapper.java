@@ -27,6 +27,7 @@ public class ProductMapper {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .id(product.getId())
+                .uuid(product.getUuid())
                 .imageLinks(imageEntities
                         .stream()
                         .map(i->imageService.getPermanentLink(i.getKey()))
@@ -34,8 +35,10 @@ public class ProductMapper {
 
         if (shop != null) {
             builder.shopId(shop.getId());
+            builder.shopUuid(shop.getUuid());
             builder.shop(ProductDto.ShopDto.builder()
                     .id(shop.getId())
+                    .uuid(shop.getUuid())
                     .name(shop.getName())
                     .build());
         }

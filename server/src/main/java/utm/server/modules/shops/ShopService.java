@@ -67,6 +67,15 @@ public class ShopService {
         }
     }
 
+    public ShopEntity getShopByUuid(java.util.UUID uuid){
+        Optional<ShopEntity> shopEntityOptional = shopRepository.findByUuid(uuid);
+        if (shopEntityOptional.isPresent()) {
+            return shopEntityOptional.get();
+        } else {
+            throw new RuntimeException("Shop not found with uuid: " + uuid);
+        }
+    }
+
     public List<Product> getProductsByShopId(Long shopId) {
         Optional<ShopEntity> shopEntityOptional = shopRepository.findById(shopId);
 

@@ -39,6 +39,10 @@ public class ProductService {
         return  productRepository.findById(id).map(productMapper::toDto);
     }
 
+    public Optional<ProductDto> findByUuid(java.util.UUID uuid) {
+        return productRepository.findByUuid(uuid).map(productMapper::toDto);
+    }
+
     public List<ProductDto> findAllProducts() {
         return productRepository.findAll()
                 .stream()
@@ -57,6 +61,18 @@ public class ProductService {
         ShopEntity shop = new ShopEntity();
         shop.setId(shopId);
         return productRepository.findProductsByShopEntity(shop)
+                .stream()
+                .map(productMapper::toDto)
+                .toList();
+    }
+
+    public List<ProductDto> findProductsByShopUuid(java.util.UUID shopUuid) {
+        // We need to find the shop first to get the entity, or use a custom query in repo
+        // Assuming we can't just create a dummy entity with UUID for lookup in standard JPA without ID
+        // But wait, findProductsByShopEntity expects an entity.
+        // Let's assume we need to fetch the shop first.
+        // Or better, add findByShopEntity_Uuid to ProductRepository
+        return productRepository.findProductsByShopEntity_Uuid(shopUuid)
                 .stream()
                 .map(productMapper::toDto)
                 .toList();

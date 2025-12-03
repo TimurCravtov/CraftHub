@@ -15,10 +15,12 @@ import java.util.List;
 public class ProductDto {
     private String title;
     private Long id;
+    private java.util.UUID uuid;
     private String description;
     private double price;
     private List<String> imageLinks;
     private Long shopId;
+    private java.util.UUID shopUuid;
     private ShopDto shop;
 
     @Data
@@ -28,5 +30,6 @@ public class ProductDto {
     public static class ShopDto {
         private String name;
         private Long id;
+        private java.util.UUID uuid;
     }
 }

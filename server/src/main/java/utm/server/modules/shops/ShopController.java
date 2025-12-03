@@ -50,12 +50,32 @@ public class ShopController {
     }
 
     @GetMapping("/{shopId}")
-    public ShopDto getShopById(@PathVariable Long shopId) {
-        return shopMapper.toDto(shopService.getShopById(shopId));
+    public ShopDto getShopById(@PathVariable String shopId) {
+        try {
+            java.util.UUID uuid = java.util.UUID.fromString(shopId);
+            return shopMapper.toDto(shopService.getShopByUuid(uuid));
+        } catch (IllegalArgumentException e) {
+             try {
+                Long id = Long.parseLong(shopId);
+                return shopMapper.toDto(shopService.getShopById(id));
+            } catch (NumberFormatException nfe) {
+                throw new RuntimeException("Invalid Shop ID format");
+            }
+        }
     }
 
     @GetMapping("/{shopId}/products")
-    public List<ProductDto> getProductsByShop(@PathVariable Long shopId) {
-        return productService.findProductsByShopId(shopId);
+    public List<ProductDto> getProductsByShop(@PathVariable String shopId) {
+         try {
+            java.util.UUID uuid = java.util.UUID.fromString(shopId);
+            return productService.findProductsByShopUuid(uuid);
+        } catch (IllegalArgumentException e) {
+             try {
+                Long id = Long.parseLong(shopId);
+                return productService.findProductsByShopId(id);
+            } catch (NumberFormatException nfe) {
+                throw new RuntimeException("Invalid Shop ID format");
+            }
+        }
     }
 }

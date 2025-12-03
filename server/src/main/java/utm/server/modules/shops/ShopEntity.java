@@ -25,6 +25,11 @@ public class ShopEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
+    @Builder.Default
+    private java.util.UUID uuid = java.util.UUID.randomUUID();
+
     @Column(nullable = false)
     private String name;
 
@@ -35,6 +40,7 @@ public class ShopEntity {
     private String description;
     @OneToMany(mappedBy="shopEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @Builder.Default
     private List<Product> products = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

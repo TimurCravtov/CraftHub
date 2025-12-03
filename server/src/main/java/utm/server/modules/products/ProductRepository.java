@@ -13,4 +13,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByTitle(String title);
 
     List<Product> findProductsByShopEntity(ShopEntity shopId);
+    List<Product> findProductsByShopEntity_Uuid(java.util.UUID shopUuid);
+    java.util.Optional<Product> findByUuid(java.util.UUID uuid);
+    List<Product> findByUuidIsNull();
 }

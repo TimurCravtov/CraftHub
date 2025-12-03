@@ -33,6 +33,21 @@ public class ShopController {
         return shopMapper.toDto(shopService.addShop(shopRequest, user));
     }
 
+    @PutMapping("/{shopId}")
+    public ShopDto updateShop(@PathVariable String shopId, @RequestBody ShopCreationRequestDTO shopRequest) {
+        try {
+            java.util.UUID uuid = java.util.UUID.fromString(shopId);
+            return shopMapper.toDto(shopService.updateShop(uuid, shopRequest));
+        } catch (IllegalArgumentException e) {
+             try {
+                Long id = Long.parseLong(shopId);
+                return shopMapper.toDto(shopService.updateShop(id, shopRequest));
+            } catch (NumberFormatException nfe) {
+                throw new RuntimeException("Invalid Shop ID format");
+            }
+        }
+    }
+
     @GetMapping("/")
     public List<ShopDto> getAllShops() {
         return shopService.getAllShops()
@@ -49,13 +64,41 @@ public class ShopController {
                 .toList();
     }
 
+    @GetMapping("/my-shops")
+    public List<ShopDto> getMyShops(@AuthenticationPrincipal UserSecurityPrincipal user) {
+        return shopService.getShopsByUserId(user.getId())
+                .stream()
+                .map(shopMapper::toDto)
+                .toList();
+    }
+
     @GetMapping("/{shopId}")
-    public ShopDto getShopById(@PathVariable Long shopId) {
-        return shopMapper.toDto(shopService.getShopById(shopId));
+    public ShopDto getShopById(@PathVariable String shopId) {
+        try {
+            java.util.UUID uuid = java.util.UUID.fromString(shopId);
+            return shopMapper.toDto(shopService.getShopByUuid(uuid));
+        } catch (IllegalArgumentException e) {
+             try {
+                Long id = Long.parseLong(shopId);
+                return shopMapper.toDto(shopService.getShopById(id));
+            } catch (NumberFormatException nfe) {
+                throw new RuntimeException("Invalid Shop ID format");
+            }
+        }
     }
 
     @GetMapping("/{shopId}/products")
-    public List<ProductDto> getProductsByShop(@PathVariable Long shopId) {
-        return productService.findProductsByShopId(shopId);
+    public List<ProductDto> getProductsByShop(@PathVariable String shopId) {
+         try {
+            java.util.UUID uuid = java.util.UUID.fromString(shopId);
+            return productService.findProductsByShopUuid(uuid);
+        } catch (IllegalArgumentException e) {
+             try {
+                Long id = Long.parseLong(shopId);
+                return productService.findProductsByShopId(id);
+            } catch (NumberFormatException nfe) {
+                throw new RuntimeException("Invalid Shop ID format");
+            }
+        }
     }
 }

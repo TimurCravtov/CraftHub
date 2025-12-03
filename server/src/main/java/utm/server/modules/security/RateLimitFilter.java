@@ -30,10 +30,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final LoadingCache<String, Bucket> cache;
 
-    @Value("${rate-limit.capacity:30}")
+    @Value("${rate-limit.capacity:100}")
     private long capacity;
 
-    @Value("${rate-limit.refill-tokens:30}")
+    @Value("${rate-limit.refill-tokens:100}")
     private long refillTokens;
 
     @Value("${rate-limit.refill-duration:1m}")

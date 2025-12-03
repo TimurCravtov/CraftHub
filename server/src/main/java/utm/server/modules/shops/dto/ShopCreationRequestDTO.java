@@ -9,5 +9,6 @@ import java.util.List;
 public class ShopCreationRequestDTO {
     private String name;
     private String description;
+    private String shopImageKey; // For logo
     private List<ProductCreationDto> products;
 }

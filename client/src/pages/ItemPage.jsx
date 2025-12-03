@@ -38,10 +38,14 @@ export default function ItemPage() {
 
                 const normalized = (Array.isArray(data) ? data : []).map((p, idx) => ({
                     id: p.id ?? idx + 1,
+                    uuid: p.uuid,
                     title: p.title ?? 'Untitled',
                     price: p.price ?? 0,
-                    imageUrl: p.imageUrl ?? 'https://source.unsplash.com/featured/800x600?craft',
+                    imageUrl: p.imageUrl ?? (p.imageLinks && p.imageLinks[0]) ?? 'https://source.unsplash.com/featured/800x600?craft',
                     shopId: shopId,
+                    shopUuid: p.shopUuid,
+                    shop: p.shop,
+                    imageLinks: p.imageLinks
                 }))
                 if (mounted) setProducts(normalized)
             } catch (_) {

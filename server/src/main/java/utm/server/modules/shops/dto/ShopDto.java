@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 public class ShopDto {
     private Long id;
+    private java.util.UUID uuid;
     private String name;
     private String shopBannerImageUrl;
     private String shopImageUrl;

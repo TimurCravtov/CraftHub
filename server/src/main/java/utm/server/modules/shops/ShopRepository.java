@@ -13,5 +13,8 @@ public interface ShopRepository extends JpaRepository<ShopEntity, Long> {
     @NotNull ArrayList<ShopEntity> findAll();
 
     boolean existsByUser_Id(Long userId);
+    java.util.List<ShopEntity> findByUser_Id(Long userId);
+    java.util.Optional<ShopEntity> findByUuid(java.util.UUID uuid);
+    java.util.List<ShopEntity> findByUuidIsNull();
 
 }

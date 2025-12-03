@@ -24,6 +24,10 @@ public class UserEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    @Builder.Default
+    private java.util.UUID uuid = java.util.UUID.randomUUID();
+
     @Column(nullable = false)
     private String name;
 

@@ -22,6 +22,11 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
+    @Builder.Default
+    private java.util.UUID uuid = java.util.UUID.randomUUID();
+
     private String title;
     private String description;
     private double price;

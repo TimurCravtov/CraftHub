@@ -15,15 +15,21 @@ import java.util.List;
 public class ProductDto {
     private String title;
     private Long id;
+    private java.util.UUID uuid;
     private String description;
     private double price;
     private List<String> imageLinks;
+    private Long shopId;
+    private java.util.UUID shopUuid;
     private ShopDto shop;
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ShopDto {
-        String name;
-        Long id;
+        private String name;
+        private Long id;
+        private java.util.UUID uuid;
     }
 }

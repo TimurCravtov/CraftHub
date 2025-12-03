@@ -29,7 +29,7 @@ export default function ManageShopsContent() {
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-900">Your Shops</h2>
         <button
-          onClick={() => navigate('/account')}
+          onClick={() => navigate('/create-shop')}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
         >
           <Store className="h-4 w-4" />
@@ -47,7 +47,7 @@ export default function ManageShopsContent() {
           <h3 className="text-lg font-medium text-gray-900 mb-2">No shops yet</h3>
           <p className="text-gray-600 mb-4">Create your first shop to start selling</p>
           <button
-            onClick={() => navigate('/account')}
+            onClick={() => navigate('/create-shop')}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
             Create Shop
@@ -58,9 +58,9 @@ export default function ManageShopsContent() {
           {shops.map((shop) => (
             <div key={shop.id} className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-4">
-                {shop.logo ? (
+                {shop.shopImageUrl || shop.logo ? (
                   <img 
-                    src={shop.logo} 
+                    src={shop.shopImageUrl || shop.logo} 
                     alt={shop.name} 
                     className="h-12 w-12 rounded-lg object-cover"
                   />
@@ -76,13 +76,13 @@ export default function ManageShopsContent() {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => navigate(`/account?shopId=${shop.id}`)}
+                  onClick={() => navigate(`/edit-shop/${shop.uuid}`)}
                   className="flex-1 px-3 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
                 >
                   Edit Shop
                 </button>
                 <button
-                  onClick={() => navigate(`/shops/${shop.id}`)}
+                  onClick={() => navigate(`/shops/${shop.uuid}`)}
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
                 >
                   View Shop

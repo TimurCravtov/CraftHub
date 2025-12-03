@@ -24,9 +24,18 @@ export default function Shops() {
       
         const shopsWithArtisans = await Promise.all(
           shopsData.map(async (shop) => {
-            const userResponse = await api.get(`/api/users/${shop.user_id}`)
-            const userData = userResponse.data
-            shop.artisan = userData.name  
+            if (shop.userId) {
+                try {
+                    const userResponse = await api.get(`/api/users/${shop.userId}`)
+                    const userData = userResponse.data
+                    shop.artisan = userData.name
+                } catch (e) {
+                    console.warn("Failed to fetch user for shop", shop.id)
+                    shop.artisan = "Unknown Artisan"
+                }
+            } else {
+                shop.artisan = "Unknown Artisan"
+            }
             return shop
           })
         )
@@ -126,12 +135,12 @@ export default function Shops() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {filtered.map((shop) => (
             <div
-              onClick={() => navigate(`/shops/${shop.id}`)}
+              onClick={() => navigate(`/shops/${shop.uuid || shop.id}`)}
               key={shop.id}
               className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
             >
               <div className="relative h-48">
-                <img src={shop.image} alt={shop.shopName || shop.name} className="w-full h-full object-cover" />
+                <img src={shop.shopBannerImageUrl || shop.image || '/assets/modern-plant-store-interior.jpg'} alt={shop.shopName || shop.name} className="w-full h-full object-cover" />
 
                 <div className="absolute top-2 right-2">
                   <button className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm text-pink-500 hover:text-pink-700 hover:bg-white/90 transition-all duration-300 shadow opacity-70 hover:scale-110">
@@ -141,7 +150,7 @@ export default function Shops() {
 
                 <div className="absolute bottom-3 left-3">
                   <img
-                    src={shop.logo}
+                    src={shop.shopImageUrl || shop.logo || '/assets/react.svg'}
                     alt={`${shop.shopName || shop.name} logo`}
                     className="w-10 h-10 rounded-full bg-white/90 p-1 shadow border"
                   />

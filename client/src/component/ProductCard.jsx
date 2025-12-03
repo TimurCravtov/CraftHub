@@ -1,13 +1,13 @@
 import { Heart, ShoppingCart, Check } from "lucide-react";
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useLikes } from '../likesContext.jsx'
 import { useCart } from '../cartContext.jsx'
 import { useToast } from '../toastContext.jsx'
 import { escapeText, safeUrl } from '../utils/sanitize.js'
 
 export default function ProductCard({ product }) {
-    const { id, title, price, imageLinks, shop } = product || {}
+    const { id, uuid, title, price, imageLinks, shop, shopId, shopUuid } = product || {}
     const imageUrl = (imageLinks && imageLinks.length > 0) ? imageLinks[0] : null
     const sellerName = shop?.name || ''
 
@@ -19,20 +19,17 @@ export default function ProductCard({ product }) {
     const { showToast } = useToast()
     const navigate = useNavigate()
 
-    const handleCardClick = () => {
-        const shopId = shop?.id
-        if (shopId) {
-            navigate(`/product/${shopId}/${id}`)
-        } else {
-            // fallback to product page using product id only
-            navigate(`/product/unknown/${id}`)
-        }
-    }
+    const finalShopId = shop?.uuid || shopUuid || shop?.id || shopId
+    const finalProductId = uuid || id
+    
+    const productLink = (finalShopId !== undefined && finalShopId !== null) 
+        ? `/product/${finalShopId}/${finalProductId}`
+        : `/product/unknown/${finalProductId}`
 
     return (
-        <div 
-            className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
-            onClick={handleCardClick}
+        <Link 
+            to={productLink}
+            className="block relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
         >
             {/* Image */}
             <div className="relative h-48">
@@ -44,7 +41,7 @@ export default function ProductCard({ product }) {
 
                 {/* Floating Heart */}
                 <div className="absolute top-2 right-2">
-                    <button onClick={(e) => { e.stopPropagation(); toggleLike(product) }} className={`flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm transition-all duration-300 shadow opacity-70 hover:scale-110 ${liked ? 'text-pink-600' : 'text-pink-500 hover:text-pink-700 hover:bg-white/90'}`}>
+                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(product) }} className={`flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm transition-all duration-300 shadow opacity-70 hover:scale-110 ${liked ? 'text-pink-600' : 'text-pink-500 hover:text-pink-700 hover:bg-white/90'}`}>
                         <Heart className={`w-4 h-4 ${liked ? 'fill-pink-600' : ''}`} />
                     </button>
                 </div>
@@ -59,7 +56,9 @@ export default function ProductCard({ product }) {
                 <div className="mt-2 flex items-center justify-between">
                     <p className="text-sm font-semibold text-gray-900">{Number(price)} lei</p>
                     <button
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
                             const wasInCart = inCart
                             addToCart(product, 1, { allowIncrement: false })
                             setJustAdded(true)
@@ -83,6 +82,6 @@ export default function ProductCard({ product }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }

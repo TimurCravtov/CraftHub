@@ -138,7 +138,7 @@ export default function ProductDetail() {
 
     // Handle images - use the imageUrl directly from backend
     const images = product.imageLinks || (product.imageUrl ? [product.imageUrl] : [])
-    const mainImage = images[selectedImage] || images[0] || 'https://via.placeholder.com/400x400?text=No+Image'
+    const mainImage = images[selectedImage] || images[0] || '/assets/product-placeholder.svg'
 
     return (
         <div className="min-h-screen bg-white">
@@ -240,11 +240,11 @@ export default function ProductDetail() {
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                                                <span className="text-blue-600 font-semibold text-sm">
-                                                    {shop.name ? shop.name.charAt(0).toUpperCase() : 'S'}
-                                                </span>
-                                            </div>
+                                            <img
+                                                src="/assets/shop-placeholder.svg"
+                                                alt={shop.name || 'Shop'}
+                                                className="w-full h-full object-cover"
+                                            />
                                         )}
                                     </div>
                                     <div>

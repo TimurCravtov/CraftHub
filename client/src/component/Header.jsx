@@ -169,15 +169,11 @@ export default function Header() {
                     className="p-2 rounded hover:bg-slate-100 flex items-center gap-2"
                     onClick={handleAccountClick}
                 >
-                  {user?.profilePictureLink ? (
-                      <img
-                          src={user.profilePictureLink}
-                          alt={user.name}
-                          className="h-8 w-8 rounded-full object-cover border border-slate-200"
-                      />
-                  ) : (
-                      <User className="h-5 w-5" />
-                  )}
+                  <img
+                      src={user?.profilePictureLink || '/assets/user-placeholder.svg'}
+                      alt={user?.name || 'User'}
+                      className="h-8 w-8 rounded-full object-cover border border-slate-200"
+                  />
                   {user && (
                     <span className="text-sm font-medium">
                       {t('header.hi')}, {user.name}{" "}

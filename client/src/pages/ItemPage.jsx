@@ -26,10 +26,8 @@ export default function ItemPage() {
             try {
                 let data = []
                 if (shopId) {
-
-                    const res = api.get(`api/products/by-shop/${shopId}`)
-                    if (!res.ok) throw new Error('Failed to fetch products by shop ID')
-                data = await res.data
+                    const res = await api.get(`/api/shops/${shopId}/products`)
+                    data = res.data
                 } else if (titleParam) {
                     data = await productsApi.searchByTitle(titleParam)
                 } else {

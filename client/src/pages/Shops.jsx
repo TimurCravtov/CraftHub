@@ -2,6 +2,7 @@ import { Filter, Grid3X3, List, Heart } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../component/Header.jsx'
+import ShopCard from '../component/ShopCard.jsx'
 import { useAuthApi } from '../context/apiAuthContext.jsx'
 
 export default function Shops() {
@@ -134,34 +135,7 @@ export default function Shops() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {filtered.map((shop) => (
-            <div
-              onClick={() => navigate(`/shops/${shop.uuid || shop.id}`)}
-              key={shop.id}
-              className="relative max-w-xs bg-white rounded-2xl overflow-hidden shadow transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
-            >
-              <div className="relative h-48">
-                <img src={shop.shopBannerImageUrl || shop.image || '/assets/modern-plant-store-interior.jpg'} alt={shop.shopName || shop.name} className="w-full h-full object-cover" />
-
-                <div className="absolute top-2 right-2">
-                  <button className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/70 backdrop-blur-sm text-pink-500 hover:text-pink-700 hover:bg-white/90 transition-all duration-300 shadow opacity-70 hover:scale-110">
-                    <Heart className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="absolute bottom-3 left-3">
-                  <img
-                    src={shop.shopImageUrl || shop.logo || '/assets/react.svg'}
-                    alt={`${shop.shopName || shop.name} logo`}
-                    className="w-10 h-10 rounded-full bg-white/90 p-1 shadow border"
-                  />
-                </div>
-              </div>
-
-              <div className="p-3">
-                <h3 className="text-sm font-semibold text-gray-900 truncate">{shop.shopName || shop.name}</h3>
-                <p className="text-xs text-gray-500 truncate">by {shop.artisan}</p>
-              </div>
-            </div>
+            <ShopCard key={shop.id} shop={shop} />
           ))}
         </div>
       </div>

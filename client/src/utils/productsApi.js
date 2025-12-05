@@ -32,9 +32,9 @@ export const productsApi = {
     },
 
     async getBySeller(sellerId) {
-        // GET /api/products/by-shop/{id}
+        // GET /api/shops/{id}/products
         const safeId = encodeURIComponent(String(sellerId))
-        return apiRequest({ url: `/api/products/by-shop/${safeId}`, method: 'GET' })
+        return apiRequest({ url: `/api/shops/${safeId}/products`, method: 'GET' })
     }
 }
 

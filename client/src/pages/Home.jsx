@@ -139,11 +139,11 @@ export default function Home() {
         {/* Hero Section */}
         <div className="relative h-[85vh] min-h-[600px] w-full overflow-hidden">
           <img
-              src="/assets/modern-plant-store-with-pottery-and-plants-on-wood.jpg"
+              src="/assets/crafthub_hero.png"
               alt="Artisan Workshop"
               className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-[20s] hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-slate-900/10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-slate-900/10" />
           
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8">
             <h1 className="mb-6 text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-2xl">
@@ -251,9 +251,9 @@ export default function Home() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {pagedShops.map((s) => (
-                <a key={s.id} href={`/shops/${s.id}`} className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ring-1 ring-slate-200/50">
+                <a key={s.id} href={`/shops/${s.uuid || s.id}`} className="group relative flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ring-1 ring-slate-200/50">
                   <div className="relative h-64 overflow-hidden bg-slate-100">
-                    <img src={safeUrl(s.image || '/assets/cover-placeholder.svg')} alt={s.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img src={safeUrl(s.image || '/assets/cover-placeholder.png')} alt={s.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
                     <div className="absolute bottom-5 left-5 right-5 flex items-center gap-4">
                       <img src={safeUrl(s.logo || '/assets/shop-placeholder.svg')} alt={`${s.name} logo`} className="h-14 w-14 rounded-full object-cover border-2 border-white shadow-lg" />

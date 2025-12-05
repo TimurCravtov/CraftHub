@@ -78,7 +78,7 @@ export default function ShopPage() {
 
       <div
         className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: `url(${shopImage || '/assets/cover-placeholder.svg'})` }}
+        style={{ backgroundImage: `url(${shopImage || '/assets/cover-placeholder.png'})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
@@ -140,15 +140,6 @@ export default function ShopPage() {
               <p>Additional product information and specifications would go here.</p>
             </div>
           )}
-        </div>
-
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="aspect-video bg-orange-100 rounded-lg overflow-hidden shadow-sm">
-            <img src="/assets/modern-plant-store-interior.jpg" alt="Product detail 1" className="w-full h-full object-cover" />
-          </div>
-          <div className="aspect-video bg-orange-100 rounded-lg overflow-hidden shadow-sm">
-            <img src="/assets/modern-plant-store-interior.jpg" alt="Product detail 2" className="w-full h-full object-cover" />
-          </div>
         </div>
 
         <div className="mt-16">

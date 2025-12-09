@@ -128,19 +128,19 @@ export default function Header() {
   return (
       <header className="border-b border-gray-100 bg-white/90 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+          <div className="flex h-20 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <a href="/" className="flex items-center space-x-2 group">
-                <img src="/assets/logo.png" alt="Craft Hub Logo" className="h-8 w-8 object-contain transition-transform group-hover:scale-105" />
-                <span className="text-xl font-bold text-[#16533A] tracking-tight">
+              <a href="/" className="flex items-center space-x-3 group">
+                <img src="/assets/logo.png" alt="Craft Hub Logo" className="h-10 w-10 object-contain transition-transform group-hover:scale-105" />
+                <span className="text-2xl font-bold text-[#16533A] tracking-tight">
                 CraftHub
               </span>
               </a>
             </div>
 
             {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-10">
               {[
                 { href: "/", label: t('header.home') },
                 { href: "/shops", label: t('header.shops') },
@@ -151,39 +151,43 @@ export default function Header() {
                   <a
                       key={link.href}
                       href={link.href}
-                      className={`text-sm font-medium transition-colors duration-200 ${location.pathname === link.href ? 'text-[#16533A]' : 'text-gray-600 hover:text-[#16533A]'} relative group`}
+                      className={`text-base font-medium transition-colors duration-200 ${location.pathname === link.href ? 'text-[#16533A]' : 'text-gray-600 hover:text-[#16533A]'} relative group py-2`}
                   >
                     {link.label}
-                    <span className={`absolute -bottom-1 left-0 w-full h-0.5 bg-[#16533A] rounded-full transition-transform duration-300 origin-left ${location.pathname === link.href ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#16533A] rounded-full transition-transform duration-300 origin-left ${location.pathname === link.href ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
                   </a>
               ))}
             </nav>
 
             {/* Right side */}
-            <div className="flex items-center space-x-1 sm:space-x-2 relative">
+            <div className="flex items-center space-x-3 sm:space-x-4 relative">
               {/* User Icon + Dropdown */}
               <div id="user-menu" className="relative">
                 <button
-                    className="p-2 rounded-full hover:bg-gray-50 transition-colors flex items-center gap-2 group"
+                    className="p-2 rounded-full hover:bg-gray-50 transition-colors flex items-center gap-3 group"
                     onClick={handleAccountClick}
                 >
                   <img
                       src={user?.profilePictureLink || '/assets/user-placeholder.svg'}
                       alt={user?.name || 'User'}
-                      className="h-8 w-8 rounded-full object-cover border border-gray-200 group-hover:border-[#16533A]/30 transition-colors"
+                      className="h-9 w-9 rounded-full object-cover border border-gray-200 group-hover:border-[#16533A]/30 transition-colors shadow-sm"
                   />
                   {user && (
                     <span className="text-sm font-medium text-gray-700 group-hover:text-[#16533A] hidden sm:block">
                       {t('header.hi')}, {user.name}{" "}
-                      <span className="text-xs text-gray-500">
-                        ({user.role || user.accountType || (isSeller ? t('header.seller') : t('header.buyer'))})
+                      <span className="text-xs text-gray-500 block">
+                        {user.role || user.accountType || (isSeller ? t('header.seller') : t('header.buyer'))}
                       </span>
                     </span>
                   )}
                 </button>
 
                 {menuOpen && user && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                    <div className="absolute right-0 mt-4 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 ring-1 ring-black/5">
+                      <div className="px-4 py-3 border-b border-gray-50 mb-2">
+                        <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      </div>
                       <button
                           onClick={() => { navigate("/settings"); setMenuOpen(false) }}
                           className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#16533A] transition-colors"
@@ -201,9 +205,11 @@ export default function Header() {
                 )}
               </div>
 
+              <div className="h-8 w-px bg-gray-200 mx-2 hidden sm:block" />
+
               {/* Search */}
               <button
-                  className={`p-2 rounded-full hover:bg-gray-50 transition-colors ${isSearchOpen ? 'text-[#16533A] bg-gray-50' : 'text-gray-600'}`}
+                  className={`p-2.5 rounded-full hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 ${isSearchOpen ? 'text-[#16533A] bg-gray-50 ring-1 ring-gray-200' : 'text-gray-600'}`}
                   onClick={handleSearchClick}
               >
                 <Search className="h-5 w-5" />
@@ -211,7 +217,7 @@ export default function Header() {
 
               {/* Favorites */}
               <button
-                  className={`p-2 rounded-full hover:bg-gray-50 transition-colors ${location.pathname === '/liked' ? 'text-rose-500 bg-rose-50' : 'text-gray-600 hover:text-rose-500'}`}
+                  className={`p-2.5 rounded-full hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 ${location.pathname === '/liked' ? 'text-rose-500 bg-rose-50 ring-1 ring-rose-100' : 'text-gray-600 hover:text-rose-500'}`}
                   onClick={() => navigate('/liked')}
               >
                 <Heart className="h-5 w-5" />
@@ -219,14 +225,14 @@ export default function Header() {
 
               {/* Cart */}
               <button
-                  className={`p-2 rounded-full hover:bg-gray-50 transition-colors ${location.pathname === '/cart' ? 'text-[#16533A] bg-green-50' : 'text-gray-600 hover:text-[#16533A]'}`}
+                  className={`p-2.5 rounded-full hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 ${location.pathname === '/cart' ? 'text-[#16533A] bg-green-50 ring-1 ring-green-100' : 'text-gray-600 hover:text-[#16533A]'}`}
                   onClick={() => navigate('/cart')}
               >
                 <ShoppingCart className="h-5 w-5" />
               </button>
 
               {/* Language Picker */}
-              <div className="pl-2 border-l border-gray-200 ml-2">
+              <div className="pl-2 ml-2">
                 <LanguagePicker />
               </div>
             </div>

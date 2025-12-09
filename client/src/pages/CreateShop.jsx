@@ -4,8 +4,10 @@ import { ArrowLeft, Plus, X, Image as ImageIcon, Save, Loader2, Trash2 } from 'l
 import Header from '../component/Header.jsx'
 import { useAuthApi } from '../context/apiAuthContext.jsx'
 import imageService from '../services/imageService.js'
+import { useTranslation } from '../context/translationContext.jsx'
 
 export default function CreateShop() {
+  const { t } = useTranslation()
   const { api, user } = useAuthApi()
   const navigate = useNavigate()
   const { shopId: routeShopId } = useParams()
@@ -13,6 +15,12 @@ export default function CreateShop() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showItemModal, setShowItemModal] = useState(false)
+  const [tagInput, setTagInput] = useState('')
+  const [availableTags, setAvailableTags] = useState([])
+
+  useEffect(() => {
+      api.get('/api/tags/').then(res => setAvailableTags(res.data)).catch(console.error)
+  }, [api])
   
   const [form, setForm] = useState({
     shopId: null,
@@ -30,7 +38,8 @@ export default function CreateShop() {
       name: '',
       price: '',
       description: '',
-      images: []
+      images: [],
+      tags: []
     }
   })
 
@@ -187,6 +196,33 @@ export default function CreateShop() {
     })
   }
 
+  const handleAddTag = (e) => {
+    if (e.key === 'Enter' || e.type === 'click') {
+      e.preventDefault();
+      const tag = tagInput.trim();
+      if (tag && !form.currentItem.tags?.includes(tag)) {
+        setForm(prev => ({
+          ...prev,
+          currentItem: {
+            ...prev.currentItem,
+            tags: [...(prev.currentItem.tags || []), tag]
+          }
+        }));
+        setTagInput('');
+      }
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setForm(prev => ({
+      ...prev,
+      currentItem: {
+        ...prev.currentItem,
+        tags: (prev.currentItem.tags || []).filter(tag => tag !== tagToRemove)
+      }
+    }));
+  };
+
   const handleSaveItem = async () => {
     const { name, price, description, images } = form.currentItem;
     
@@ -253,6 +289,7 @@ export default function CreateShop() {
         price: parseFloat(price),
         description: description?.trim() || '',
         shopId: form.shopId,
+        tags: form.currentItem.tags || [],
         productImagesTemp: images.filter(img => img.key || img.objectKey).map(img => ({ key: img.objectKey || img.key, url: img.url }))
       };
 
@@ -604,6 +641,57 @@ export default function CreateShop() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#16533A] outline-none resize-none"
                     placeholder="Describe your product..."
                   />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('productEditor.tagsLabel')}</label>
+                  
+                  {/* Selected Tags (Green) */}
+                  <div className="flex flex-wrap gap-2 mb-4 min-h-[32px]">
+                    {form.currentItem.tags?.map((tag, idx) => (
+                      <button 
+                        key={tag} 
+                        onClick={() => handleRemoveTag(tag)}
+                        className="bg-green-100 text-green-800 border border-green-200 text-sm px-3 py-1 rounded-full flex items-center gap-1 hover:bg-green-200 transition-colors group"
+                      >
+                        {t(`categories.${tag}`) || tag}
+                        <X className="h-3 w-3 text-green-600 group-hover:text-green-800" />
+                      </button>
+                    ))}
+                    {(!form.currentItem.tags || form.currentItem.tags.length === 0) && (
+                        <span className="text-sm text-gray-400 italic py-1">{t('productEditor.noTagsSelected')}</span>
+                    )}
+                  </div>
+
+                  {/* Available Tags (Gray, Below) */}
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">{t('productEditor.addTags')}</p>
+                    <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        {availableTags
+                            .filter(tag => !form.currentItem.tags?.includes(tag))
+                            .map(tag => (
+                                <button
+                                    key={tag}
+                                    onClick={() => {
+                                        setForm(prev => ({
+                                            ...prev,
+                                            currentItem: {
+                                                ...prev.currentItem,
+                                                tags: [...(prev.currentItem.tags || []), tag]
+                                            }
+                                        }))
+                                    }}
+                                    className="bg-white text-gray-600 border border-gray-200 text-sm px-3 py-1 rounded-full hover:bg-gray-100 hover:border-gray-300 transition-all flex items-center gap-1 shadow-sm"
+                                >
+                                    <Plus className="h-3 w-3 text-gray-400" />
+                                    {t(`categories.${tag}`) || tag}
+                                </button>
+                            ))
+                        }
+                        {availableTags.filter(tag => !form.currentItem.tags?.includes(tag)).length === 0 && (
+                            <span className="text-xs text-gray-400 italic">{t('productEditor.allTagsSelected')}</span>
+                        )}
+                    </div>
+                  </div>
                 </div>
               </div>
 

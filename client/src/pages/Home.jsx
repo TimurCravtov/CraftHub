@@ -16,32 +16,30 @@ export default function Home() {
   const {api} = useAuthApi()
 
   const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState(['All'])
 
-  const categories = useMemo(() => [
-    'All',
-    'Furniture',
-    'Ceramics',
-    'Textiles',
-    'Jewelry',
-    'Woodwork',
-    'Glass',
-    'Leather',
-    'Art',
-    'Paper',
-    'Stone',
-    'Prints',
-    'Baskets',
-    'Candles'
-  ], [])
+  useEffect(() => {
+      api.get('/api/tags/').then(res => setCategories(['All', ...res.data])).catch(console.error)
+  }, [api])
+
   // derive recently added items from real products state
   const filteredRecent = useMemo(() => {
     if (!products || products.length === 0) return []
     if (activeCategory === 'All') return products.slice(0, 8)
-    return products.filter(p => (p.category || '').toString() === activeCategory)
+    return products.filter(p => p.tags && p.tags.includes(activeCategory))
   }, [activeCategory, products])
   const [shops, setShops] = useState([])
 
-  const filteredShops = useMemo(() => activeCategory === 'All' ? shops : shops.filter(s => (s.category || '').toString() === activeCategory), [activeCategory, shops])
+  const filteredShops = useMemo(() => {
+    if (activeCategory === 'All') return shops;
+    // Find shop IDs that have products with the active tag
+    const shopIdsWithTag = new Set(
+      products
+        .filter(p => p.tags && p.tags.includes(activeCategory))
+        .map(p => p.shopId)
+    );
+    return shops.filter(s => shopIdsWithTag.has(s.id));
+  }, [activeCategory, shops, products])
   const [shopsPage, setShopsPage] = useState(0)
   const shopsPerPage = 6
   const pagedShops = useMemo(() => {
@@ -68,7 +66,7 @@ export default function Home() {
     }))
   }, [products])
 
-  const filteredFeatured = useMemo(() => activeCategory === 'All' ? featured : featured.filter(f => f.category === activeCategory), [activeCategory, featured])
+  const filteredFeatured = useMemo(() => activeCategory === 'All' ? featured : featured.filter(f => f.tags && f.tags.includes(activeCategory)), [activeCategory, featured])
 
   function scrollFeatured(direction) {
     const container = featuredRef.current
@@ -196,7 +194,7 @@ export default function Home() {
                         : 'bg-white text-gray-600 shadow-sm hover:bg-gray-50 hover:text-gray-900 hover:shadow-md ring-1 ring-gray-200'
                       }`}
                   >
-                    {t(`categories.${c}`)}
+                    {t(`categories.${c}`, c)}
                   </button>
               ))}
             </div>

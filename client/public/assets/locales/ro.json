@@ -32,5 +32,11 @@
     "logout": "Deconectare",
     "seller": "vânzător",
     "buyer": "cumpărător"
+  },
+  "productEditor": {
+    "tagsLabel": "Etichete",
+    "noTagsSelected": "Nicio etichetă selectată",
+    "addTags": "Adaugă etichete",
+    "allTagsSelected": "Toate etichetele disponibile selectate"
   }
 }

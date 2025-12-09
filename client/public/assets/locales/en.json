@@ -32,5 +32,11 @@
     "logout": "Logout",
     "seller": "seller",
     "buyer": "buyer"
+  },
+  "productEditor": {
+    "tagsLabel": "Tags",
+    "noTagsSelected": "No tags selected",
+    "addTags": "Add Tags",
+    "allTagsSelected": "All available tags selected"
   }
 }

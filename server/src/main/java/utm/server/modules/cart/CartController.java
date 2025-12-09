@@ -9,7 +9,8 @@ import utm.server.modules.cart.dto.CartItemRequest;
 import utm.server.modules.cart.dto.CartItemResponse;
 import utm.server.modules.cart.dto.CartResponse;
 import utm.server.modules.users.UserEntity;
-import utm.server.modules.users.UserRepository;
+import utm.server.modules.users.security.UserSecurityPrincipal;
+import utm.server.modules.users.security.UserSecurityPrincipalMapper;
 
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
-    private final UserRepository userRepository;
+    private final UserSecurityPrincipalMapper userSecurityPrincipalMapper;
 
     // Helper method to create cart response
     private ResponseEntity<CartResponse> buildCartResponse(UserEntity user) {
@@ -41,16 +42,21 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<CartResponse> getCart(@AuthenticationPrincipal UserEntity user) {
+    public ResponseEntity<CartResponse> getCart(@AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
         return buildCartResponse(user);
     }
 
     @PostMapping("/add")
     public ResponseEntity<CartResponse> addItem(@RequestBody CartItemRequest request,
-            @AuthenticationPrincipal UserEntity user) {
-        if (user == null) {
+            @AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
 
         cartService.addItemToCart(user, request);
         return buildCartResponse(user);
@@ -58,10 +64,11 @@ public class CartController {
 
     @PostMapping("/update")
     public ResponseEntity<CartResponse> updateItem(@RequestBody CartItemRequest request,
-            @AuthenticationPrincipal UserEntity user) {
-        if (user == null) {
+            @AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
 
         // Use the new method that uses cart item ID
         cartService.updateItemQuantityByCartItemId(user, request);
@@ -70,10 +77,11 @@ public class CartController {
 
     @DeleteMapping("/remove/{cartItemId}")
     public ResponseEntity<CartResponse> removeItem(@PathVariable Long cartItemId,
-            @AuthenticationPrincipal UserEntity user) {
-        if (user == null) {
+            @AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
 
         // Use the new method that uses cart item ID
         cartService.removeItemFromCartByCartItemId(user, cartItemId);
@@ -81,10 +89,11 @@ public class CartController {
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal UserEntity user) {
-        if (user == null) {
+    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
 
         cartService.clearCart(user);
         return ResponseEntity.ok().build();

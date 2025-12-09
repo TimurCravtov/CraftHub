@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Mail, User, KeyRound, Save, Edit, X, Store, Settings as SettingsIcon, Shield } from "lucide-react";
+import { Lock, Mail, User, KeyRound, Save, Edit, X, Store, Settings as SettingsIcon, Shield, Package } from "lucide-react";
 import Header from "../component/Header.jsx";
 import { useSecurityContext } from '../context/securityContext.jsx';
 import ManageShopsContent from './ManageShopsContent.jsx';
+import ManageOrdersContent from './ManageOrdersContent.jsx';
 import {useAuthApi} from "../context/apiAuthContext.jsx";
 
 export default function Settings() {
@@ -294,15 +295,26 @@ export default function Settings() {
               Account Details
             </button>
             {isSeller && (
-                <button
-                    onClick={() => setActiveTab('shops')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
-                        activeTab === 'shops' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                >
-                  <Store className="h-4 w-4" />
-                  Manage Shops
-                </button>
+                <>
+                  <button
+                      onClick={() => setActiveTab('shops')}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
+                          activeTab === 'shops' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                  >
+                    <Store className="h-4 w-4" />
+                    Manage Shops
+                  </button>
+                  <button
+                      onClick={() => setActiveTab('orders')}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
+                          activeTab === 'orders' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                  >
+                    <Package className="h-4 w-4" />
+                    Manage Orders
+                  </button>
+                </>
             )}
           </div>
 
@@ -490,6 +502,7 @@ export default function Settings() {
           )}
 
           {activeTab === 'shops' && <ManageShopsContent />}
+          {activeTab === 'orders' && <ManageOrdersContent />}
 
           {message && (
               <p

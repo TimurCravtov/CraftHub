@@ -17,19 +17,19 @@ export default function NotFound() {
             </div>
           </div>
           
-          <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Page Not Found</h2>
+          <h1 className="text-6xl font-bold text-[#16533A] mb-4">404</h1>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">There is no such thing.</h2>
           <p className="text-gray-600 mb-8">
-            The page you are looking for doesn't exist or has been moved.
+            But there are many more.
           </p>
 
           <div className="space-y-3">
             <button
               onClick={() => navigate('/')}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#16533A] text-white rounded-lg hover:bg-[#16533A]/90 transition-colors font-medium"
             >
               <Home className="w-5 h-5" />
-              Back to Home
+              Go to Home Page
             </button>
             
             <button

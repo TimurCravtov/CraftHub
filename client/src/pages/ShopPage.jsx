@@ -66,6 +66,9 @@ export default function ShopPage() {
         }
       } catch (error) {
         console.error('Error fetching shop details:', error)
+        if (error.response && error.response.status === 404) {
+          navigate('/404')
+        }
       }
     }
 

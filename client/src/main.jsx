@@ -109,6 +109,10 @@ const router = createBrowserRouter([
     element: <Settings />,
   },
   {
+    path: '/404',
+    element: <NotFound />,
+  },
+  {
     path: '/:lang',
     element: <Home />,
     children: [

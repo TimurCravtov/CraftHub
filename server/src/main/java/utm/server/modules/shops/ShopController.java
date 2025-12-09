@@ -82,7 +82,7 @@ public class ShopController {
                 Long id = Long.parseLong(shopId);
                 return shopMapper.toDto(shopService.getShopById(id));
             } catch (NumberFormatException nfe) {
-                throw new RuntimeException("Invalid Shop ID format");
+                throw new utm.server.except.ResourceNotFoundException("Invalid Shop ID format");
             }
         }
     }
@@ -97,7 +97,7 @@ public class ShopController {
                 Long id = Long.parseLong(shopId);
                 return productService.findProductsByShopId(id);
             } catch (NumberFormatException nfe) {
-                throw new RuntimeException("Invalid Shop ID format");
+                throw new utm.server.except.ResourceNotFoundException("Invalid Shop ID format");
             }
         }
     }

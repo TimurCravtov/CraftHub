@@ -53,8 +53,8 @@ public class ProductController {
                         .orElseGet(() -> ResponseEntity.status(404)
                                 .body(new ErrorMessage(HttpStatus.NOT_FOUND.value(), "Product with Id not found")));
             } catch (NumberFormatException nfe) {
-                 return ResponseEntity.status(400)
-                        .body(new ErrorMessage(HttpStatus.BAD_REQUEST.value(), "Invalid ID format"));
+                 return ResponseEntity.status(404)
+                        .body(new ErrorMessage(HttpStatus.NOT_FOUND.value(), "Invalid ID format"));
             }
         }
     }

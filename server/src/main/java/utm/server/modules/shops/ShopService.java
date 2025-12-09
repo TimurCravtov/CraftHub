@@ -11,6 +11,7 @@ import utm.server.modules.users.UserEntity;
 import utm.server.modules.users.UserRepository;
 import utm.server.modules.users.security.UserSecurityPrincipal;
 import utm.server.modules.users.security.UserSecurityPrincipalMapper;
+import utm.server.except.ResourceNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class ShopService {
         if (shopEntityOptional.isPresent()) {
             return shopEntityOptional.get();
         } else {
-            throw new RuntimeException("Shop not found with id: " + shopId);
+            throw new ResourceNotFoundException("Shop not found with id: " + shopId);
         }
     }
 
@@ -96,7 +97,7 @@ public class ShopService {
         if (shopEntityOptional.isPresent()) {
             return shopEntityOptional.get();
         } else {
-            throw new RuntimeException("Shop not found with uuid: " + uuid);
+            throw new ResourceNotFoundException("Shop not found with uuid: " + uuid);
         }
     }
 
@@ -107,7 +108,7 @@ public class ShopService {
             ShopEntity shopEntity = shopEntityOptional.get();
             return shopEntity.getProducts();
         } else {
-            throw new RuntimeException("Shop not found with id: " + shopId);
+            throw new ResourceNotFoundException("Shop not found with id: " + shopId);
         }
     }
 

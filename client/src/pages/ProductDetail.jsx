@@ -52,6 +52,10 @@ export default function ProductDetail() {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error)
+                if (error.response && error.response.status === 404) {
+                    navigate('/404')
+                    return
+                }
                 showToast("Failed to load product details", "error")
             } finally {
                 setLoading(false)

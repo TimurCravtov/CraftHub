@@ -243,9 +243,9 @@ export default function Settings() {
 
   if (loading) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="min-h-screen bg-gray-50">
           <Header />
-          <div className="max-w-lg mx-auto mt-16 p-8 bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl border border-gray-200">
+          <div className="max-w-lg mx-auto mt-16 p-8 bg-white shadow-xl rounded-2xl border border-gray-100">
             <div className="flex justify-center items-center h-64">
               <div className="text-lg text-gray-600">Loading user data...</div>
             </div>
@@ -255,18 +255,18 @@ export default function Settings() {
   }
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="max-w-4xl mx-auto mt-16 p-8 bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl border border-gray-200">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="max-w-5xl mx-auto mt-12 p-8 bg-white shadow-xl rounded-2xl border border-gray-100">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-[#16533A]">
               Account Settings
             </h1>
             {activeTab === 'account' && (
                 <button
                     onClick={handleEditToggle}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                        editing ? "bg-red-500 text-white hover:bg-red-600" : "bg-indigo-500 text-white hover:bg-indigo-600"
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
+                        editing ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-[#16533A] text-white hover:bg-[#12422e] shadow-lg shadow-[#16533A]/20"
                     }`}
                 >
                   {editing ? (
@@ -284,11 +284,11 @@ export default function Settings() {
             )}
           </div>
 
-          <div className="flex space-x-1 mb-8 bg-gray-100 p-1 rounded-lg">
+          <div className="flex space-x-2 mb-8 bg-gray-100/50 p-1.5 rounded-xl w-fit">
             <button
                 onClick={() => setActiveTab('account')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
-                    activeTab === 'account' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                    activeTab === 'account' ? 'bg-white text-[#16533A] shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                 }`}
             >
               <SettingsIcon className="h-4 w-4" />
@@ -298,8 +298,8 @@ export default function Settings() {
                 <>
                   <button
                       onClick={() => setActiveTab('shops')}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
-                          activeTab === 'shops' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                          activeTab === 'shops' ? 'bg-white text-[#16533A] shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                       }`}
                   >
                     <Store className="h-4 w-4" />
@@ -307,8 +307,8 @@ export default function Settings() {
                   </button>
                   <button
                       onClick={() => setActiveTab('orders')}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
-                          activeTab === 'orders' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                          activeTab === 'orders' ? 'bg-white text-[#16533A] shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                       }`}
                   >
                     <Package className="h-4 w-4" />
@@ -318,55 +318,84 @@ export default function Settings() {
             )}
           </div>
 
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg border shadow-sm">
-            <p className="flex items-center gap-2 text-gray-700">
-              <User className="h-5 w-5 text-indigo-500" />
-              <span className="font-medium">Name:</span> {user?.name || "N/A"}
-            </p>
-            <p className="flex items-center gap-2 text-gray-700 mt-2">
-              <Mail className="h-5 w-5 text-indigo-500" />
-              <span className="font-medium">Email:</span> {user?.email || "N/A"}
-            </p>
-            <p className="flex items-center gap-2 text-gray-700 mt-2">
-              <span className="font-medium">Role:</span> {user?.accountType || user?.role || "buyer"}
-            </p>
-            <p className="flex items-center gap-2 text-gray-700 mt-2">
-              <Shield className="h-5 w-5 text-indigo-500" />
-              <span className="font-medium">2FA:</span> {is2FAEnabled ? "Enabled" : "Disabled"}
-            </p>
+          <div className="mb-8 p-6 bg-gray-50/50 rounded-xl border border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <p className="flex items-center gap-3 text-gray-700">
+                <div className="p-2 bg-white rounded-lg shadow-sm text-[#16533A]">
+                  <User className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="block text-xs text-gray-500 uppercase tracking-wider font-semibold">Name</span>
+                  <span className="font-medium text-lg">{user?.name || "N/A"}</span>
+                </div>
+              </p>
+              <p className="flex items-center gap-3 text-gray-700">
+                <div className="p-2 bg-white rounded-lg shadow-sm text-[#16533A]">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="block text-xs text-gray-500 uppercase tracking-wider font-semibold">Email</span>
+                  <span className="font-medium text-lg">{user?.email || "N/A"}</span>
+                </div>
+              </p>
+              <p className="flex items-center gap-3 text-gray-700">
+                <div className="p-2 bg-white rounded-lg shadow-sm text-[#16533A]">
+                  <Store className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="block text-xs text-gray-500 uppercase tracking-wider font-semibold">Role</span>
+                  <span className="font-medium text-lg capitalize">{user?.accountType || user?.role || "buyer"}</span>
+                </div>
+              </p>
+              <p className="flex items-center gap-3 text-gray-700">
+                <div className="p-2 bg-white rounded-lg shadow-sm text-[#16533A]">
+                  <Shield className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="block text-xs text-gray-500 uppercase tracking-wider font-semibold">Security</span>
+                  <span className="font-medium text-lg">{is2FAEnabled ? "2FA Enabled" : "2FA Disabled"}</span>
+                </div>
+              </p>
+            </div>
           </div>
 
           {activeTab === 'account' && (
               <>
                 {editing && (
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                      <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-                        <label className="block text-sm font-semibold text-indigo-900 mb-2">Account Type</label>
-                        <div className="flex items-center gap-4">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="role"
-                                value="buyer"
-                                checked={form.role === 'buyer'}
-                                onChange={handleChange}
-                                className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-                            />
-                            <span className="text-gray-700">Buyer</span>
+                    <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                      <div className="p-6 bg-[#16533A]/5 rounded-xl border border-[#16533A]/10">
+                        <label className="block text-sm font-bold text-[#16533A] mb-3">Account Type</label>
+                        <div className="flex items-center gap-6">
+                          <label className="flex items-center gap-3 cursor-pointer group">
+                            <div className="relative flex items-center">
+                              <input
+                                  type="radio"
+                                  name="role"
+                                  value="buyer"
+                                  checked={form.role === 'buyer'}
+                                  onChange={handleChange}
+                                  className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-gray-300 checked:border-[#16533A] transition-all"
+                              />
+                              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#16533A] opacity-0 peer-checked:opacity-100 transition-opacity"></span>
+                            </div>
+                            <span className="text-gray-700 font-medium group-hover:text-[#16533A] transition-colors">Buyer</span>
                           </label>
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="role"
-                                value="seller"
-                                checked={form.role === 'seller'}
-                                onChange={handleChange}
-                                className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-                            />
-                            <span className="text-gray-700 font-medium">Seller (Enable Shop Management)</span>
+                          <label className="flex items-center gap-3 cursor-pointer group">
+                            <div className="relative flex items-center">
+                              <input
+                                  type="radio"
+                                  name="role"
+                                  value="seller"
+                                  checked={form.role === 'seller'}
+                                  onChange={handleChange}
+                                  className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-gray-300 checked:border-[#16533A] transition-all"
+                              />
+                              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#16533A] opacity-0 peer-checked:opacity-100 transition-opacity"></span>
+                            </div>
+                            <span className="text-gray-700 font-medium group-hover:text-[#16533A] transition-colors">Seller (Enable Shop Management)</span>
                           </label>
                         </div>
-                        <p className="text-xs text-indigo-600 mt-2">
+                        <p className="text-sm text-[#16533A]/80 mt-3 font-medium">
                           {form.role === 'seller' 
                             ? "As a seller, you can create shops and list products." 
                             : "As a buyer, you can browse and purchase items."}
@@ -375,78 +404,80 @@ export default function Settings() {
 
                       {isLocalUser && (
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Current Password</label>
-                        <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-                          <Lock className="h-5 w-5 text-gray-400 mr-2" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+                        <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3 shadow-sm focus-within:ring-2 focus-within:ring-[#16533A]/20 focus-within:border-[#16533A] transition-all bg-white">
+                          <Lock className="h-5 w-5 text-gray-400 mr-3" />
                           <input
                               type="password"
                               name="currentPassword"
                               value={form.currentPassword}
                               onChange={handleChange}
-                              className="flex-1 bg-transparent outline-none"
+                              className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400"
                               required
                           />
                         </div>
                       </div>
                       )}
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">New Name</label>
-                        <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-                          <User className="h-5 w-5 text-gray-400 mr-2" />
-                          <input
-                              type="text"
-                              name="newName"
-                              value={form.newName}
-                              onChange={handleChange}
-                              placeholder="Leave empty if unchanged"
-                              className="flex-1 bg-transparent outline-none"
-                          />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">New Name</label>
+                          <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3 shadow-sm focus-within:ring-2 focus-within:ring-[#16533A]/20 focus-within:border-[#16533A] transition-all bg-white">
+                            <User className="h-5 w-5 text-gray-400 mr-3" />
+                            <input
+                                type="text"
+                                name="newName"
+                                value={form.newName}
+                                onChange={handleChange}
+                                placeholder="Leave empty if unchanged"
+                                className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">New Email</label>
+                          <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3 shadow-sm focus-within:ring-2 focus-within:ring-[#16533A]/20 focus-within:border-[#16533A] transition-all bg-white">
+                            <Mail className="h-5 w-5 text-gray-400 mr-3" />
+                            <input
+                                type="email"
+                                name="newEmail"
+                                value={form.newEmail}
+                                onChange={handleChange}
+                                placeholder="Leave empty if unchanged"
+                                className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400"
+                            />
+                          </div>
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">New Password</label>
-                        <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-                          <KeyRound className="h-5 w-5 text-gray-400 mr-2" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                        <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3 shadow-sm focus-within:ring-2 focus-within:ring-[#16533A]/20 focus-within:border-[#16533A] transition-all bg-white">
+                          <KeyRound className="h-5 w-5 text-gray-400 mr-3" />
                           <input
                               type="password"
                               name="newPassword"
                               value={form.newPassword}
                               onChange={handleChange}
                               placeholder="Leave empty if unchanged"
-                              className="flex-1 bg-transparent outline-none"
+                              className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">New Email</label>
-                        <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-                          <Mail className="h-5 w-5 text-gray-400 mr-2" />
-                          <input
-                              type="email"
-                              name="newEmail"
-                              value={form.newEmail}
-                              onChange={handleChange}
-                              placeholder="Leave empty if unchanged"
-                              className="flex-1 bg-transparent outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Two-Factor Authentication</label>
+                      <div className="pt-4 border-t border-gray-100">
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">Two-Factor Authentication</label>
                         <button
                             type="button"
                             onClick={handle2FAToggle}
                             disabled={twoFALoading}
-                            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all ${
+                            className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-all ${
                                 twoFALoading
-                                    ? "bg-gray-400 text-white cursor-not-allowed"
+                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                                     : is2FAEnabled
-                                        ? "bg-red-600 text-white hover:bg-red-700"
-                                        : "bg-green-600 text-white hover:bg-green-700"
+                                        ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+                                        : "bg-[#16533A]/5 text-[#16533A] hover:bg-[#16533A]/10 border border-[#16533A]/20"
                             }`}
                         >
                           <Shield className="h-5 w-5" />
@@ -455,24 +486,26 @@ export default function Settings() {
                       </div>
 
                       {show2FAConfirm && (
-                          <div className="space-y-4">
-                            <div>
-                              <p className="text-sm text-gray-600 mb-2">
-                                Scan this QR code with your authenticator app:
+                          <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+                            <div className="text-center">
+                              <p className="text-sm font-medium text-gray-900 mb-4">
+                                Scan this QR code with your authenticator app
                               </p>
-                              <img src={qrCode} alt="2FA QR Code" className="mx-auto w-48 h-48" />
+                              <div className="bg-white p-4 rounded-xl shadow-sm inline-block">
+                                <img src={qrCode} alt="2FA QR Code" className="w-48 h-48" />
+                              </div>
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-1">Enter 2FA Code</label>
-                              <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400">
-                                <Shield className="h-5 w-5 text-gray-400 mr-2" />
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">Enter 6-digit Code</label>
+                              <div className="flex items-center border border-gray-200 rounded-xl px-4 py-3 shadow-sm focus-within:ring-2 focus-within:ring-[#16533A]/20 focus-within:border-[#16533A] transition-all bg-white">
+                                <Shield className="h-5 w-5 text-gray-400 mr-3" />
                                 <input
                                     type="text"
                                     name="twoFactorCode"
                                     value={twoFactorCode}
                                     onChange={handleChange}
-                                    placeholder="Enter 6-digit code"
-                                    className="flex-1 bg-transparent outline-none"
+                                    placeholder="000 000"
+                                    className="flex-1 bg-transparent outline-none text-center font-mono text-lg tracking-widest"
                                 />
                               </div>
                             </div>
@@ -480,19 +513,19 @@ export default function Settings() {
                                 type="button"
                                 onClick={handle2FASubmit}
                                 disabled={twoFALoading}
-                                className={`w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all ${
+                                className={`w-full flex items-center justify-center gap-2 bg-[#16533A] text-white font-semibold py-3 rounded-xl shadow-lg shadow-[#16533A]/20 hover:bg-[#12422e] transition-all ${
                                     twoFALoading ? "opacity-50 cursor-not-allowed" : ""
                                 }`}
                             >
                               <Save className="h-5 w-5" />
-                              Verify 2FA Code
+                              Verify & Enable
                             </button>
                           </div>
                       )}
 
                       <button
                           type="submit"
-                          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all"
+                          className="w-full flex items-center justify-center gap-2 bg-[#16533A] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-[#16533A]/20 hover:bg-[#12422e] hover:shadow-xl hover:shadow-[#16533A]/30 transition-all transform hover:-translate-y-0.5"
                       >
                         <Save className="h-5 w-5" /> Save Changes
                       </button>

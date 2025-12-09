@@ -362,7 +362,7 @@ export default function CreateShop() {
           <button
             onClick={handleSaveShop}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm font-medium"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#16533A] text-white rounded-lg hover:bg-[#16533A]/90 disabled:opacity-50 transition-all shadow-sm font-medium"
           >
             {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
             {form.shopId ? 'Save Changes' : 'Create Shop'}
@@ -383,7 +383,7 @@ export default function CreateShop() {
                     name="shopName"
                     value={form.shopName}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#16533A] focus:border-[#16533A] outline-none transition-all"
                     placeholder="e.g. Artisan Crafts"
                   />
                 </div>
@@ -394,7 +394,7 @@ export default function CreateShop() {
                     value={form.shopDescription}
                     onChange={handleChange}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#16533A] focus:border-[#16533A] outline-none transition-all resize-none"
                     placeholder="Tell us about your shop..."
                   />
                 </div>
@@ -405,7 +405,7 @@ export default function CreateShop() {
                     value={form.ownerDescription}
                     onChange={handleChange}
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#16533A] focus:border-[#16533A] outline-none transition-all resize-none"
                     placeholder="Tell us about yourself..."
                   />
                 </div>
@@ -422,7 +422,7 @@ export default function CreateShop() {
                       setForm(prev => ({ ...prev, currentItem: { id: null, name: '', price: '', description: '', images: [] } }));
                       setShowItemModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#16533A]/5 text-[#16533A] rounded-lg hover:bg-[#16533A]/10 transition-colors font-medium"
                 >
                   <Plus className="h-4 w-4" />
                   Add Product
@@ -453,7 +453,7 @@ export default function CreateShop() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-gray-900 truncate">{item.name || item.title}</h3>
-                        <p className="text-indigo-600 font-medium">${item.price}</p>
+                        <p className="text-[#16533A] font-medium">${item.price}</p>
                         <p className="text-sm text-gray-500 truncate">{item.description}</p>
                       </div>
                       <div className="flex gap-2 self-start">
@@ -542,7 +542,7 @@ export default function CreateShop() {
                     name="name"
                     value={form.currentItem.name}
                     onChange={handleItemChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#16533A] outline-none"
                     placeholder="e.g. Handmade Vase"
                   />
                 </div>
@@ -553,7 +553,7 @@ export default function CreateShop() {
                     name="price"
                     value={form.currentItem.price}
                     onChange={handleItemChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#16533A] outline-none"
                     placeholder="0.00"
                   />
                 </div>
@@ -564,7 +564,7 @@ export default function CreateShop() {
                     value={form.currentItem.description}
                     onChange={handleItemChange}
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#16533A] outline-none resize-none"
                     placeholder="Describe your product..."
                   />
                 </div>
@@ -610,7 +610,7 @@ export default function CreateShop() {
               </button>
               <button
                 onClick={handleSaveItem}
-                className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+                className="px-6 py-2 bg-[#16533A] text-white font-medium rounded-lg hover:bg-[#16533A]/90 transition-colors shadow-sm"
               >
                 {form.currentItem.id ? 'Save Changes' : 'Add Product'}
               </button>

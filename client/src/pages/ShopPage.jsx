@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../component/Header.jsx'
 import ProductCard from '../component/ProductCard.jsx'
-import { Star, Heart, Search, ShoppingCart, User, Facebook, Instagram } from 'lucide-react'
+import { Star, Heart, Search, ShoppingCart, User, Facebook, Instagram, MapPin, Mail, Globe, ArrowRight, Store } from 'lucide-react'
 import { useAuthApi } from '../context/apiAuthContext.jsx'
 import { useTranslation } from '../context/translationContext.jsx'
 
@@ -73,90 +73,175 @@ export default function ShopPage() {
   }, [id])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div
-        className="relative h-64 bg-cover bg-center"
-        style={{ backgroundImage: `url(${shopImage || '/assets/cover-placeholder.png'})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
-          <h1 className="text-4xl font-bold text-white mb-4 drop-shadow-md">{shopName}</h1>
-          <div className="flex items-center space-x-2 text-white/90 font-medium">
-            <a href="/" className="hover:text-white hover:underline">Home</a>
-            <span>&gt;</span>
-            <a href="/shops" className="hover:text-white hover:underline">Shops</a>
-            <span>&gt;</span>
-            <span>{shopName}</span>
+      {/* Hero Section */}
+      <div className="relative h-[400px] overflow-hidden group">
+        <div className="absolute inset-0">
+            <img 
+                src={shopImage || '/assets/cover-placeholder.png'} 
+                alt={shopName} 
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-transparent" />
+        </div>
+        
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-end pb-12">
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="flex items-center space-x-2 text-white/80 text-sm font-medium mb-6 bg-black/20 backdrop-blur-sm w-fit px-4 py-2 rounded-full border border-white/10">
+                <a href="/" className="hover:text-white transition-colors">Home</a>
+                <span>/</span>
+                <a href="/shops" className="hover:text-white transition-colors">Shops</a>
+                <span>/</span>
+                <span className="text-white">{shopName}</span>
+            </div>
+            
+            <div className="flex flex-col md:flex-row md:items-end gap-8">
+                <div className="relative">
+                    <div className="h-32 w-32 md:h-40 md:w-40 rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-white">
+                        <img 
+                            src={shopLogo || '/assets/shop-placeholder.svg'} 
+                            alt="Shop Logo" 
+                            className="w-full h-full object-cover" 
+                        />
+                    </div>
+                    <div className="absolute -bottom-3 -right-3 bg-[#16533A] text-white p-2 rounded-xl shadow-lg">
+                        <Store className="h-6 w-6" />
+                    </div>
+                </div>
+                
+                <div className="flex-1 text-white pb-2">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-2 tracking-tight">{shopName}</h1>
+                    <div className="flex items-center gap-6 text-gray-300">
+                        <span className="flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            {artisanName || 'Artisan'}
+                        </span>
+                        <span className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            Global Shipping
+                        </span>
+                    </div>
+                </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            <div className="aspect-square bg-orange-100 rounded-lg overflow-hidden shadow-md">
-              <img src={shopLogo || '/assets/shop-placeholder.svg'} alt="Shop Logo" className="w-full h-full object-cover" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 -mt-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          
+          {/* Left Column: About & Contact */}
+          <div className="lg:col-span-1 space-y-8">
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    About the Artisan
+                </h3>
+                <p className="text-gray-600 leading-relaxed mb-8 text-sm">
+                    Discover the fine, handmade best of craft in this artisan marketplace online where talented makers like {artisanName || 'this creator'} showcase their unique creations. From pottery to jewelry, each piece tells a story of passion and skill.
+                </p>
+                
+                <div className="space-y-4">
+                    <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wider">Connect</h4>
+                    <div className="flex gap-3">
+                        <button className="p-3 rounded-xl bg-gray-50 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <Facebook className="w-5 h-5" />
+                        </button>
+                        <button className="p-3 rounded-xl bg-gray-50 text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition-colors">
+                            <Instagram className="w-5 h-5" />
+                        </button>
+                        <button className="p-3 rounded-xl bg-gray-50 text-gray-600 hover:bg-green-50 hover:text-green-600 transition-colors">
+                            <Mail className="w-5 h-5" />
+                        </button>
+                        <button className="p-3 rounded-xl bg-gray-50 text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                            <Globe className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <h1 className="text-4xl font-bold text-gray-900">{artisanName}</h1>
-            <p className="text-gray-600 leading-relaxed">
-              Discover the fine, handmade best of craft in this artisan marketplace online where talented makers like you showcase their unique creations. From pottery to jewelry, each piece tells a story of passion and skill.
-            </p>
-            <div className="flex items-center space-x-4">
-              <Facebook className="w-6 h-6 text-gray-600 cursor-pointer hover:text-blue-600" />
-              <Instagram className="w-6 h-6 text-gray-600 cursor-pointer hover:text-pink-600" />
+          {/* Right Column: Content & Products */}
+          <div className="lg:col-span-2 space-y-12">
+            
+            {/* Tabs */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="flex border-b border-gray-100">
+                    {['description', 'additional'].map((tab) => (
+                    <button
+                        key={tab}
+                        className={`flex-1 py-4 text-sm font-medium transition-all relative ${
+                            activeTab === tab 
+                            ? 'text-[#16533A] bg-green-50/50' 
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setActiveTab(tab)}
+                    >
+                        {tab === 'description' && 'About the Shop'}
+                        {tab === 'additional' && 'Policies & Info'}
+                        {activeTab === tab && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#16533A]" />
+                        )}
+                    </button>
+                    ))}
+                </div>
+
+                <div className="p-8">
+                    {activeTab === 'description' && (
+                        <div className="prose prose-gray max-w-none">
+                            <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                                {shopDescription || "This shop hasn't added a description yet."}
+                            </p>
+                        </div>
+                    )}
+
+                    {activeTab === 'additional' && (
+                        <div className="prose prose-gray max-w-none">
+                            <p className="text-gray-600">
+                                Additional shop policies, shipping information, and returns details would appear here.
+                            </p>
+                        </div>
+                    )}
+                </div>
             </div>
-          </div>
-        </div>
 
-        <div className="mt-16">
-          <div className="grid w-full grid-cols-2 max-w-md mx-auto border border-slate-200 rounded-lg overflow-hidden">
-            {['description', 'additional'].map((tab) => (
-              <button
-                key={tab}
-                className={`px-4 py-2 text-sm transition-colors ${activeTab === tab ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab === 'description' && 'Description'}
-                {tab === 'additional' && 'Additional Information'}
-              </button>
-            ))}
-          </div>
+            {/* Products */}
+            <div>
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                        <Store className="h-6 w-6 text-[#16533A]" />
+                        Shop Collection
+                    </h2>
+                    <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+                        {relatedProducts.length} Items
+                    </span>
+                </div>
 
-          {activeTab === 'description' && (
-            <div className="mt-8 max-w-4xl mx-auto text-gray-600 leading-relaxed space-y-4">
-              <p>
-                {shopDescription}
-              </p>
+                {relatedProducts.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {relatedProducts.map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-12 bg-white rounded-3xl border border-gray-100 border-dashed">
+                        <p className="text-gray-500">No products available yet.</p>
+                    </div>
+                )}
+                
+                {relatedProducts.length > 0 && (
+                    <div className="mt-12 flex justify-center">
+                        <button
+                        type="button"
+                        onClick={() => navigate(`/shops/${id}/Itempage`)}
+                        className="px-8 py-3 rounded-full bg-[#16533A] text-white font-medium hover:bg-[#16533A]/90 transition-all shadow-lg shadow-[#16533A]/20 flex items-center gap-2 hover:-translate-y-0.5"
+                        >
+                        View All Items <ArrowRight className="h-4 w-4" />
+                        </button>
+                    </div>
+                )}
             </div>
-          )}
-
-          {activeTab === 'additional' && (
-            <div className="mt-8 max-w-4xl mx-auto text-gray-600">
-              <p>Additional product information and specifications would go here.</p>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-16">
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">Related Products</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          <div className="mt-8 flex justify-center">
-            <button
-              type="button"
-              onClick={() => navigate(`/shops/${id}/Itempage`)}
-              className="px-6 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-lg"
-            >
-              View Shop Items
-            </button>
           </div>
         </div>
       </div>

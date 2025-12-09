@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        "accentApp": "#733c91"
+        "accentApp": "#16533A"
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.8s ease-out forwards',

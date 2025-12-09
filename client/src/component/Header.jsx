@@ -126,21 +126,21 @@ export default function Header() {
   }, [isSearchOpen, menuOpen])
 
   return (
-      <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-gray-100 bg-white/90 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+          <div className="flex h-20 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <a href="/" className="flex items-center space-x-2">
-                <img src="/assets/logo.png" alt="Craft Hub Logo" className="h-8 w-8 object-contain" />
-                <span className="text-xl font-bold bg-gradient-to-r from-[#733c91] to-purple-600 bg-clip-text text-transparent">
+              <a href="/" className="flex items-center space-x-3 group">
+                <img src="/assets/logo.png" alt="Craft Hub Logo" className="h-10 w-10 object-contain transition-transform group-hover:scale-105" />
+                <span className="text-2xl font-bold text-[#16533A] tracking-tight">
                 CraftHub
               </span>
               </a>
             </div>
 
             {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-10">
               {[
                 { href: "/", label: t('header.home') },
                 { href: "/shops", label: t('header.shops') },
@@ -151,50 +151,53 @@ export default function Header() {
                   <a
                       key={link.href}
                       href={link.href}
-                      className={`text-sm font-medium ${location.pathname === link.href ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'} relative`}
+                      className={`text-base font-medium transition-colors duration-200 ${location.pathname === link.href ? 'text-[#16533A]' : 'text-gray-600 hover:text-[#16533A]'} relative group py-2`}
                   >
                     {link.label}
-                    {location.pathname === link.href && (
-                        <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
-                    )}
+                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#16533A] rounded-full transition-transform duration-300 origin-left ${location.pathname === link.href ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
                   </a>
               ))}
             </nav>
 
             {/* Right side */}
-            <div className="flex items-center space-x-2 relative">
+            <div className="flex items-center space-x-3 sm:space-x-4 relative">
               {/* User Icon + Dropdown */}
               <div id="user-menu" className="relative">
                 <button
-                    className="p-2 rounded hover:bg-slate-100 flex items-center gap-2"
+                    className="p-2 rounded-full hover:bg-gray-50 transition-colors flex items-center gap-3 group"
                     onClick={handleAccountClick}
                 >
                   <img
                       src={user?.profilePictureLink || '/assets/user-placeholder.svg'}
                       alt={user?.name || 'User'}
-                      className="h-8 w-8 rounded-full object-cover border border-slate-200"
+                      className="h-9 w-9 rounded-full object-cover border border-gray-200 group-hover:border-[#16533A]/30 transition-colors shadow-sm"
                   />
                   {user && (
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-[#16533A] hidden sm:block">
                       {t('header.hi')}, {user.name}{" "}
-                      <span className="text-xs text-slate-500">
-                        ({user.role || user.accountType || (isSeller ? t('header.seller') : t('header.buyer'))})
+                      <span className="text-xs text-gray-500 block">
+                        {user.role || user.accountType || (isSeller ? t('header.seller') : t('header.buyer'))}
                       </span>
                     </span>
                   )}
                 </button>
 
                 {menuOpen && user && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border py-2 z-50">
+                    <div className="absolute right-0 mt-4 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 ring-1 ring-black/5">
+                      <div className="px-4 py-3 border-b border-gray-50 mb-2">
+                        <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      </div>
                       <button
                           onClick={() => { navigate("/settings"); setMenuOpen(false) }}
-                          className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-slate-100"
+                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#16533A] transition-colors"
                       >
                         <Settings className="h-4 w-4" /> {t('header.settings')}
                       </button>
+                      <div className="h-px bg-gray-100 my-1" />
                       <button
                           onClick={handleLogout}
-                          className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-slate-100"
+                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="h-4 w-4" /> {t('header.logout')}
                       </button>
@@ -202,9 +205,11 @@ export default function Header() {
                 )}
               </div>
 
+              <div className="h-8 w-px bg-gray-200 mx-2 hidden sm:block" />
+
               {/* Search */}
               <button
-                  className={`p-2 rounded hover:bg-slate-100 ${isSearchOpen ? 'text-blue-600' : ''}`}
+                  className={`p-2.5 rounded-full hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 ${isSearchOpen ? 'text-[#16533A] bg-gray-50 ring-1 ring-gray-200' : 'text-gray-600'}`}
                   onClick={handleSearchClick}
               >
                 <Search className="h-5 w-5" />
@@ -212,7 +217,7 @@ export default function Header() {
 
               {/* Favorites */}
               <button
-                  className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/liked' ? 'text-pink-600' : ''}`}
+                  className={`p-2.5 rounded-full hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 ${location.pathname === '/liked' ? 'text-rose-500 bg-rose-50 ring-1 ring-rose-100' : 'text-gray-600 hover:text-rose-500'}`}
                   onClick={() => navigate('/liked')}
               >
                 <Heart className="h-5 w-5" />
@@ -220,40 +225,40 @@ export default function Header() {
 
               {/* Cart */}
               <button
-                  className={`p-2 rounded hover:bg-slate-100 ${location.pathname === '/cart' ? 'text-blue-600' : ''}`}
+                  className={`p-2.5 rounded-full hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 ${location.pathname === '/cart' ? 'text-[#16533A] bg-green-50 ring-1 ring-green-100' : 'text-gray-600 hover:text-[#16533A]'}`}
                   onClick={() => navigate('/cart')}
               >
                 <ShoppingCart className="h-5 w-5" />
               </button>
 
               {/* Language Picker */}
-              <LanguagePicker />
+              <div className="pl-2 ml-2">
+                <LanguagePicker />
+              </div>
             </div>
 
             {/* Search popup */}
             {isSearchablePage && isSearchOpen && (
-                <div className="fixed top-20 right-8 z-[100] w-[92%] max-w-xl">
-                  <div ref={searchPopupRef} className="p-[1px] rounded-2xl bg-gradient-to-r from-indigo-500/60 via-fuchsia-500/60 to-cyan-500/60 shadow-[0_8px_40px_rgba(99,102,241,0.25)]">
-                    <div className="rounded-2xl bg-white/80 backdrop-blur-xl border border-white/20">
-                      <div className="flex items-center gap-3 px-4 py-3">
-                        <Search className="h-5 w-5 text-slate-500" />
-                        <input
-                            ref={searchInputRef}
-                            type="text"
-                            placeholder={getSearchPlaceholder()}
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            className="w-full bg-transparent outline-none text-sm text-slate-800 placeholder:text-slate-400"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setIsSearchOpen(false)}
-                            className="inline-flex items-center justify-center h-7 w-7 rounded-md hover:bg-slate-100 text-slate-500 hover:text-slate-700"
-                            aria-label="Close search"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
+                <div className="fixed top-20 right-4 sm:right-8 z-[100] w-[92%] max-w-xl animate-in fade-in slide-in-from-top-4 duration-200">
+                  <div ref={searchPopupRef} className="rounded-2xl bg-white shadow-2xl ring-1 ring-black/5">
+                    <div className="flex items-center gap-3 px-4 py-3">
+                      <Search className="h-5 w-5 text-[#16533A]" />
+                      <input
+                          ref={searchInputRef}
+                          type="text"
+                          placeholder={getSearchPlaceholder()}
+                          value={searchTerm}
+                          onChange={handleSearchChange}
+                          className="w-full bg-transparent outline-none text-base text-gray-900 placeholder:text-gray-400"
+                      />
+                      <button
+                          type="button"
+                          onClick={() => setIsSearchOpen(false)}
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                          aria-label="Close search"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 </div>

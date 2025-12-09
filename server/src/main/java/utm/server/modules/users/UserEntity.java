@@ -8,9 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import utm.server.modules.billing.BillingEntity;
 import utm.server.modules.authentication.dto.AuthProvider;
 import utm.server.modules.shops.ShopEntity;
-
+import utm.server.modules.users.security.AesConverter;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
@@ -26,7 +27,7 @@ public class UserEntity implements UserDetails {
 
     @Column(unique = true)
     @Builder.Default
-    private java.util.UUID uuid = java.util.UUID.randomUUID();
+    private UUID uuid = UUID.randomUUID();
 
     @Column(nullable = false)
     private String name;
@@ -37,6 +38,21 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    // ===================== 2FA =====================
+
+    @Convert(converter = AesConverter.class)
+    @Column
+    private String twoFactorSecret;
+
+    @Convert(converter = AesConverter.class)
+    @Column
+    private String tempTwoFactorSecret;
+
+    @Column(nullable = false)
+    private boolean twoFactorEnabled = false;
+
+    // ===================== RELATIONS =====================
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private BillingEntity billingInfo;
@@ -44,6 +60,8 @@ public class UserEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ShopEntity> shops;
+
+    // ===================== AUTH =====================
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -56,16 +74,9 @@ public class UserEntity implements UserDetails {
     private AccountType accountType = AccountType.BUYER;
 
     @Column
-    private String twoFactorSecret;
-
-    @Column(nullable = false)
-    private boolean twoFactorEnabled = false;
-
-    @Column
-    private String tempTwoFactorSecret;
-
-    @Column
     private String profilePictureKey;
+
+    // ===================== CONSTRUCTORS =====================
 
     public UserEntity(String name, String email, String password, AuthProvider provider) {
         this.name = name;
@@ -77,18 +88,15 @@ public class UserEntity implements UserDetails {
     public UserEntity(String name, String email, AuthProvider provider) {
         this.name = name;
         this.email = email;
-        this.password = ""; // pentru OAuth
+        this.password = ""; // OAuth users
         this.provider = provider != null ? provider : AuthProvider.LOCAL;
     }
+
+    // ===================== UserDetails =====================
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
     }
 
     @Override

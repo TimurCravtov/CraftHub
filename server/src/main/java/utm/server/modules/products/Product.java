@@ -43,4 +43,13 @@ public class Product {
     public Long getShopId() {
         return shopEntity != null ? shopEntity.getId() : null;
     }
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "product_tags_rel",
+        joinColumns = @JoinColumn(name = "product_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @Builder.Default
+    private java.util.List<TagEntity> tags = new java.util.ArrayList<>();
 }

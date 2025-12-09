@@ -29,6 +29,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductEditPermissionService productEditPermissionService;
     private final ProductImageService productImageService;
+    private final TagRepository tagRepository;
 
     private final EntityManager entityManager; // Add this
     private final UserSecurityPrincipalMapper userSecurityPrincipalMapper;
@@ -93,6 +94,13 @@ public class ProductService {
         productToSave.setDescription(product.description());
         productToSave.setTitle(product.title());
         productToSave.setPrice(product.price());
+        if (product.tags() != null) {
+            List<TagEntity> tagEntities = product.tags().stream()
+                .map(name -> tagRepository.findByName(name).orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+            productToSave.setTags(tagEntities);
+        }
 
         ShopEntity shop = entityManager.getReference(ShopEntity.class, product.shopId());
         productToSave.setShopEntity(shop);
@@ -116,6 +124,13 @@ public class ProductService {
         product.setTitle(productDto.title());
         product.setDescription(productDto.description());
         product.setPrice(productDto.price());
+        if (productDto.tags() != null) {
+            List<TagEntity> tagEntities = productDto.tags().stream()
+                .map(name -> tagRepository.findByName(name).orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+            product.setTags(tagEntities);
+        }
 
         // Handle images if needed - for now assuming we just update text fields or append images
         // If we want to replace images, we need more logic in ProductImageService

@@ -32,5 +32,11 @@
     "logout": "Выйти",
     "seller": "продавец",
     "buyer": "покупатель"
+  },
+  "productEditor": {
+    "tagsLabel": "Теги",
+    "noTagsSelected": "Теги не выбраны",
+    "addTags": "Добавить теги",
+    "allTagsSelected": "Все доступные теги выбраны"
   }
 }

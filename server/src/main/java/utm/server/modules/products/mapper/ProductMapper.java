@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import utm.server.modules.image.ImageService;
 import utm.server.modules.products.Product;
+import utm.server.modules.products.TagEntity;
 import utm.server.modules.products.dto.ProductDto;
 import utm.server.modules.products.product_images.ProductImageEntity;
 import utm.server.modules.products.product_images.ProductImageService;
@@ -28,6 +29,7 @@ public class ProductMapper {
                 .price(product.getPrice())
                 .id(product.getId())
                 .uuid(product.getUuid())
+                .tags(product.getTags().stream().map(TagEntity::getName).toList())
                 .imageLinks(imageEntities
                         .stream()
                         .map(i->imageService.getPermanentLink(i.getKey()))

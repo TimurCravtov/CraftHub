@@ -19,6 +19,7 @@ public class ProductDto {
     private String description;
     private double price;
     private List<String> imageLinks;
+    private List<String> tags;
     private Long shopId;
     private java.util.UUID shopUuid;
     private ShopDto shop;

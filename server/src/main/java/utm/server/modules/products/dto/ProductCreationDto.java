@@ -9,5 +9,6 @@ public record ProductCreationDto(
                 String description,
                 Long shopId,
                 List<ImageUploadResponse> productImagesTemp,
+                List<String> tags,
                 double price) {
 }

@@ -25,4 +25,8 @@ public class OrderResponseDTO {
     private String shippingState;
     private String shippingZip;
     private String shippingCountry;
+    private String phoneNumber;
+    private String note;
+    private String buyerName;
+    private String buyerEmail;
 }

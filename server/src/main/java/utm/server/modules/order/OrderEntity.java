@@ -50,6 +50,9 @@ public class OrderEntity {
     private String shippingZip;
     private String shippingCountry;
 
+    private String phoneNumber;
+    private String note;
+
     // Helper method to add an item to the order
     public void addItem(OrderItem item) {
         items.add(item);

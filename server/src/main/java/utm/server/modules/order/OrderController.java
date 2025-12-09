@@ -46,6 +46,60 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/shop/{shopId}")
+    public ResponseEntity<List<OrderResponseDTO>> getShopOrders(@PathVariable Long shopId,
+            @AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
+
+        try {
+            List<OrderResponseDTO> orders = orderService.getShopOrders(shopId, user);
+            return ResponseEntity.ok(orders);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @GetMapping("/seller/pending-count")
+    public ResponseEntity<Long> getPendingOrdersCount(@AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
+        return ResponseEntity.ok(orderService.getPendingOrdersCount(user));
+    }
+
+    @GetMapping("/seller/orders")
+    public ResponseEntity<List<OrderResponseDTO>> getSellerOrders(@AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
+        return ResponseEntity.ok(orderService.getSellerOrders(user));
+    }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId,
+            @AuthenticationPrincipal UserSecurityPrincipal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UserEntity user = userSecurityPrincipalMapper.getUser(principal);
+
+        try {
+            orderService.deleteOrder(orderId, user);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
     @PostMapping("/create")
     public ResponseEntity<OrderResponseDTO> createOrderFromCart(@RequestBody OrderCreateRequest request,
             @AuthenticationPrincipal UserSecurityPrincipal user) {

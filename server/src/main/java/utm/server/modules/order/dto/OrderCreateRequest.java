@@ -13,4 +13,6 @@ public class OrderCreateRequest {
     private String shippingState;
     private String shippingZip;
     private String shippingCountry;
+    private String phoneNumber;
+    private String note;
 }

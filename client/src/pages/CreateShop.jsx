@@ -22,6 +22,8 @@ export default function CreateShop() {
     ownerDescription: '',
     shopLogo: null,
     shopLogoKey: null,
+    shopBanner: null,
+    shopBannerKey: null,
     items: [],
     currentItem: {
       id: null,
@@ -47,7 +49,8 @@ export default function CreateShop() {
               shopName: shopData.shopName || shopData.name || '',
               shopDescription: shopData.shopDescription || shopData.description || '',
               ownerDescription: shopData.ownerDescription || '',
-              shopLogo: shopData.shopImageUrl || shopData.logo || null
+              shopLogo: shopData.shopImageUrl || shopData.logo || null,
+              shopBanner: shopData.shopBannerImageUrl || shopData.banner || null
             }));
             
             // Load items
@@ -85,6 +88,22 @@ export default function CreateShop() {
       }))
     } catch (error) {
       console.error('Logo upload failed:', error)
+    }
+  }
+
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      const uploadResponse = await imageService.uploadImage(file, { isPublic: true })
+      setForm(prev => ({ 
+        ...prev, 
+        shopBanner: uploadResponse.url,
+        shopBannerKey: uploadResponse.key
+      }))
+    } catch (error) {
+      console.error('Banner upload failed:', error)
     }
   }
 
@@ -294,6 +313,7 @@ export default function CreateShop() {
         name: form.shopName,
         description: form.shopDescription,
         shopImageKey: form.shopLogoKey,
+        shopBannerImageKey: form.shopBannerKey,
         // ownerDescription is not supported by backend yet
       }
 
@@ -496,6 +516,23 @@ export default function CreateShop() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Branding</h2>
               <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Shop Banner</label>
+                  <div className="flex flex-col items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors overflow-hidden relative">
+                      {form.shopBanner ? (
+                        <img src={form.shopBanner} alt="Shop Banner" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
+                          <p className="mb-1 text-sm text-gray-500"><span className="font-semibold">Click to upload banner</span></p>
+                        </div>
+                      )}
+                      <input type="file" className="hidden" onChange={handleBannerUpload} accept="image/*" />
+                    </label>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Shop Logo</label>
                   <div className="flex flex-col items-center justify-center w-full">

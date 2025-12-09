@@ -35,6 +35,7 @@ public class ShopService {
         shopEntity.setName(shopRequest.getName());
         shopEntity.setDescription(shopRequest.getDescription());
         shopEntity.setShopImageKey(shopRequest.getShopImageKey());
+        shopEntity.setShopBannerImageKey(shopRequest.getShopBannerImageKey());
         shopEntity.setUser(UserEntity.builder().id(user.getId()).build());
 
         ShopEntity savedShop = shopRepository.save(shopEntity);
@@ -77,6 +78,7 @@ public class ShopService {
         if (shopRequest.getName() != null) shop.setName(shopRequest.getName());
         if (shopRequest.getDescription() != null) shop.setDescription(shopRequest.getDescription());
         if (shopRequest.getShopImageKey() != null) shop.setShopImageKey(shopRequest.getShopImageKey());
+        if (shopRequest.getShopBannerImageKey() != null) shop.setShopBannerImageKey(shopRequest.getShopBannerImageKey());
         return shopRepository.save(shop);
     }
 
@@ -85,6 +87,7 @@ public class ShopService {
         if (shopRequest.getName() != null) shop.setName(shopRequest.getName());
         if (shopRequest.getDescription() != null) shop.setDescription(shopRequest.getDescription());
         if (shopRequest.getShopImageKey() != null) shop.setShopImageKey(shopRequest.getShopImageKey());
+        if (shopRequest.getShopBannerImageKey() != null) shop.setShopBannerImageKey(shopRequest.getShopBannerImageKey());
         return shopRepository.save(shop);
     }
 

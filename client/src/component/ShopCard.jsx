@@ -6,9 +6,10 @@ export default function ShopCard({ shop }) {
   
   const shopId = shop.uuid || shop.id
   const shopName = shop.shopName || shop.name
-  const bannerImage = shop.shopBannerImageUrl || shop.image || '/assets/cover-placeholder.png'
+  const bannerImage = shop.shopBannerImageUrl || shop.image || '/assets/handmade_stuff.png'
   const logoImage = shop.shopImageUrl || shop.logo || '/assets/shop-placeholder.svg'
   const artisanName = shop.artisan || 'Unknown Artisan'
+  const description = shop.description || shop.shopDescription || ''
 
   return (
     <div
@@ -38,14 +39,15 @@ export default function ShopCard({ shop }) {
           <img
             src={logoImage}
             alt={`${shopName} logo`}
-            className="w-10 h-10 rounded-full bg-white/90 p-1 shadow border object-cover"
+            className="w-16 h-16 rounded-full bg-white/90 p-1 shadow border object-cover"
           />
         </div>
       </div>
 
-      <div className="p-3">
-        <h3 className="text-sm font-semibold text-gray-900 truncate">{shopName}</h3>
-        <p className="text-xs text-gray-500 truncate">by {artisanName}</p>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-900 truncate">{shopName}</h3>
+        <p className="text-sm text-gray-500 truncate mb-2">by {artisanName}</p>
+        <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
       </div>
     </div>
   )

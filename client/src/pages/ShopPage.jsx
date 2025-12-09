@@ -80,7 +80,7 @@ export default function ShopPage() {
       <div className="relative h-[400px] overflow-hidden group">
         <div className="absolute inset-0">
             <img 
-                src={shopImage || '/assets/cover-placeholder.png'} 
+                src={shopImage || '/assets/handmade_stuff.png'} 
                 alt={shopName} 
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />

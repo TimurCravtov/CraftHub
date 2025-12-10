@@ -1,9 +1,9 @@
 import { Heart, ShoppingCart, Check } from "lucide-react";
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useLikes } from '../likesContext.jsx'
-import { useCart } from '../cartContext.jsx'
-import { useToast } from '../toastContext.jsx'
+import { useLikes } from '../context/likesContext.jsx'
+import { useCart } from '../context/cartContext.jsx'
+import { useToast } from '../context/toastContext.jsx'
 import { escapeText, safeUrl } from '../utils/sanitize.js'
 
 export default function ProductCard({ product }) {

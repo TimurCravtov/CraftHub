@@ -53,14 +53,6 @@ public class OrderService {
 
     @Transactional
     public OrderResponseDTO createOrderFromCart(OrderCreateRequest request, UserEntity user) {
-        // Get user's cart
-        Cart cart = cartService.getCart(user);
-
-        // Validate cart
-        if (cart.getItems().isEmpty()) {
-            throw new IllegalStateException("Cannot create order from empty cart");
-        }
-
         // Create new order entity
         OrderEntity order = new OrderEntity();
         order.setUser(user);
@@ -79,34 +71,52 @@ public class OrderService {
         // Save order first to get an ID
         order = orderRepository.save(order);
 
-        // Convert cart items to order items
-        for (CartItem cartItem : cart.getItems()) {
-            Product product = cartItem.getProduct();
+        if (request.getItems() != null && !request.getItems().isEmpty()) {
+            // Create order from request items (Client-side cart)
+            for (utm.server.modules.order.dto.OrderItemRequest itemRequest : request.getItems()) {
+                Product product = productRepository.findById(itemRequest.getProductId())
+                        .orElseThrow(() -> new IllegalArgumentException("Product not found: " + itemRequest.getProductId()));
 
-            // Create order item
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setProduct(product);
-            orderItem.setQuantity(cartItem.getQuantity());
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrder(order);
+                orderItem.setProduct(product);
+                orderItem.setQuantity(itemRequest.getQuantity());
+                orderItem.setPrice(BigDecimal.valueOf(product.getPrice()));
+                orderItem.setProductName(product.getTitle());
 
-            // Fix: Convert double to BigDecimal
-            orderItem.setPrice(BigDecimal.valueOf(product.getPrice())); // Convert double to BigDecimal
-            orderItem.setProductName(product.getTitle()); // Save current name
+                order.addItem(orderItem);
+            }
+        } else {
+            // Fallback to Server-side cart
+            Cart cart = cartService.getCart(user);
+            if (cart.getItems().isEmpty()) {
+                throw new IllegalStateException("Cannot create order from empty cart");
+            }
 
-            // Add to order
-            order.addItem(orderItem);
+            for (CartItem cartItem : cart.getItems()) {
+                Product product = cartItem.getProduct();
+
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrder(order);
+                orderItem.setProduct(product);
+                orderItem.setQuantity(cartItem.getQuantity());
+                orderItem.setPrice(BigDecimal.valueOf(product.getPrice()));
+                orderItem.setProductName(product.getTitle());
+
+                order.addItem(orderItem);
+            }
+            
+            // Clear server-side cart if used
+            cartService.clearCart(user);
         }
 
         // Calculate total
-        order.setTotalAmount(order.calculateTotal());
+        BigDecimal total = order.getItems().stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        order.setTotalAmount(total);
 
-        // Save order with items
-        order = orderRepository.save(order);
-
-        // Clear cart
-        cartService.clearCart(user);
-
-        return convertToDTO(order);
+        return convertToDTO(orderRepository.save(order));
     }
 
     @Transactional(readOnly = true)

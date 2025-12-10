@@ -53,9 +53,13 @@ export function CartProvider({ children }) {
     setItems(prev => prev.map(p => p.id === id ? { ...p, qty: Math.max(1, qty) } : p))
   }
 
+  function clearCart() {
+    setItems([])
+  }
+
   const subtotal = useMemo(() => items.reduce((sum, p) => sum + p.price * p.qty, 0), [items])
 
-  const value = useMemo(() => ({ items, addToCart, removeFromCart, updateQty, subtotal }), [items, subtotal])
+  const value = useMemo(() => ({ items, addToCart, removeFromCart, updateQty, clearCart, subtotal }), [items, subtotal])
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }

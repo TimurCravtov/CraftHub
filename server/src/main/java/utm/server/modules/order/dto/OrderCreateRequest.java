@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,4 +17,6 @@ public class OrderCreateRequest {
     private String shippingCountry;
     private String phoneNumber;
     private String note;
+    
+    private List<OrderItemRequest> items;
 }

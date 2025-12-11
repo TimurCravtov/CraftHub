@@ -2,6 +2,8 @@ package utm.server.modules.users.security;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +16,7 @@ import java.util.Base64;
 @Converter
 public class AesConverter implements AttributeConverter<String, String> {
 
+    private static final Logger log = LoggerFactory.getLogger(AesConverter.class);
     private static final String ALGORITHM = "AES";
 
     @Value("${tfa.encryption.key}")
@@ -61,7 +64,8 @@ public class AesConverter implements AttributeConverter<String, String> {
                     StandardCharsets.UTF_8
             );
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to decrypt 2FA secret", e);
+            log.error("Failed to decrypt 2FA secret for value: {}. Error: {}", dbData, e.getMessage());
+            return null;
         }
     }
 }

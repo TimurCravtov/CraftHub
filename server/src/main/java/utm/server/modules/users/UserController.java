@@ -4,6 +4,7 @@ import java.util.List;
 //import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
@@ -64,6 +65,21 @@ public class UserController {
     @DeleteMapping("/delete")
     public void delete(){
         userService.deleteAllData();
+    }
+
+    @PostMapping("/{id}/ban")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> banUser(@PathVariable Long id) {
+        userService.banUser(id);
+        return ResponseEntity.ok("User banned successfully");
+    }
+
+    // Temporary endpoint to assign admin role
+    @PostMapping("/promote")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> promoteToAdmin(@RequestParam String email) {
+        userService.addRoleToUser(email, "ROLE_ADMIN");
+        return ResponseEntity.ok("User promoted to admin");
     }
 }
 

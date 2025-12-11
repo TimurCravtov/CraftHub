@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import utm.server.modules.users.AccountType;
 import utm.server.modules.authentication.dto.AuthProvider;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,4 +21,6 @@ public class UserDto {
     private AccountType accountType;
     private AuthProvider provider;
     private boolean twoFactorEnabled;
+    private boolean banned;
+    private List<String> roles;
 }

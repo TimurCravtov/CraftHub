@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { User, Search, Heart, ShoppingCart, X, LogOut, Settings } from 'lucide-react'
+import { User, Search, Heart, ShoppingCart, X, LogOut, Settings, Shield } from 'lucide-react'
 import { LanguagePicker } from './LanguagePicker.jsx'
 import {useAuthApi} from "../context/apiAuthContext.jsx";
 import { useTranslation } from '../context/translationContext.jsx';
@@ -194,6 +194,14 @@ export default function Header() {
                       >
                         <Settings className="h-4 w-4" /> {t('header.settings')}
                       </button>
+                      {user.roles?.includes('ROLE_ADMIN') && (
+                        <button
+                            onClick={() => { navigate("/admin/dashboard"); setMenuOpen(false) }}
+                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#16533A] transition-colors"
+                        >
+                          <Shield className="h-4 w-4" /> Admin Dashboard
+                        </button>
+                      )}
                       <div className="h-px bg-gray-100 my-1" />
                       <button
                           onClick={handleLogout}

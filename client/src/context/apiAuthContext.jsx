@@ -29,7 +29,8 @@ export function AuthApiProvider({ children }) {
                     name: auth.name, 
                     email: auth.email, 
                     accountType: auth.accountType,
-                    profilePictureLink: auth.profilePictureLink 
+                    profilePictureLink: auth.profilePictureLink,
+                    roles: auth.roles
                 };
             }
             return null;
@@ -136,7 +137,7 @@ export function AuthApiProvider({ children }) {
      */
     const login = useCallback(async (credentials) => {
         try {
-            const res = await api.post("/api/v1/auth/login", credentials, {
+            const res = await api.post("/api/auth/login", credentials, {
                 noAuth: true,
             });
 
@@ -151,7 +152,8 @@ export function AuthApiProvider({ children }) {
                 name: user.name,
                 email: user.email,
                 accountType: user.accountType,
-                profilePictureLink: user.profilePictureLink
+                profilePictureLink: user.profilePictureLink,
+                roles: user.roles
             }));
             
             return user;
@@ -175,7 +177,8 @@ export function AuthApiProvider({ children }) {
             name: userData?.name,
             email: userData?.email,
             accountType: userData?.accountType,
-            profilePictureLink: userData?.profilePictureLink
+            profilePictureLink: userData?.profilePictureLink,
+            roles: userData?.roles
         }));
     }, []);
 

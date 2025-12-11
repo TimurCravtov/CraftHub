@@ -10,7 +10,9 @@ import utm.server.modules.authentication.dto.AuthProvider;
 import utm.server.modules.shops.ShopEntity;
 import utm.server.modules.users.security.AesConverter;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -61,6 +63,15 @@ public class UserEntity implements UserDetails {
     @JsonManagedReference
     private List<ShopEntity> shops;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "users_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @Builder.Default
+    private Set<RoleEntity> roles = new HashSet<>();
+
     // ===================== AUTH =====================
 
     @Enumerated(EnumType.STRING)
@@ -75,6 +86,10 @@ public class UserEntity implements UserDetails {
 
     @Column
     private String profilePictureKey;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isBanned = false;
 
     // ===================== CONSTRUCTORS =====================
 
@@ -96,7 +111,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return roles;
     }
 
     @Override
@@ -111,7 +126,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isBanned;
     }
 
     @Override

@@ -17,6 +17,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
@@ -91,5 +92,24 @@ public class UserServiceImpl implements UserService {
         }
 
         return jwtService.getJwtTokenPair(user);
+    }
+
+    @Override
+    public void addRoleToUser(String email, String roleName) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        RoleEntity role = roleRepository.findByName(roleName)
+                .orElseGet(() -> roleRepository.save(new RoleEntity(null, roleName)));
+        
+        user.getRoles().add(role);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void banUser(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+        user.setBanned(true);
+        userRepository.save(user);
     }
 }

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import utm.server.except.ErrorMessage;
 import utm.server.modules.users.security.UserSecurityPrincipal;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -56,13 +58,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Claims claims = jwtService.validateToken(jwt);
             Long userId = Long.parseLong(claims.getSubject());
 
+            List<?> rawRoles = claims.get("roles", List.class);
+            List<String> rolesList = new ArrayList<>();
+            if (rawRoles != null) {
+                for (Object role : rawRoles) {
+                    if (role instanceof String) {
+                        rolesList.add((String) role);
+                    }
+                }
+            }
+            
+            System.out.println("=== JWT Filter: User " + userId + " has roles in token: " + rolesList);
+            
+            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            for (String role : rolesList) {
+                authorities.add(new SimpleGrantedAuthority(role));
+            }
+            System.out.println("=== JWT Filter: Created authorities: " + authorities);
+
             UserSecurityPrincipal user = new UserSecurityPrincipal();
             user.setId(userId);
 
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(user, null, List.of());
+                    new UsernamePasswordAuthenticationToken(user, null, authorities);
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            System.out.println("=== JWT Filter: Set authentication with authorities: " + authenticationToken.getAuthorities());
 
         } catch (Exception e) {
 

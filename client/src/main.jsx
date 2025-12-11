@@ -29,6 +29,8 @@ import { SecurityProvider } from './context/securityContext.jsx'
 
 // 🔥 nou: redirect page pentru Google OAuth2
 import Oauth2Redirect from './pages/Oauth2Redirect.jsx'
+import AdminDashboard from './pages/AdminDashboard.jsx'
+import ProtectedRoute from './component/ProtectedRoute.jsx'
 import {AuthApiProvider} from "./context/apiAuthContext.jsx";
 
 function RedirectToLocale() {
@@ -46,28 +48,42 @@ const router = createBrowserRouter([
     element: <Signup />,
   },
   {
-    path: '/account',
-    element: <Account />,
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: '/account',
+        element: <Account />,
+      },
+      {
+        path: '/account/shops',
+        element: <ManageShops />,
+      },
+      {
+        path: '/account/shops/:shopId',
+        element: <Account />,
+      },
+      {
+        path: '/account/shops/:shopId/orders',
+        element: <ShopOrders />,
+      },
+      {
+        path: '/create-shop',
+        element: <CreateShop />,
+      },
+      {
+        path: '/edit-shop/:shopId',
+        element: <CreateShop />,
+      },
+    ]
   },
   {
-    path: '/account/shops',
-    element: <ManageShops />,
-  },
-  {
-    path: '/account/shops/:shopId',
-    element: <Account />,
-  },
-  {
-    path: '/account/shops/:shopId/orders',
-    element: <ShopOrders />,
-  },
-  {
-    path: '/create-shop',
-    element: <CreateShop />,
-  },
-  {
-    path: '/edit-shop/:shopId',
-    element: <CreateShop />,
+    element: <ProtectedRoute allowedRoles={['ROLE_ADMIN']} />,
+    children: [
+      {
+        path: '/admin/dashboard',
+        element: <AdminDashboard />,
+      },
+    ]
   },
   {
     path: '/oauth/redirect/:provider',

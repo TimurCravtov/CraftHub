@@ -30,4 +30,7 @@ public interface UserService {
     // Add this method
     void processOAuthPostLogin(String email);
 
+    void addRoleToUser(String email, String roleName);
+
+    void banUser(Long userId);
 }

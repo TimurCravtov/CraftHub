@@ -12,7 +12,6 @@ import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
-@Profile("runner")
 public class TagsInitializer implements CommandLineRunner {
 
     private final ProductRepository productRepository;

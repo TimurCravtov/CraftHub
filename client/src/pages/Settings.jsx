@@ -121,7 +121,7 @@ export default function Settings() {
     if (is2FAEnabled) {
       try {
         setTwoFALoading(true);
-        await api.post("api/auth/me/disable-2fa");
+        await api.post("/api/auth/me/disable-2fa");
         const updatedUser = { ...user, is2FAEnabled: false, twoFactorEnabled: false };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
@@ -137,7 +137,7 @@ export default function Settings() {
     } else {
       try {
         setTwoFALoading(true);
-        const res = await api.post("api/auth/me/enable-2fa", {});
+        const res = await api.post("/api/auth/me/enable-2fa", {});
         setQrCode(`data:image/png;base64,${res.data.qrCode}`);
         setShow2FAConfirm(true);
       } catch (err) {
@@ -158,7 +158,7 @@ export default function Settings() {
     try {
       setTwoFALoading(true);
       const sanitizedCode = sanitizeInput(twoFactorCode, '2fa');
-      await api.post("api/auth/me/confirm-2fa", { code: sanitizedCode });
+      await api.post("/api/auth/me/confirm-2fa", { code: sanitizedCode });
       const updatedUser = { ...user, is2FAEnabled: true, twoFactorEnabled: true };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);

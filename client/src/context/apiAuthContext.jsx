@@ -51,7 +51,7 @@ export function AuthApiProvider({ children }) {
             try {
                 console.log("Attempting to refresh token...");
                 const res = await axios.post(
-                    "http://localhost:8080/api/auth/refresh",
+                    "/api/auth/refresh",
                     {},
                     { withCredentials: true }
                 );
@@ -86,7 +86,7 @@ export function AuthApiProvider({ children }) {
 
     const api = useMemo(() => {
         const instance = axios.create({
-            baseURL: "http://localhost:8080",  // Removed trailing slash
+            baseURL: "",  // Use relative paths
             withCredentials: true, // send cookies automatically
             timeout: 10000, // 10 second timeout
         });

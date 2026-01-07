@@ -24,7 +24,7 @@ const OAuthCallback = () => {
     const code = urlParams.get("code");
 
     if (code && !twoFactorRequired) {
-      api.post(`api/oauth/${provider}`, { code }, {noAuth: true})
+      api.post(`/api/oauth/${provider}`, { code }, {noAuth: true})
           .then(async res => {
             // Check if 2FA is required
             if (res.status === 202 && res.data.twoFactorRequired) {

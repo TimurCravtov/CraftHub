@@ -27,8 +27,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     restart: always
     networks:
       - handmadeshop-net
@@ -44,8 +44,20 @@ services:
       - server
     env_file:
       - .env
+    expose:
+      - "80"
+    restart: always
+    networks:
+      - handmadeshop-net
+
+  nginx:
+    build: ./nginx
+    container_name: handmadeshop_nginx
+    depends_on:
+      - client
+      - server
     ports:
-      - "5173:80"
+      - "80:80"
     restart: always
     networks:
       - handmadeshop-net

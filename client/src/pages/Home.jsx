@@ -19,7 +19,7 @@ export default function Home() {
   const [categories, setCategories] = useState(['All'])
 
   useEffect(() => {
-      api.get('/api/tags/').then(res => setCategories(['All', ...res.data])).catch(console.error)
+      api.get('/api/tags/').then(res => setCategories(['All', ...(Array.isArray(res.data) ? res.data : [])])).catch(console.error)
   }, [api])
 
   // derive recently added items from real products state
@@ -81,9 +81,9 @@ export default function Home() {
 
     async function loadProducts() {
       try {
-        const res = await api.get("api/products/findall", {noAuth: true})
+        const res = await api.get("/api/products/findall", {noAuth: true})
         console.log(res.data) // <- now it's correct
-        setProducts(res.data) // if you want to store them in state
+        setProducts(Array.isArray(res.data) ? res.data : []) // if you want to store them in state
       } catch (err) {
         console.error("Failed to fetch products:", err)
       }
@@ -91,9 +91,9 @@ export default function Home() {
 
     async function loadShops() {
       try {
-        const res = await api.get("api/shops/", {noAuth: true})
+        const res = await api.get("/api/shops/", {noAuth: true})
         console.log(res.data) // <- now it's correct
-        setShops(res.data) // if you want to store them in state
+        setShops(Array.isArray(res.data) ? res.data : []) // if you want to store them in state
       } catch (err) {
         console.error("Failed to fetch shops:", err)
       }

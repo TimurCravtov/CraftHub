@@ -8,6 +8,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import javax.servlet.*;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,49 +25,107 @@ import java.util.function.Supplier;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.*;
 
-// RateLimitFilter.java
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final LoadingCache<String, Bucket> cache;
+    private final RequestMappingHandlerMapping handlerMapping;
+    private final Map<String, RateLimitConfig> endpointConfigs = new ConcurrentHashMap<>();
 
     @Value("${rate-limit.capacity:50}")
-    private long capacity;
+    private long defaultCapacity;
 
     @Value("${rate-limit.refill-tokens:20}")
-    private long refillTokens;
+    private long defaultRefillTokens;
 
-    @Value("${rate-limit.refill-duration:1m}")
-    private String refillDuration;
+    @Value("${rate-limit.refill-duration:PT1M}")
+    private String defaultRefillDuration;
 
-    public RateLimitFilter() {
+    @Value("${rate-limit.enabled:true}")
+    private boolean rateLimitEnabled;
+
+    public RateLimitFilter(RequestMappingHandlerMapping handlerMapping) {
+        this.handlerMapping = handlerMapping;
         this.cache = Caffeine.newBuilder()
                 .expireAfterWrite(1, TimeUnit.HOURS)
                 .maximumSize(10_000)
-                .build(key -> createBucket());
+                .build(key -> createDefaultBucket());
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, jakarta.servlet.FilterChain filterChain) throws jakarta.servlet.ServletException, IOException {
-        String key = getClientIp(request);
-        var bucket = cache.get(key, ip -> createBucket());
+        if (!rateLimitEnabled) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String clientIp = getClientIp(request);
+        String endpoint = request.getRequestURI() + "::" + request.getMethod();
+        
+        // Get rate limit config for this endpoint
+        RateLimitConfig config = getRateLimitConfig(request);
+        
+        // Create cache key combining IP and endpoint (for per-endpoint limits)
+        String cacheKey = clientIp + "::" + config.getKey();
+        
+        var bucket = cache.get(cacheKey, key -> createBucket(config));
 
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
         if (probe.isConsumed()) {
+            response.setHeader("X-RateLimit-Limit", String.valueOf(config.getCapacity()));
             response.setHeader("X-RateLimit-Remaining", String.valueOf(probe.getRemainingTokens()));
+            response.setHeader("X-RateLimit-Reset", String.valueOf(Instant.now().plus(config.getDuration()).getEpochSecond()));
             filterChain.doFilter(request, response);
         } else {
             long waitSeconds = probe.getNanosToWaitForRefill() / 1_000_000_000;
-            sendRateLimitResponse(response, waitSeconds);
+            sendRateLimitResponse(response, config, waitSeconds);
         }
     }
 
-    private Bucket createBucket() {
-        Duration duration = Duration.parse("PT" + refillDuration.toUpperCase());
+    /**
+     * Get rate limit configuration for the current request
+     */
+    private RateLimitConfig getRateLimitConfig(HttpServletRequest request) {
+        try {
+            HandlerMethod handlerMethod = (HandlerMethod) handlerMapping.getHandler(request).getHandler();
+            RateLimit annotation = handlerMethod.getMethodAnnotation(RateLimit.class);
+            
+            if (annotation != null) {
+                String key = annotation.key().isEmpty() 
+                    ? request.getRequestURI() 
+                    : annotation.key();
+                return new RateLimitConfig(
+                    annotation.capacity(),
+                    annotation.refillTokens(),
+                    annotation.refillDuration(),
+                    key
+                );
+            }
+        } catch (Exception e) {
+            // If handler resolution fails, use default config
+        }
+        
+        return new RateLimitConfig(
+            defaultCapacity,
+            defaultRefillTokens,
+            defaultRefillDuration,
+            "default"
+        );
+    }
+
+    private Bucket createBucket(RateLimitConfig config) {
+        Duration duration = Duration.parse(config.getRefillDuration());
         return Bucket.builder()
-                .addLimit(Bandwidth.classic(capacity, Refill.greedy(refillTokens, duration)))
+                .addLimit(Bandwidth.classic(config.getCapacity(), Refill.greedy(config.getRefillTokens(), duration)))
+                .build();
+    }
+
+    private Bucket createDefaultBucket() {
+        Duration duration = Duration.parse(defaultRefillDuration);
+        return Bucket.builder()
+                .addLimit(Bandwidth.classic(defaultCapacity, Refill.greedy(defaultRefillTokens, duration)))
                 .build();
     }
 
@@ -77,11 +137,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return request.getRemoteAddr();
     }
 
-    private void sendRateLimitResponse(HttpServletResponse response, long waitSeconds) throws IOException {
+    private void sendRateLimitResponse(HttpServletResponse response, RateLimitConfig config, long waitSeconds) throws IOException {
         response.setStatus(429);
         response.setContentType("application/json");
         response.setHeader("Retry-After", String.valueOf(waitSeconds));
-        response.setHeader("X-RateLimit-Limit", String.valueOf(capacity));
+        response.setHeader("X-RateLimit-Limit", String.valueOf(config.getCapacity()));
         response.setHeader("X-RateLimit-Remaining", "0");
         response.setHeader("X-RateLimit-Reset", String.valueOf(Instant.now().plusSeconds(waitSeconds).getEpochSecond()));
 

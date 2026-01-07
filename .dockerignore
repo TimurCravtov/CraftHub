@@ -1,8 +1,12 @@
 node_modules
 dist
-test-backend.html
+build
 .env
 .git
 .idea
 Dockerfile
 docker-compose.yml
+server/target
+server/.mvn
+server/mvnw
+server/mvnw.cmd

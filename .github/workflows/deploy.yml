@@ -39,7 +39,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
           script: |
             # Adjust the path to your project directory on the VM
             cd /home/dev/crafthub/CraftHub || exit 1

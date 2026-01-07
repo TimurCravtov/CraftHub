@@ -1,8 +1,9 @@
 <p align="center">
-  <img src="client/public/assets/logo.png" width="100" style="vertical-align:middle" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <span style="font-size:30px; font-weight:bold; vertical-align:middle"> CraftHub </span>
+  <img src="client/public/assets/logo.png" width="100" />
 </p>
+
+# CraftHub 
+> A fullstack app for handmade items lovers
 
 ## Overview
 

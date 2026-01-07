@@ -67,12 +67,14 @@ The application is built with accessibility and global reach in mind, featuring 
 ## Getting Started
 
 ### Prerequisites
-*   Java 17 or higher
+*   Java 17 or higher 
 *   Node.js (v18+ recommended)
 *   PostgreSQL database
 *   Maven
 
 ### Installation
+
+#### Local build
 
 1.  **Clone the repository**
     ```bash
@@ -100,3 +102,10 @@ The application is built with accessibility and global reach in mind, featuring 
 5.  **Access the Application**
     *   Frontend: `http://localhost:5173`
     *   Backend API: `http://localhost:8080`
+
+#### Using Docker
+
+```bash
+docker compose up
+```
+

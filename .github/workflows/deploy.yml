@@ -29,7 +29,7 @@ jobs:
           ./mvnw test
 
   deploy:
-    environtment: production
+    environment: production
     name: Deploy to VPS
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

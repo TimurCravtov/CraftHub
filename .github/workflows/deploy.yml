@@ -45,6 +45,8 @@ jobs:
             # Adjust the path to your project directory on the VM
             cd /home/dev/crafthub/CraftHub || exit 1
             
+            echo "Deploying as user: $(whoami)"
+            
             echo "Pulling latest changes..."
             git pull origin main
             

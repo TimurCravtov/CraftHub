@@ -52,6 +52,8 @@ jobs:
             
             echo "Rebuilding and restarting containers..."
             docker-compose down
+
+            export SPRING_PROFILES_ACTIVE=prod
             docker-compose up -d --build
             
             echo "Deployment complete!"

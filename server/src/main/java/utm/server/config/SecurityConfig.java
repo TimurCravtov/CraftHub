@@ -46,6 +46,7 @@ public class SecurityConfig {
                                 "/api/auth/signup",
                                 "/api/auth/signin",
                                 "/api/auth/refresh",
+                                "/api/config/auth-params",
                                 "/oauth2/**",
                                 "/login/oauth2/code/**",
                                 "/error",

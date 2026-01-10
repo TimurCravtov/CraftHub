@@ -26,6 +26,7 @@ import NotFound from './pages/NotFound.jsx'
 import TooManyRequests from './pages/TooManyRequests.jsx'
 import { TranslationProvider, useTranslation } from './context/translationContext.jsx'
 import { SecurityProvider } from './context/securityContext.jsx'
+import { AppConfigProvider } from './context/appConfigContext.jsx'
 
 // 🔥 nou: redirect page pentru Google OAuth2
 import Oauth2Redirect from './pages/Oauth2Redirect.jsx'
@@ -166,17 +167,19 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
     <StrictMode>
       <SecurityProvider>
-        <AuthApiProvider>
-          <TranslationProvider>
-            <LikesProvider>
-              <CartProvider>
-                <ToastProvider>
-                  <RouterProvider router={router} />
-                </ToastProvider>
-              </CartProvider>
-            </LikesProvider>
-          </TranslationProvider>
-        </AuthApiProvider>
+        <AppConfigProvider>
+          <AuthApiProvider>
+            <TranslationProvider>
+              <LikesProvider>
+                <CartProvider>
+                  <ToastProvider>
+                    <RouterProvider router={router} />
+                  </ToastProvider>
+                </CartProvider>
+              </LikesProvider>
+            </TranslationProvider>
+          </AuthApiProvider>
+        </AppConfigProvider>
       </SecurityProvider>
     </StrictMode>
 )

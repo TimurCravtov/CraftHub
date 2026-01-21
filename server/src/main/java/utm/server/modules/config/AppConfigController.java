@@ -16,10 +16,14 @@ public class AppConfigController {
     @Value("${spring.security.oauth2.client.registration.google.client-id:}")
     private String googleClientId;
 
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri:}")
+    private String googleRedirectUri;
+
     @GetMapping("/auth-params")
     public ResponseEntity<Map<String, String>> getAuthParams() {
         Map<String, String> config = new HashMap<>();
         config.put("googleClientId", googleClientId);
+        config.put("googleRedirectUri", googleRedirectUri);
         return ResponseEntity.ok(config);
     }
 }

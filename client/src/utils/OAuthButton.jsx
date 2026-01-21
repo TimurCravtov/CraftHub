@@ -15,7 +15,7 @@ const providers = {
 };
 
 export function OAuthButton({ provider }) {
-    const { googleClientId, loading } = useAppConfig();
+    const { googleClientId, googleRedirectUri, loading } = useAppConfig();
     const config = providers[provider];
 
     if (!config) {
@@ -24,9 +24,9 @@ export function OAuthButton({ provider }) {
 
     const handleClick = () => {
         if (provider === "google") {
-            redirectToOAuthProvider(provider, googleClientId);
+            redirectToOAuthProvider(provider, googleClientId, googleRedirectUri);
         } else {
-            redirectToOAuthProvider(provider, null);
+            redirectToOAuthProvider(provider, null, null);
         }
     };
 

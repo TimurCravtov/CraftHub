@@ -1,6 +1,7 @@
-export const redirectToOAuthProvider = (provider, googleClientId) => {
+export const redirectToOAuthProvider = (provider, googleClientId, googleRedirectUri) => {
 
-    const redirectUri = `${window.location.origin}/oauth/redirect/${provider}`;
+    // Use server-provided redirect URI if available, otherwise fallback to current origin
+    const redirectUri = googleRedirectUri || `${window.location.origin}/oauth/redirect/${provider}`;
 
     let authUrl = "";
 

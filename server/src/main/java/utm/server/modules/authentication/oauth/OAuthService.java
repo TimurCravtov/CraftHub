@@ -41,13 +41,13 @@ public class OAuthService {
                 .collect(Collectors.toMap(OAuthProviderConfig::getProvider, cfg -> cfg));
     }
 
-    public JwtTokenPair authViaCode(String code, OAuthProvider provider) throws JsonProcessingException {
+    public JwtTokenPair authViaCode(String code, String redirectUri, OAuthProvider provider) throws JsonProcessingException {
         OAuthProviderConfig config = providerConfigs.get(provider);
 
         // Exchange code for access token
         ResponseEntity<String> tokenResp = restTemplate.postForEntity(
                 config.getTokenUrl(),
-                config.buildTokenRequest(code),
+                config.buildTokenRequest(code, redirectUri),
                 String.class);
 
         String accessToken = extractAccessToken(tokenResp.getBody());

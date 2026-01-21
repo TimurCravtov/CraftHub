@@ -10,7 +10,7 @@ public interface OAuthProviderConfig {
     String getClientId();
     String getClientSecret();
     String getRedirectUri();
-    HttpEntity<String> buildTokenRequest(String code);
+    HttpEntity<String> buildTokenRequest(String code, String redirectUri);
     OAuthUser extractUserData(JsonNode userInfoJson);
 }
 

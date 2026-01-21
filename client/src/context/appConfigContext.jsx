@@ -29,6 +29,7 @@ export function AppConfigProvider({ children }) {
             loading,
             error,
             googleClientId: config?.googleClientId || null,
+            googleRedirectUri: config?.googleRedirectUri || null,
         }),
         [config, loading, error]
     );

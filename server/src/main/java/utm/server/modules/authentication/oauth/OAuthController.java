@@ -55,7 +55,7 @@ public class OAuthController {
         }
 
         try {
-            JwtTokenPair tokens = oAuthService.authViaCode(code.getCode(), provider);
+            JwtTokenPair tokens = oAuthService.authViaCode(code.getCode(), code.getRedirectUri(), provider);
             setRefreshTokenCookie(response, tokens.refreshToken());
 
             Long userId = jwtService.extractUserId(tokens.accessToken());

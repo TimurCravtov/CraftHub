@@ -51,10 +51,12 @@ public class GoogleOAuthProviderConfig implements OAuthProviderConfig {
     }
 
     @Override
-    public HttpEntity<String> buildTokenRequest(String code) {
+    public HttpEntity<String> buildTokenRequest(String code, String redirectUri) {
+        // Use the provided redirectUri if available, otherwise fall back to configured one
+        String effectiveRedirectUri = (redirectUri != null && !redirectUri.isEmpty()) ? redirectUri : this.redirectUri;
         String body = String.format(
                 "code=%s&client_id=%s&client_secret=%s&redirect_uri=%s&grant_type=authorization_code",
-                code, clientId, clientSecret, redirectUri
+                code, clientId, clientSecret, effectiveRedirectUri
         );
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

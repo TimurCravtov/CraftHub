@@ -30,11 +30,15 @@ export function OAuthButton({ provider }) {
         }
     };
 
+    const btnClass = provider === 'google'
+        ? 'flex items-center justify-center w-full px-4 py-2 space-x-2 rounded-lg shadow-sm bg-black text-white hover:bg-gray-900 disabled:opacity-50'
+        : 'flex items-center justify-center w-full px-4 py-2 space-x-2 rounded-lg shadow-sm brand-btn disabled:opacity-50';
+
     return (
         <button
             onClick={handleClick}
             disabled={provider === "google" && loading}
-            className="flex items-center justify-center w-full px-4 py-2 space-x-2 border rounded-lg shadow-sm hover:bg-gray-100 transition disabled:opacity-50"
+            className={btnClass}
         >
             {config.icon}
             <span>{config.label}</span>

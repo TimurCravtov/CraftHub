@@ -373,10 +373,10 @@ export default function Signup() {
                                 />
 
                                 <div className="flex gap-3 text-xs">
-                                    <div className={passwordRequirements.length ? 'text-green-300' : 'text-white/70'}>● 12+</div>
-                                    <div className={passwordRequirements.upper ? 'text-green-300' : 'text-white/70'}>● Upper</div>
-                                    <div className={passwordRequirements.number ? 'text-green-300' : 'text-white/70'}>● Number</div>
-                                    <div className={passwordRequirements.special ? 'text-green-300' : 'text-white/70'}>● Special</div>
+                                    <div className={passwordRequirements.length ? 'text-green-300' : 'text-gray/70'}>● 12+</div>
+                                    <div className={passwordRequirements.upper ? 'text-green-300' : 'text-gray/70'}>● Upper</div>
+                                    <div className={passwordRequirements.number ? 'text-green-300' : 'text-gray/70'}>● Number</div>
+                                    <div className={passwordRequirements.special ? 'text-green-300' : 'text-gray/70'}>● Special</div>
                                 </div>
 
                                 {isValidatingPassword && <div className="text-sm text-cyan-200">Validating password...</div>}

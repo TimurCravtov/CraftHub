@@ -36,6 +36,7 @@ export function OAuthButton({ provider }) {
 
     return (
         <button
+            type="button"  
             onClick={handleClick}
             disabled={provider === "google" && loading}
             className={btnClass}

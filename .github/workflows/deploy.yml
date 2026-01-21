@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test-backend:
     name: Run Backend Tests
     runs-on: ubuntu-latest
     steps:
@@ -28,10 +28,30 @@ jobs:
           chmod +x mvnw
           ./mvnw test
 
+  test-frontend:
+    name: Run Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        working-directory: ./client
+        run: npm install
+
+      - name: Run Tests
+        working-directory: ./client
+        run: npx vitest run
+
   deploy:
     environment: production
     name: Deploy to VPS
-    needs: test
+    needs: [test-backend, test-frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:

@@ -44,10 +44,11 @@ export function sanitizeEmail(email) {
   if (!email) return ''
   
   // Allow typing by only escaping dangerous characters, not validating format
-  return escapeText(email)
+  const sanitized = email
     .replace(/javascript:/gi, '') // Remove javascript: protocols
     .replace(/data:/gi, '') // Remove data: protocols
     .replace(/vbscript:/gi, '') // Remove vbscript: protocols
+  return escapeText(sanitized)
 }
 
 // Validate email format (for final validation, not during typing)
@@ -103,11 +104,12 @@ export function sanitizeNameForDisplay(input) {
 // Sanitize user input for display (removes potentially dangerous characters)
 export function sanitizeUserInput(input) {
   if (!input) return ''
-  return escapeText(input)
+  const sanitized = input
     .replace(/javascript:/gi, '') // Remove javascript: protocols
     .replace(/data:/gi, '') // Remove data: protocols
     .replace(/vbscript:/gi, '') // Remove vbscript: protocols
     .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
+  return escapeText(sanitized)
 }
 
 

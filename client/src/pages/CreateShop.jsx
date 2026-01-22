@@ -223,6 +223,28 @@ export default function CreateShop() {
     }));
   };
 
+  const handleDeleteProduct = async (item) => {
+    if (!window.confirm(`Are you sure you want to delete "${item.name || item.title}"?`)) {
+      return;
+    }
+
+    try {
+      // If product has an ID, it exists in the database - call API to delete
+      if (item.id) {
+        await api.delete(`/api/products/${item.id}`);
+      }
+      
+      // Remove from local state
+      setForm(prev => ({
+        ...prev,
+        items: prev.items.filter(i => i.id !== item.id)
+      }));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Failed to delete product. Please try again.');
+    }
+  };
+
   const handleSaveItem = async () => {
     const { name, price, description, images } = form.currentItem;
     
@@ -531,11 +553,7 @@ export default function CreateShop() {
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                         </button>
                         <button 
-                          onClick={() => {
-                             // Handle remove logic
-                             // For now just remove from local state if it's a new shop, or call API if existing
-                             // But let's keep it simple for this iteration
-                          }}
+                          onClick={() => handleDeleteProduct(item)}
                           className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 rounded-full transition-all"
                         >
                           <Trash2 className="h-4 w-4" />

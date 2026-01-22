@@ -30,4 +30,8 @@ public class ProductImageService {
     public List<ProductImageEntity> findAllByProductId(Long productId) {
         return repository.findAllByProductIdOrderByOrderNumberAsc(productId);
     }
+
+    public void deleteAllByProduct(Product product) {
+        repository.deleteAllByProduct(product);
+    }
 }

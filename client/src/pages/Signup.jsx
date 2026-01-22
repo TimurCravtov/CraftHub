@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSecurity } from '../hooks/useSecurity.js';
-import {OAuthButton} from "../utils/OAuthButton.jsx";
-import {useAuthApi} from "../context/apiAuthContext.jsx";
+import { useSecurity } from "../hooks/useSecurity.js";
+import { OAuthButton } from "../utils/OAuthButton.jsx";
+import { useAuthApi } from "../context/apiAuthContext.jsx";
 
 export default function Signup() {
     const [rightPanelActive, setRightPanelActive] = useState(false);
@@ -143,148 +143,212 @@ export default function Signup() {
             // Remove client-side password requirement checks - backend will validate
         );
     };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
-    const handleSignUp = async (e) => {
-        e.preventDefault();
-        setPasswordTouched(true);
+  // NEW: password generator
+  const generatePassword = (length = 14) => {
+    const lowers = "abcdefghijklmnopqrstuvwxyz";
+    const uppers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const nums = "0123456789";
+    const specials = "!@#$%^&*(),.?\":{}|<>";
 
-        if (!isFormValid()) return;
+    const all = lowers + uppers + nums + specials;
 
-        setIsSubmitting(true);
-        try {
-            console.log('🔵 [Signup.jsx] Attempting signup...');
-            
-            const res = await api.post('/api/auth/signup', signupData, { noAuth: true });
-            console.log('✅ [Signup.jsx] Signup response:', res);
-            
-            const data = res.data;
-            const token = data.accessToken || data.token;
-            console.log('🔵 [Signup.jsx] Token received from signup:', token ? 'Yes' : 'No');
+    // ensure at least one from each bucket
+    const pick = (s) => s[Math.floor(Math.random() * s.length)];
+    let pwd = [pick(lowers), pick(uppers), pick(nums), pick(specials)];
 
-            // Fetch user data with the new token
-            try {
-                console.log('🔵 [Signup.jsx] Calling getMe after signup...');
-                const userObj = await getMe(token);
-                console.log('✅ [Signup.jsx] User data fetched after signup:', userObj);
-                // Now set both token and user data
-                loginWithToken(token, userObj);
-                console.log('✅ [Signup.jsx] loginWithToken called with user data after signup');
-            } catch (err) {
-                console.error('❌ [Signup.jsx] Failed to fetch user data after signup:', err);
-                // Even if fetching user fails, still login with token
-                loginWithToken(token, null);
-                console.log('⚠️ [Signup.jsx] loginWithToken called without user data after signup');
-            }
+    for (let i = pwd.length; i < length; i++) {
+      pwd.push(pick(all));
+    }
 
-            navigate("/");
-        } catch (err) {
-            console.error("Signup error:", err);
-            const errorMessage = typeof err.response?.data === 'string' 
-                ? err.response.data 
-                : (err.response?.data?.message || err.message || "Error while signing up");
-            alert(errorMessage);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    // shuffle
+    for (let i = pwd.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pwd[i], pwd[j]] = [pwd[j], pwd[i]];
+    }
 
-    const handleSignIn = async (e) => {
-        e.preventDefault();
-        setLoginError("");
-        setLoginSubmitting(true);
+    return pwd.join("");
+  };
 
-        try {
-            console.log('🔵 [Signup.jsx] Attempting login with:', { email: loginData.email });
-            
-            const res = await api.post('/api/auth/signin', loginData, { noAuth: true });
-            console.log('✅ [Signup.jsx] Login response:', res);
+  const handleGeneratePassword = () => {
+    const newPwd = generatePassword(14);
+    setSignupData((prev) => ({ ...prev, password: newPwd }));
+    setPasswordTouched(true);
+    setShowSignupPassword(true);
+  };
 
-            // Check if 2FA is required
-            if (res.status === 202 && res.data.twoFactorRequired) {
-                console.log('🔵 [Signup.jsx] 2FA required');
-                setTwoFactorRequired(true);
-                setPendingUserId(res.data.userId);
-                return;
-            }
+  const handleCopyPassword = async () => {
+    try {
+      await navigator.clipboard.writeText(signupData.password || "");
+      setCopyMsg("Copied!");
+      setTimeout(() => setCopyMsg(""), 1200);
+    } catch (e) {
+      setCopyMsg("Copy failed");
+      setTimeout(() => setCopyMsg(""), 1200);
+    }
+  };
 
-            const data = res.data;
-            const token = data.accessToken || data.token;
-            console.log('🔵 [Signup.jsx] Token received:', token ? 'Yes' : 'No');
+  const EyeIcon = ({ open }) =>
+    open ? (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-5 h-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    ) : (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-5 h-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path d="M2 12s3.5-7 10-7c2.8 0 5 1 6.6 2.3" />
+        <path d="M22 12s-3.5 7-10 7c-2.8 0-5-1-6.6-2.3" />
+        <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+        <path d="M3 3l18 18" />
+      </svg>
+    );
 
-            // Fetch user data with the new token
-            try {
-                console.log('🔵 [Signup.jsx] Calling getMe with token...');
-                const userObj = await getMe(token);
-                console.log('✅ [Signup.jsx] User data fetched:', userObj);
-                // Now set both token and user data
-                loginWithToken(token, userObj);
-                console.log('✅ [Signup.jsx] loginWithToken called with user data');
-            } catch (err) {
-                console.error('❌ [Signup.jsx] Failed to fetch user data:', err);
-                // Even if fetching user fails, still login with token
-                loginWithToken(token, null);
-                console.log('⚠️ [Signup.jsx] loginWithToken called without user data');
-            }
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-gray-50 text-black">
+      <div className="absolute inset-0 -z-10">
+        <div className="animate-blob bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 opacity-12 blur-3xl absolute -left-20 -top-32 w-96 h-96 rounded-full"></div>
+        <div className="animate-blob2 bg-gradient-to-r from-cyan-200 to-indigo-200 opacity-10 blur-2xl absolute right-0 top-10 w-72 h-72 rounded-full"></div>
+        <div className="absolute inset-0 bg-gray-50/40"></div>
+      </div>
 
-            navigate("/");
-        } catch (err) {
-            console.error("Login error:", err);
-            setLoginError(err.response?.data?.message || err.message || "Error while signing in");
-        } finally {
-            setLoginSubmitting(false);
-        }
-    };
+      <div className="absolute top-4 left-4">
+        <button
+          onClick={handleBack}
+          aria-label="Go back"
+          title="Go back (Esc)"
+          className="flex items-center space-x-2 text-white/90 hover:text-white transition focus:outline-none"
+        >
+          <span className="flex items-center gap-3 px-4 py-2 rounded-full brand-btn transform transition hover:scale-105 focus:ring-2 focus:ring-cyan-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              className="w-5 h-5 text-white"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-base font-semibold">Back</span>
+          </span>
+        </button>
+      </div>
 
-    const handleVerify2FA = async (e) => {
-        e.preventDefault();
-        setLoginError("");
-        setLoginSubmitting(true);
+      <div className="w-full max-w-6xl p-8">
+        <div
+          id="container"
+          className={`relative mx-auto rounded-3xl overflow-hidden shadow-2xl bg-white border border-gray-200 ${
+            rightPanelActive ? " right-panel-active" : ""
+          }`}
+        >
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-0 min-h-[620px]">
+            {/* Sign Up Panel */}
+            <div className="p-12 flex flex-col justify-center items-stretch space-y-6 sign-up-container relative text-black">
+              <div className="mb-4">
+                <h2 className="text-3xl font-extrabold text-black">Create account</h2>
+                <p className="text-sm text-gray-600 mt-2">Join CraftHub — build, sell and explore</p>
+              </div>
 
-        try {
-            console.log('🔵 [Signup.jsx] Verifying 2FA...');
-            
-            const res = await api.post('/api/auth/verify-2fa', {
-                userId: pendingUserId.toString(),
-                code: twoFactorCode
-            }, { noAuth: true });
+              <div className="social-container flex gap-3">
+                <OAuthButton provider={"google"} />
+              </div>
 
-            console.log('✅ [Signup.jsx] 2FA verification response:', res);
+              <form onSubmit={handleSignUp} noValidate className="mt-2 flex flex-col gap-3">
+                <input
+                  className="px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 text-black placeholder:text-gray-500"
+                  type="text"
+                  placeholder="Full name"
+                  value={signupData.name}
+                  onChange={(e) => setSignupData({ ...signupData, name: sanitizeInput(e.target.value, "name") })}
+                />
+                {errors.name && <div className="text-sm text-red-400">{errors.name}</div>}
 
-            const { accessToken } = res.data;
-            console.log('🔵 [Signup.jsx] Token received from 2FA:', accessToken ? 'Yes' : 'No');
+                <input
+                  className="px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 text-black placeholder:text-gray-500"
+                  type="email"
+                  placeholder="Email"
+                  value={signupData.email}
+                  onChange={(e) => setSignupData({ ...signupData, email: sanitizeInput(e.target.value, "email") })}
+                />
+                {errors.email && <div className="text-sm text-red-600">{errors.email}</div>}
 
-            // Fetch user data with the new token
-            try {
-                console.log('🔵 [Signup.jsx] Calling getMe after 2FA...');
-                const userObj = await getMe(accessToken);
-                console.log('✅ [Signup.jsx] User data fetched after 2FA:', userObj);
-                // Now set both token and user data
-                loginWithToken(accessToken, userObj);
-                console.log('✅ [Signup.jsx] loginWithToken called with user data after 2FA');
-            } catch (err) {
-                console.error('❌ [Signup.jsx] Failed to fetch user data after 2FA:', err);
-                // Even if fetching user fails, still login with token
-                loginWithToken(accessToken, null);
-                console.log('⚠️ [Signup.jsx] loginWithToken called without user data after 2FA');
-            }
+                {/* Password with eye + generator */}
+                <div className="relative">
+                  <input
+                    className="w-full px-4 py-3 pr-24 rounded-xl bg-gray-100 border border-gray-300 text-black placeholder:text-gray-500"
+                    type={showSignupPassword ? "text" : "password"}
+                    placeholder="Create a password"
+                    value={signupData.password}
+                    onChange={(e) =>
+                      setSignupData({ ...signupData, password: sanitizeInput(e.target.value, "password") })
+                    }
+                    onBlur={() => setPasswordTouched(true)}
+                    autoComplete="new-password"
+                  />
 
-            navigate("/");
-        } catch (err) {
-            console.error("2FA verification error:", err);
-            setLoginError(err.response?.data?.error || err.message || "Invalid 2FA code");
-        } finally {
-            setLoginSubmitting(false);
-        }
-    };
+                  {/* Eye toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setShowSignupPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
+                    aria-label={showSignupPassword ? "Hide password" : "Show password"}
+                    title={showSignupPassword ? "Hide password" : "Show password"}
+                  >
+                    <EyeIcon open={showSignupPassword} />
+                  </button>
+                </div>
+
+                {/* Generator actions */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleGeneratePassword}
+                    className="px-3 py-2 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:opacity-95"
+                  >
+                    Generate password
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyPassword}
+                    disabled={!signupData.password}
+                    className="px-3 py-2 rounded-xl bg-gray-100 border border-gray-300 text-sm font-semibold text-gray-800 disabled:opacity-50"
+                  >
+                    Copy
+                  </button>
+
+                  {copyMsg && <span className="text-sm text-gray-600">{copyMsg}</span>}
+                </div>
+
+                <div className="flex gap-3 text-xs">
+                  <div className={passwordRequirements.length ? "text-green-600" : "text-gray-400"}>● 8+</div>
+                  <div className={passwordRequirements.upper ? "text-green-600" : "text-gray-400"}>● Upper</div>
+                  <div className={passwordRequirements.number ? "text-green-600" : "text-gray-400"}>● Number</div>
+                  <div className={passwordRequirements.special ? "text-green-600" : "text-gray-400"}>● Special</div>
+                </div>
 
     const handleGoogleAuth = () => {
         console.log("Google authentication clicked");
         window.location.href = "/oauth2/authorization/google";
     };
 
-    const handleFacebookAuth = () => {
-        console.log("Facebook authentication clicked");
-    };
+                {passwordTouched && errors.password && <div className="text-sm text-red-400">{errors.password}</div>}
 
     // Enhanced back behaviour: try history, fallback to home
     const handleBack = (e) => {
@@ -328,6 +392,7 @@ export default function Signup() {
                         <span className="text-base font-semibold">Back</span>
                     </span>
                 </button>
+              </form>
             </div>
 
             <div className="w-full max-w-6xl p-8">
@@ -463,7 +528,30 @@ export default function Signup() {
                         </div>
                     </div>
                 </div>
+
+                <div
+                  className="overlay-panel overlay-right w-1/2 h-full flex items-center justify-center p-8 text-white"
+                  style={{ background: "linear-gradient(135deg,#0b5e3a 0%,#2aa37a 100%)" }}
+                >
+                  <div className="text-center max-w-xs">
+                    <h3 className="text-2xl font-bold">Hello, Friend!</h3>
+                    <p className="mt-3 text-sm text-white/80">Enter your details and start your journey with us</p>
+                    <button
+                      id="signUp"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRightPanelActive(true);
+                      }}
+                      className="mt-8 px-8 py-3 rounded-full brand-btn pointer-events-auto hover:opacity-95"
+                    >
+                      Sign Up
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
                 <style>{` 
                 .animate-blob { animation: blob 12s infinite; }

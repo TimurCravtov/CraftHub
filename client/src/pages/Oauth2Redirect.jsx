@@ -22,9 +22,11 @@ const OAuthCallback = () => {
   useEffect(() => {
 
     const code = urlParams.get("code");
+    // Use the actual redirect URI that was used when getting the code
+    const redirectUri = `${window.location.origin}/oauth/redirect/${provider}`;
 
     if (code && !twoFactorRequired) {
-      api.post(`api/oauth/${provider}`, { code }, {noAuth: true})
+      api.post(`/api/oauth/${provider}`, { code, redirectUri }, {noAuth: true})
           .then(async res => {
             // Check if 2FA is required
             if (res.status === 202 && res.data.twoFactorRequired) {

@@ -1,28 +1,35 @@
-version: "3.8"
-
 services:
   db:
-    image: postgres:15
-    container_name: postgres_db
+    build: ./db
+    container_name: handmadeshop_db
     restart: always
     env_file:
-      - ./server/.env
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     networks:
       - handmadeshop-net
 
   server:
     build: ./server
-    container_name: backend
+    container_name: handmadeshop_server
     depends_on:
       - db
     env_file:
-      - ./server/.env
-    ports:
-      - "8443:8443"
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    expose:
+      - "8080"
     restart: always
     networks:
       - handmadeshop-net
@@ -33,16 +40,38 @@ services:
       args:
         REACT_APP_API_URL: ${REACT_APP_API_URL}
         VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
-    container_name: frontend
+    container_name: handmadeshop_client
     depends_on:
       - server
     env_file:
-      - ./client/.env
-    ports:
-      - "3000:80"
+      - .env
+    expose:
+      - "80"
     restart: always
     networks:
       - handmadeshop-net
+
+  nginx:
+    build: ./nginx
+    container_name: handmadeshop_nginx
+    depends_on:
+      - client
+      - server
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    restart: always
+    networks:
+      - handmadeshop-net
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
 
 volumes:
   db_data:

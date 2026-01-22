@@ -3,6 +3,7 @@ package utm.server.config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import utm.server.modules.products.Product;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@Profile("runner")
 public class UuidBackfillRunner implements CommandLineRunner {
 
     private final UserRepository userRepository;

@@ -8,7 +8,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import utm.server.modules.authentication.service.AuthService;
+import utm.server.modules.jwt.JwtService;
 import utm.server.modules.jwt.JwtTokenPair;
+import utm.server.modules.users.UserEntity;
+import utm.server.modules.users.UserMapper;
+import utm.server.modules.users.UserRepository;
+import utm.server.modules.users.dto.UserDto;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static utm.server.modules.authentication.service.CookieService.setRefreshTokenCookie;
 
 @RestController
@@ -17,10 +26,16 @@ public class OAuthController {
 
     private final OAuthService oAuthService;
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public OAuthController(OAuthService oAuthService, AuthService authService) {
+    public OAuthController(OAuthService oAuthService, AuthService authService, JwtService jwtService, UserRepository userRepository, UserMapper userMapper) {
         this.oAuthService = oAuthService;
         this.authService = authService;
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     @PostMapping("/{provider}")
@@ -40,10 +55,19 @@ public class OAuthController {
         }
 
         try {
-            JwtTokenPair tokens = oAuthService.authViaCode(code.getCode(), provider);
+            JwtTokenPair tokens = oAuthService.authViaCode(code.getCode(), code.getRedirectUri(), provider);
             setRefreshTokenCookie(response, tokens.refreshToken());
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(tokens);
+            Long userId = jwtService.extractUserId(tokens.accessToken());
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            UserDto userDto = userMapper.toDTO(user);
+
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("accessToken", tokens.accessToken());
+            responseBody.put("user", userDto);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         } catch (OAuthService.TwoFactorRequiredException e) {
             // Return a response indicating 2FA is required
             return ResponseEntity

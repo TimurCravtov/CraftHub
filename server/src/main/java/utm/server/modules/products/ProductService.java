@@ -142,4 +142,20 @@ public class ProductService {
 
         return productMapper.toDto(productRepository.save(product));
     }
+
+    @Transactional
+    public void deleteProduct(Long id, UserSecurityPrincipal authUser) throws NoRightsException {
+        UserEntity user = userSecurityPrincipalMapper.getUser(authUser);
+        
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!productEditPermissionService.hasRightsToEditProducts(product.getShopEntity().getId(), user))
+             throw new NoRightsException("You do not have permission to delete this product");
+
+        // Delete associated images first
+        productImageService.deleteAllByProduct(product);
+        
+        productRepository.delete(product);
+    }
 }

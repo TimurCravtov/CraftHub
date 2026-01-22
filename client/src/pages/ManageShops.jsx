@@ -88,17 +88,24 @@ export default function ManageShops() {
                     </div>
                   </div>
 
-                  <div className="mt-auto grid grid-cols-2 gap-3">
+                  <div className="mt-auto grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => navigate(`/account/shops/${shop.id}/orders`)}
+                      className="flex items-center justify-center gap-2 px-3 py-2.5 border-2 border-gray-200 text-gray-700 rounded-xl hover:border-[#16533A] hover:text-[#16533A] transition-colors font-medium text-sm"
+                    >
+                      <Package className="w-4 h-4" />
+                      Orders
+                    </button>
                     <button
                       onClick={() => navigate(`/edit-shop/${shop.uuid}`)}
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-gray-200 text-gray-700 rounded-xl hover:border-[#16533A] hover:text-[#16533A] transition-colors font-medium"
+                      className="flex items-center justify-center gap-2 px-3 py-2.5 border-2 border-gray-200 text-gray-700 rounded-xl hover:border-[#16533A] hover:text-[#16533A] transition-colors font-medium text-sm"
                     >
                       <Edit className="w-4 h-4" />
                       Edit
                     </button>
                     <button
-                      onClick={() => navigate(`/shop/${shop.uuid}`)}
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#16533A] text-white rounded-xl hover:bg-[#0f3b29] transition-colors font-medium shadow-md hover:shadow-lg"
+                      onClick={() => navigate(`/shops/${shop.uuid}`)}
+                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-[#16533A] text-white rounded-xl hover:bg-[#0f3b29] transition-colors font-medium shadow-md hover:shadow-lg text-sm"
                     >
                       <ExternalLink className="w-4 h-4" />
                       Visit

@@ -1,9 +1,9 @@
 import { Heart, ShoppingCart, Check } from "lucide-react";
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useLikes } from '../likesContext.jsx'
-import { useCart } from '../cartContext.jsx'
-import { useToast } from '../toastContext.jsx'
+import { useLikes } from '../context/likesContext.jsx'
+import { useCart } from '../context/cartContext.jsx'
+import { useToast } from '../context/toastContext.jsx'
 import { escapeText, safeUrl } from '../utils/sanitize.js'
 
 export default function ProductCard({ product }) {
@@ -44,6 +44,7 @@ export default function ProductCard({ product }) {
                 <div className="absolute top-3 right-3 z-10">
                     <button 
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(product) }} 
+                        aria-label="Like"
                         className={`flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-110 shadow-sm ${liked ? 'bg-white/90 text-pink-500' : 'bg-white/70 text-slate-600 hover:bg-white hover:text-pink-500'}`}
                     >
                         <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />

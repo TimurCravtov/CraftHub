@@ -1,6 +1,6 @@
 import Header from '../component/Header.jsx'
 import ProductCard from '../component/ProductCard.jsx'
-import { useLikes } from '../likesContext.jsx'
+import { useLikes } from '../context/likesContext.jsx'
 import { safeUrl } from '../utils/sanitize.js'
 
 export default function Liked() {

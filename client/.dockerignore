@@ -1,0 +1,8 @@
+node_modules
+dist
+test-backend.html
+.env
+.git
+.idea
+Dockerfile
+docker-compose.yml

@@ -29,7 +29,8 @@ export function AuthApiProvider({ children }) {
                     name: auth.name, 
                     email: auth.email, 
                     accountType: auth.accountType,
-                    profilePictureLink: auth.profilePictureLink 
+                    profilePictureLink: auth.profilePictureLink,
+                    roles: auth.roles
                 };
             }
             return null;
@@ -50,7 +51,7 @@ export function AuthApiProvider({ children }) {
             try {
                 console.log("Attempting to refresh token...");
                 const res = await axios.post(
-                    "http://localhost:8080/api/auth/refresh",
+                    "/api/auth/refresh",
                     {},
                     { withCredentials: true }
                 );
@@ -85,7 +86,7 @@ export function AuthApiProvider({ children }) {
 
     const api = useMemo(() => {
         const instance = axios.create({
-            baseURL: "http://localhost:8080",  // Removed trailing slash
+            baseURL: "",  // Use relative paths
             withCredentials: true, // send cookies automatically
             timeout: 10000, // 10 second timeout
         });
@@ -136,7 +137,7 @@ export function AuthApiProvider({ children }) {
      */
     const login = useCallback(async (credentials) => {
         try {
-            const res = await api.post("/api/v1/auth/login", credentials, {
+            const res = await api.post("/api/auth/login", credentials, {
                 noAuth: true,
             });
 
@@ -151,7 +152,8 @@ export function AuthApiProvider({ children }) {
                 name: user.name,
                 email: user.email,
                 accountType: user.accountType,
-                profilePictureLink: user.profilePictureLink
+                profilePictureLink: user.profilePictureLink,
+                roles: user.roles
             }));
             
             return user;
@@ -175,7 +177,8 @@ export function AuthApiProvider({ children }) {
             name: userData?.name,
             email: userData?.email,
             accountType: userData?.accountType,
-            profilePictureLink: userData?.profilePictureLink
+            profilePictureLink: userData?.profilePictureLink,
+            roles: userData?.roles
         }));
     }, []);
 

@@ -86,6 +86,12 @@ public class AuthService {
             return userRepository.save(user);
         }
 
+        // Reload user from DB to ensure roles are loaded (FetchType.EAGER)
+        user = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User not found after OAuth"));
+        
+        System.out.println("=== OAuth: User " + user.getId() + " loaded with roles: " + user.getRoles());
+
         return user;
 
     }

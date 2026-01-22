@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Package, ChevronDown, ChevronUp, X } from 'lucide-react'
 import { useAuthApi } from '../context/apiAuthContext.jsx'
-import { useToast } from '../toastContext.jsx'
+import { useToast } from '../context/toastContext.jsx'
 
 export default function ManageOrdersContent() {
   const [orders, setOrders] = useState([])

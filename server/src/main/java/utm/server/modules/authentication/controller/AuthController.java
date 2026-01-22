@@ -14,6 +14,10 @@ import utm.server.modules.authentication.service.AuthService;
 import utm.server.modules.jwt.JwtTokenPair;
 import utm.server.modules.users.UserEntity;
 import utm.server.modules.users.UserRepository;
+import utm.server.modules.users.UserMapper;
+import utm.server.modules.users.dto.UserDto;
+import utm.server.modules.security.RateLimit;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,8 +30,10 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @PostMapping("/signup")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> signUp(@RequestBody UserSignUpDTO signUpDTO, HttpServletResponse response) {
         try {
             JwtTokenPair tokenPair = authService.signUp(signUpDTO);
@@ -46,6 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> signIn(@RequestBody UserSignInDTO signInDTO, HttpServletResponse response) {
         try {
             JwtTokenPair tokenPair = authService.signIn(signInDTO);
@@ -53,9 +60,14 @@ public class AuthController {
             // Set refresh token as HTTP-only cookie
             setRefreshTokenCookie(response, tokenPair.getRefreshToken());
 
-            // Only return access token in response body
-            Map<String, String> responseBody = new HashMap<>();
+            UserEntity userEntity = userRepository.findByEmail(signInDTO.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            UserDto userDto = userMapper.toDTO(userEntity);
+
+            // Return access token and user details
+            Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("accessToken", tokenPair.getAccessToken());
+            responseBody.put("user", userDto);
 
             return ResponseEntity.ok(responseBody);
         } catch (RuntimeException e) {
@@ -76,7 +88,14 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/login")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
+    public ResponseEntity<?> login(@RequestBody UserSignInDTO signInDTO, HttpServletResponse response) {
+        return signIn(signInDTO, response);
+    }
+
     @PostMapping("/me/enable-2fa")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> enableTwoFactorAuthentication(
             @RequestHeader("Authorization") String authHeader) {
         try {
@@ -92,6 +111,7 @@ public class AuthController {
     }
 
     @PostMapping("/me/confirm-2fa")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> confirmTwoFactorAuthentication(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody Map<String, String> request) {
@@ -110,6 +130,7 @@ public class AuthController {
     }
 
     @PostMapping("/me/disable-2fa")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> disableTwoFactorAuthentication(
             @RequestHeader("Authorization") String authHeader) {
         try {
@@ -126,6 +147,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify-2fa")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> verifyTwoFactor(@RequestBody Map<String, String> body) {
         try {
             Long userId = Long.parseLong(body.get("userId"));
@@ -141,6 +163,7 @@ public class AuthController {
     }
 
     @PutMapping("/update-user")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> updateUser(
             @RequestBody UpdateUserDTO request,
             @RequestHeader("Authorization") String authHeader) {
@@ -156,6 +179,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
             // Extract refresh token from cookies
@@ -192,6 +216,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @RateLimit(capacity = 10, refillTokens = 10, refillDuration = "PT1M")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         // Clear the refresh token cookie with SameSite attribute
         String cookieValue = "refreshToken=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict";

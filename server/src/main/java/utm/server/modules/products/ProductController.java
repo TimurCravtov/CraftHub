@@ -73,4 +73,18 @@ public class ProductController {
     public List<ProductDto> getProductsByShop(@PathVariable Long id){
         return productService.findProductsByShopId(id);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id, @AuthenticationPrincipal UserSecurityPrincipal user) {
+        try {
+            productService.deleteProduct(id, user);
+            return ResponseEntity.ok().build();
+        } catch (NoRightsException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorMessage(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorMessage(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+        }
+    }
 }

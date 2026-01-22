@@ -159,7 +159,7 @@ export default function Login() {
   }
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorization/google'
+    window.location.href = '/oauth2/authorization/google'
   }
 
   return (

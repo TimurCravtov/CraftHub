@@ -1,14 +1,18 @@
-export const redirectToOAuthProvider = (provider) => {
+export const redirectToOAuthProvider = (provider, googleClientId, googleRedirectUri) => {
 
-    const redirectUri = `http://localhost:5173/oauth/redirect/${provider}`;
+    // Use server-provided redirect URI if available, otherwise fallback to current origin
+    const redirectUri = googleRedirectUri || `${window.location.origin}/oauth/redirect/${provider}`;
 
     let authUrl = "";
 
     if (provider === "google") {
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "16503281538-a8j06a7mdhmrq46kb45ia24s4ttsisns.apps.googleusercontent.com";
-        console.log("clientId: ", clientId);
+        if (!googleClientId) {
+            console.error("Google Client ID is not available yet.");
+            return;
+        }
+        console.log("clientId: ", googleClientId);
         const scope = encodeURIComponent("openid email profile");
-        authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+        authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
     } else if (provider === "facebook") {
 
     }

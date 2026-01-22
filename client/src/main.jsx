@@ -13,21 +13,25 @@ import ShopPage from './pages/ShopPage.jsx'
 import ProductDetail from './pages/ProductDetail.jsx'
 import Liked from './pages/Liked.jsx'
 import Settings from './pages/Settings.jsx'
-import { LikesProvider } from './likesContext.jsx'
-import { CartProvider } from './cartContext.jsx'
+import { LikesProvider } from './context/likesContext.jsx'
+import { CartProvider } from './context/cartContext.jsx'
 import Cart from './pages/Cart.jsx'
-import { ToastProvider } from './toastContext.jsx'
+import { ToastProvider } from './context/toastContext.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Account from './pages/Account.jsx'
 import ManageShops from './pages/ManageShops.jsx'
+import ShopOrders from './pages/ShopOrders.jsx'
 import CreateShop from './pages/CreateShop.jsx'
 import NotFound from './pages/NotFound.jsx'
 import TooManyRequests from './pages/TooManyRequests.jsx'
 import { TranslationProvider, useTranslation } from './context/translationContext.jsx'
 import { SecurityProvider } from './context/securityContext.jsx'
+import { AppConfigProvider } from './context/appConfigContext.jsx'
 
 // 🔥 nou: redirect page pentru Google OAuth2
 import Oauth2Redirect from './pages/Oauth2Redirect.jsx'
+import AdminDashboard from './pages/AdminDashboard.jsx'
+import ProtectedRoute from './component/ProtectedRoute.jsx'
 import {AuthApiProvider} from "./context/apiAuthContext.jsx";
 
 function RedirectToLocale() {
@@ -45,24 +49,42 @@ const router = createBrowserRouter([
     element: <Signup />,
   },
   {
-    path: '/account',
-    element: <Account />,
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: '/account',
+        element: <Account />,
+      },
+      {
+        path: '/account/shops',
+        element: <ManageShops />,
+      },
+      {
+        path: '/account/shops/:shopId',
+        element: <Account />,
+      },
+      {
+        path: '/account/shops/:shopId/orders',
+        element: <ShopOrders />,
+      },
+      {
+        path: '/create-shop',
+        element: <CreateShop />,
+      },
+      {
+        path: '/edit-shop/:shopId',
+        element: <CreateShop />,
+      },
+    ]
   },
   {
-    path: '/account/shops',
-    element: <ManageShops />,
-  },
-  {
-    path: '/account/shops/:shopId',
-    element: <Account />,
-  },
-  {
-    path: '/create-shop',
-    element: <CreateShop />,
-  },
-  {
-    path: '/edit-shop/:shopId',
-    element: <CreateShop />,
+    element: <ProtectedRoute allowedRoles={['ROLE_ADMIN']} />,
+    children: [
+      {
+        path: '/admin/dashboard',
+        element: <AdminDashboard />,
+      },
+    ]
   },
   {
     path: '/oauth/redirect/:provider',
@@ -145,17 +167,19 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
     <StrictMode>
       <SecurityProvider>
-        <AuthApiProvider>
-          <TranslationProvider>
-            <LikesProvider>
-              <CartProvider>
-                <ToastProvider>
-                  <RouterProvider router={router} />
-                </ToastProvider>
-              </CartProvider>
-            </LikesProvider>
-          </TranslationProvider>
-        </AuthApiProvider>
+        <AppConfigProvider>
+          <AuthApiProvider>
+            <TranslationProvider>
+              <LikesProvider>
+                <CartProvider>
+                  <ToastProvider>
+                    <RouterProvider router={router} />
+                  </ToastProvider>
+                </CartProvider>
+              </LikesProvider>
+            </TranslationProvider>
+          </AuthApiProvider>
+        </AppConfigProvider>
       </SecurityProvider>
     </StrictMode>
 )

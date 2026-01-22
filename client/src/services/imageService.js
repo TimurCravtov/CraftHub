@@ -5,7 +5,7 @@ export async function uploadImage(file, { isPublic = true, isTemp = true } = {})
   formData.append('file', file)
   const qs = `?isPublic=${isPublic}&isTemp=${isTemp}`
   return apiRequest({
-    url: `/api/images/upload${qs}`,
+    url: `/images/upload${qs}`,
     method: 'POST',
     data: formData,
   })
@@ -13,7 +13,7 @@ export async function uploadImage(file, { isPublic = true, isTemp = true } = {})
 
 export async function confirmUploads(tempObjectKeys = []) {
   return apiRequest({
-    url: '/api/images/confirm_uploads',
+    url: '/images/confirm_uploads',
     method: 'POST',
     data: { tempObjectKeys }
   })
@@ -22,7 +22,7 @@ export async function confirmUploads(tempObjectKeys = []) {
 export async function getSignedUrl(objectKey) {
   if (!objectKey) return null
   try {
-    const res = await apiRequest({ url: `/api/images/signed?objectKey=${encodeURIComponent(objectKey)}`, method: 'GET' })
+    const res = await apiRequest({ url: `/images/signed?objectKey=${encodeURIComponent(objectKey)}`, method: 'GET' })
     return res?.url || res?.signedUrl || res?.link || null
   } catch (err) {
     console.warn('getSignedUrl failed for', objectKey, err)

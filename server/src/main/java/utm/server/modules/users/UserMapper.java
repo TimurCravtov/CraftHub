@@ -26,6 +26,8 @@ public class UserMapper {
                 .profilePictureLink(profilePictureLink)
                 .accountType(user.getAccountType())
                 .twoFactorEnabled(user.isTwoFactorEnabled())
+                .banned(user.isBanned())
+                .roles(user.getRoles().stream().map(RoleEntity::getName).toList())
                 .build();
     }
 

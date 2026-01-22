@@ -1,5 +1,5 @@
 import Header from '../component/Header.jsx'
-import { useCart } from '../cartContext.jsx'
+import { useCart } from '../context/cartContext.jsx'
 import { Trash, Minus, Plus, ShoppingBag, ArrowRight, Store } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
